@@ -34,6 +34,14 @@ func increase_balance{
     return ()
 end
 
+@external
+func set_balance{
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
+        range_check_ptr}(_balance : felt):
+    balance.write(_balance)
+    return ()
+end
+
 @view
 func increase_balance_with_even{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*,

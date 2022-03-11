@@ -19,7 +19,6 @@ module.exports = {
     'no-undef': ['off'],
     'max-len': ['off'],
     'import/no-extraneous-dependencies': ['off'],
-    'no-console': ['off'],
-    semi: ['error', 'never'],
+    'no-console': ['off']
   },
 }
