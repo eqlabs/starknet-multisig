@@ -17,8 +17,16 @@ describe("Starknet", function () {
   let publicKey: string;
 
   before(async function() {
+    account = await starknet.deployAccountFromABI("Account", "OpenZeppelin");
+    accountAddress = account.starknetContract.address;
+    privateKey = account.privateKey;
+    publicKey = account.publicKey;
+
     let multisigFactory = await starknet.getContractFactory("MultiSig");
-    multisig = await multisigFactory.deploy({ initial_balance: 0 });
+    multisig = await multisigFactory.deploy({ 
+      owners: [number.toBN(accountAddress)],
+      confirmations_required: 1
+     });
 
     contractFactory = await starknet.getContractFactory("contract");
     console.log("Started deployment");
@@ -26,29 +34,27 @@ describe("Starknet", function () {
     
     console.log("Deployed at", contract.address);
 
-    account = await starknet.deployAccountFromABI("Account", "OpenZeppelin");
-    accountAddress = account.starknetContract.address;
-    privateKey = account.privateKey;
-    publicKey = account.publicKey;
+
     console.log("Deployed account at address:", account.starknetContract.address);
     console.log("Private and public key:", privateKey, publicKey);
   });
 
-  it("blah", async function() {
-    console.log('addr', accountAddress, number.toBN(accountAddress));
- 
-    //const add = starknet.shortStringToBigInt(accountAddress);
-    //console.log('add', add);
+  it("transaction submit works", async function() {
     const selector = stark.getSelectorFromName("increase_balance");
     const payload = { 
-      to: number.toBN(accountAddress),
-      selector: number.toBN(selector),
-      //calldata_len: 1,
-      calldata: [5],
-      nonce: 3
+      to: number.toBN(contract.address),
+      function_selector: number.toBN(selector),
+      calldata: [5]
     };
-    const { res } = await account.call(multisig, "store", payload);
+    await account.invoke(multisig, "submit_transaction", payload);
+    await account.invoke(multisig, "get_transactions_len", {});
+
+    await account.invoke(multisig, "confirm_transaction", { tx_index: 0n });
+    console.log('starting execute');
+    const res3 = await account.invoke(multisig, "execute_transaction", { tx_index: 0n });
   });
+
+  
 
 /* 
   it("should load an already deployed account with the correct private key", async function() {
