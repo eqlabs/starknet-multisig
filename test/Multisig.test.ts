@@ -10,7 +10,7 @@ import {
 import { number, stark } from "starknet";
 
 describe("Starknet", function () {
-  this.timeout(900_000);
+  this.timeout(300_000);
 
   let contractFactory: StarknetContractFactory;
   let contract: StarknetContract;
@@ -21,7 +21,7 @@ describe("Starknet", function () {
   let privateKey: string;
   let publicKey: string;
 
-  let txIndex = -1; // faster to track this internally, than to request from contract
+  let txIndex = -1; // faster to track this internally than to request from contract
 
   before(async function () {
     account = await starknet.deployAccount("OpenZeppelin");
@@ -37,7 +37,7 @@ describe("Starknet", function () {
 
     contractFactory = await starknet.getContractFactory("contract");
     console.log("Started deployment");
-    contract = await contractFactory.deploy({ initial_balance: 0 });
+    contract = await contractFactory.deploy();
 
     console.log("Deployed target contract at", contract.address);
     console.log(
@@ -92,5 +92,50 @@ describe("Starknet", function () {
 
     const bal = await contract.call("get_balance");
     expect(bal.res).to.equal(6n);
+  });
+
+  it("transaction with complex arguments work", async function () {
+    txIndex++;
+
+    const selector = number.toBN(stark.getSelectorFromName("complex_inputs"));
+    const target = number.toBN(contract.address);
+    const simpleArray = [1, 2, 3];
+    const structArrayData = [
+      { first: 4, second: 5 },
+      { first: 6, second: 7 },
+    ];
+    let empty: any[] = [];
+    var structArray = empty.concat(
+      ...structArrayData.map((i) => Object.values(i))
+    );
+
+    // Calldata has 1) a simple number array 2) an array with struct elements containing numbers
+    const calldata = [
+      simpleArray.length,
+      ...simpleArray,
+      structArrayData.length,
+      ...structArray,
+    ];
+    const payload = {
+      to: target,
+      function_selector: selector,
+      calldata: calldata,
+    };
+
+    await account.invoke(multisig, "submit_transaction", payload);
+    await account.invoke(multisig, "confirm_transaction", {
+      tx_index: txIndex,
+    });
+    await account.invoke(multisig, "execute_transaction", {
+      tx_index: txIndex,
+    });
+
+    const bal = await contract.call("getArraySum");
+    const sum = simpleArray
+      .concat(Object.values(structArrayData[0]))
+      .concat(Object.values(structArrayData[1]))
+      .reduce((a, b) => a + b, 0);
+
+    expect(bal.res).to.equal(BigInt(sum));
   });
 });
