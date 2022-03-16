@@ -365,8 +365,6 @@ func submit_transaction{
     _transactions.write(tx_index=tx_index, field=Transaction.to, value=to)
     _transactions.write(tx_index=tx_index, field=Transaction.function_selector, value=function_selector)
     _transactions.write(tx_index=tx_index, field=Transaction.calldata_len, value=calldata_len)
-    # transactions[tx_index].executed = FALSE
-    # transactions[tx_index].num_confirmations = 0
 
     # Recursively store the tx calldata
     _set_transaction_calldata(

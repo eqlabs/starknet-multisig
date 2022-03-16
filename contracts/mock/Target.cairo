@@ -1,5 +1,7 @@
 %lang starknet
 
+## A mock target contract for testing multisig functionality
+
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_tx_signature
 from starkware.cairo.common.math import unsigned_div_rem
