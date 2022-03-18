@@ -32,18 +32,20 @@ In near future we'll get here:
 
 ## Usage
 
+Recommended operating system is Ubuntu. If on Windows, use WSL2.
+
 ```
-python3.7 -m venv venv
-source venv/bin/activate
+yarn
+python3.7 -m venv .venv
+source ./.venv/bin/activate
+python -m pip install cairo-nile
+python -m pip install starknet-devnet
+
 ```
 
 Inside the virtual environment:
 
-- Make sure you have `npm` installed
-- Install components required by the links above
-- Install packages through `npm i`.
-
-After that, run the _devnet_ in one tab and run the unit tests in another tab with `npx hardhat test`.
+After that, run the _devnet_ in one tab (`starknet-devnet`) and run the unit tests in another tab with `npx hardhat test`.
 
 ## Acknowledgements
 
