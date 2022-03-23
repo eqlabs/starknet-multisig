@@ -18,7 +18,7 @@ The current version is a very preliminary version. This version consists of thre
 
 The current version supports only on-chain multi-signatures. The multisig is a separate contract, which is called through your regular account contract (wallet).
 
-Check the folders `frontend` and `contracts` for more information.
+Check the folders <a href='frontend/README.md'>frontend</a> and <a href='contracts/README.md'>contract</a> for more information.
 
 ## Usage
 
