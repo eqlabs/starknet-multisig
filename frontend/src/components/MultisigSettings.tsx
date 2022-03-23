@@ -65,9 +65,9 @@ export function MultisigSettings() {
   const submit = async () => {
     await submitTransaction({
       args: [
-        "0x05bac2320c9c3a5417d65f525f1e3de4602db12549a31386e5c9a2941853330a", // address of Target in alpha
+        "0x05bac2320c9c3a5417d65f525f1e3de4602db12549a31386e5c9a2941853330a", // address of Target in alpha network
         "0x3a08f483ebe6c7533061acfc5f7c1746482621d16cff4c2c35824dec4181fa6", // selector of "set_balance" function
-        [19],
+        [42],
       ],
     });
   };
@@ -125,8 +125,9 @@ export function MultisigSettings() {
       </div>
       {/* <button onClick={() => invoke({ args: ["0x1"] })}>Send</button> */}
       <div>
-        <div>See transaction count</div>
-        <div>{multisigTransactionCount?.toString()}</div>
+        <div>
+          Multisig transaction count: {multisigTransactionCount?.toString()}
+        </div>
         <div>
           <button onClick={submit}>Submit a new transaction</button>
           <button onClick={confirm}>Confirm the latest transaction</button>
