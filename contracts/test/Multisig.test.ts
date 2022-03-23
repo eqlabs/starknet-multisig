@@ -54,6 +54,7 @@ describe("Multisig with single owner", function () {
       txIndex++;
 
       const selector = number.toBN(stark.getSelectorFromName("set_balance"));
+      console.log("sel", selector, selector.toString());
       const target = number.toBN(targetContract.address);
       const payload = {
         to: target,

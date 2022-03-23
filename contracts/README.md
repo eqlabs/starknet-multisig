@@ -10,7 +10,7 @@ Multi-signature functionality for StarkNet.
 
 ## Current preliminary version
 
-The current version is a preliminary version without a user interface. This version consists of two pieces:
+The current version is a very preliminary version. This version consists of two pieces:
 
 - Cairo contract code, with an OpenZeppelin account contract
 - Unit tests for testing all the multisig functionality
