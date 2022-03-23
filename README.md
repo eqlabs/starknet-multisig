@@ -38,6 +38,8 @@ In near future we'll get here:
 
 ### Multisig implementation options
 
+The current implementation uses Option 1 in the following image. Option 2 is in our roadmap for near future.
+
 <img src="multisig_options.png" alt="options" width="800"/>
 
 ## Fluffy stuff
