@@ -4,14 +4,32 @@ import {
   useStarknetInvoke,
 } from "@starknet-react/core";
 import React, { useEffect, useState } from "react";
-import { useCounterContract } from "~/hooks/counter";
+import { useContractFactory } from "~/hooks/deploy";
 import { useMultisigContract } from "~/hooks/multisigContractHook";
+import MultisigSource from "../contracts/MultiSig.json";
+import TargetSource from "../contracts/Target.json";
+import { Abi, CompiledContract, Contract } from "starknet";
 const BN = require("bn.js");
 
 export function MultisigSettings() {
   const { account } = useStarknet();
 
   const { contract: multisig } = useMultisigContract();
+
+  const compiled = TargetSource as CompiledContract;
+  const artifact = useContractFactory({
+    compiledContract: compiled,
+    abi: TargetSource.abi as Abi,
+  });
+
+  let waiting: Contract | undefined;
+  const deploy = async () => {
+    waiting = await artifact.deploy({
+      constructorCalldata: [],
+      //addressSalt: "",
+    });
+  };
+  console.log("deploy", waiting);
 
   const {
     data: submitTransactionData,
@@ -45,6 +63,7 @@ export function MultisigSettings() {
 
   useEffect(() => {
     const emptyOwners = [...Array(totalAmount).keys()].map((item) => "");
+    emptyOwners[0] = account ?? "";
     setOwners(emptyOwners);
   }, [totalAmount]);
 
@@ -87,7 +106,7 @@ export function MultisigSettings() {
   return (
     <div>
       <div>
-        {/* Threshold:{" "}
+        Threshold:{" "}
         <select
           onChange={(e) => {
             onThresholdChange(e.target.value);
@@ -121,7 +140,8 @@ export function MultisigSettings() {
               ></input>
             </div>
           );
-        })} */}
+        })}
+        <button onClick={deploy}>Deploy multisig</button>
       </div>
       {/* <button onClick={() => invoke({ args: ["0x1"] })}>Send</button> */}
       <div>

@@ -6,6 +6,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
+    "compile": "npx hardhat starknet-compile && npx hardhat run scripts/copyContractsToFrontend.ts",
     "deploy:multisig": "npx hardhat starknet-deploy --starknet-network devnet ./starknet-artifacts/contracts/MultiSig.cairo --inputs \"1 0x5aca08c8e5e5bccfe3a83df289887c619eebbececa111f4ef79d9419fd16bcf 1\"",
     "deploy:target": "npx hardhat starknet-deploy --starknet-network devnet ./starknet-artifacts/contracts/mock/Target.cairo"
   },

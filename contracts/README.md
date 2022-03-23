@@ -36,7 +36,7 @@ After that, run the _devnet_ in one tab (`starknet-devnet`) and run the unit tes
 
 Instructions how to deploy this to Goerli alpha network:
 
-1. Compile all contracts: `npx hardhat starknet-compile`
+1. Compile all contracts: `npm run compile`
 1. Deploy an account contract: `npx hardhat starknet-deploy-account --starknet-network alpha --wallet OpenZeppelin --wait`
 1. Deploy the target contract: `npx hardhat starknet-deploy --starknet-network alpha ./starknet-artifacts/contracts/mock/Target.cairo --wait`
 1. Deploy the multisig. Remember to change the parameter to be your own account (in ArgentX if testing through UI): `npx hardhat starknet-deploy --starknet-network alpha ./starknet-artifacts/contracts/MultiSig.cairo --inputs "1 0x011833a87cdffb58c2bde4af8708f16c744656666ff97506fd302a7bbd56d27f 1" --wait`
