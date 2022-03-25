@@ -1,3 +1,7 @@
+import {
+  useStarknet,
+  useStarknetTransactionManager,
+} from "@starknet-react/core";
 import { useCallback, useEffect, useState } from "react";
 import {
   Abi,
@@ -8,10 +12,6 @@ import {
   RawCalldata,
 } from "starknet";
 import { BigNumberish } from "starknet/dist/utils/number";
-import {
-  useStarknetTransactionManager,
-  useStarknet,
-} from "@starknet-react/core";
 
 interface UseContractFactoryArgs {
   compiledContract?: CompiledContract;
@@ -29,6 +29,7 @@ interface UseContractFactory {
     constructorCalldata,
     addressSalt,
   }: DeployArgs) => Promise<Contract | undefined>;
+  contract?: Contract;
 }
 
 export function useContractFactory({
@@ -38,6 +39,7 @@ export function useContractFactory({
   const { library } = useStarknet();
   const { addTransaction } = useStarknetTransactionManager();
   const [factory, setFactory] = useState<ContractFactory | undefined>();
+  const [contract, setContract] = useState<Contract | undefined>();
 
   useEffect(() => {
     if (compiledContract) {
@@ -45,16 +47,23 @@ export function useContractFactory({
         new ContractFactory(compiledContract, library as Provider, abi)
       );
     }
-  }, [compiledContract, abi, library]);
+  }, [compiledContract, library, abi]);
 
   const deploy = useCallback(
     async ({ constructorCalldata, addressSalt }: DeployArgs) => {
       if (factory) {
+        console.log(
+          "calldata",
+          constructorCalldata,
+          constructorCalldata[0]?.toString(),
+          constructorCalldata[1]?.toString()
+        );
         const contract = await factory.deploy(constructorCalldata, addressSalt);
         addTransaction({
           status: "TRANSACTION_RECEIVED",
           transactionHash: contract.deployTransactionHash ?? "",
         });
+        setContract(contract);
         return contract;
       }
       return undefined;
@@ -62,5 +71,5 @@ export function useContractFactory({
     [factory]
   );
 
-  return { factory, deploy };
+  return { factory, contract, deploy };
 }

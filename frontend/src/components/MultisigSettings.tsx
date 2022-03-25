@@ -2,34 +2,121 @@ import {
   useStarknet,
   useStarknetCall,
   useStarknetInvoke,
+  useStarknetTransactionManager,
 } from "@starknet-react/core";
 import React, { useEffect, useState } from "react";
 import { useContractFactory } from "~/hooks/deploy";
 import { useMultisigContract } from "~/hooks/multisigContractHook";
 import MultisigSource from "../contracts/MultiSig.json";
-import TargetSource from "../contracts/Target.json";
-import { Abi, CompiledContract, Contract } from "starknet";
+import {
+  Abi,
+  CompiledContract,
+  Contract,
+  ContractFactory,
+  json,
+  Provider,
+} from "starknet";
+//import fs from "fs";
+import { number, stark } from "starknet";
+
 const BN = require("bn.js");
 
 export function MultisigSettings() {
-  const { account } = useStarknet();
+  const { account, library } = useStarknet();
 
   const { contract: multisig } = useMultisigContract();
+  const { addTransaction } = useStarknetTransactionManager();
 
-  const compiled = TargetSource as CompiledContract;
-  const artifact = useContractFactory({
+  const [threshold, setThreshold] = useState<number>();
+  const [totalAmount, setTotalAmount] = useState<number>(3);
+  const [owners, setOwners] = useState<string[]>([]);
+  const [deployedContractAddress, setDeployedContractAddress] =
+    useState<string>("");
+
+  /*   const { deploy, contract } = useContractFactory({
     compiledContract: compiled,
-    abi: TargetSource.abi as Abi,
-  });
+    abi: MultisigSource.abi as Abi,
+  }); */
 
-  let waiting: Contract | undefined;
-  const deploy = async () => {
-    waiting = await artifact.deploy({
-      constructorCalldata: [],
-      //addressSalt: "",
+  const oldDeploy = async () => {};
+
+  //console.log("num", num, num.toString());
+  const num = number.toBN(
+    "0x0559696814f4bb15744dfcb98330f8db2f26e02706fbf8ae11b985995abd9ee7"
+  );
+  //const stringified = JSON.stringify(MultisigSource);
+  //console.log("long", stringified);
+
+  //console.log("dompile", compiled);
+  //  console.log("contract len",
+  const onDeploy = async () => {
+    const raw = await fetch("/MultiSig.json");
+    //const compiled = MultisigSource as CompiledContract;
+    const compiled = json.parse(
+      //fs.readFileSync("~/src/contracts/MultiSig.json").toString("ascii")
+      await raw.text()
+    );
+
+    const fact = new ContractFactory(
+      compiled,
+      library as Provider,
+      compiled.abi
+    );
+    const factDeploy = await fact.deploy([1, num]);
+    addTransaction({
+      status: "TRANSACTION_RECEIVED",
+      transactionHash: factDeploy.deployTransactionHash ?? "",
     });
+    console.log("fact", factDeploy.address, factDeploy.deployTransactionHash);
+    /*     await deploy({
+      constructorCalldata: ["1", num],
+    });
+
+    await deploy({
+      constructorCalldata: [number.toBN(1), new BN(num)],
+    });
+ */
+
+    /* 
+    await deploy({
+      constructorCalldata: [[num, 1]],
+    });
+    await deploy({
+      constructorCalldata: [1, num, 1],
+    });
+    await deploy({
+      constructorCalldata: [1, [num], 1],
+    }); */
+    /* 
+    await deploy({
+      constructorCalldata: [number.toBN(1), new BN(num)],
+    }); */
+
+    /*     await deploy({
+      constructorCalldata: [number.toBN(1), num.toString(), number.toBN(1)],
+    });
+    await deploy({
+      constructorCalldata: [number.toBN(1), num, number.toBN(1)], 
+    }); */
   };
-  console.log("deploy", waiting);
+
+  useEffect(() => {
+    const emptyOwners = [...Array(totalAmount).keys()].map((item) => "");
+    emptyOwners[0] = account ?? "";
+    setOwners(emptyOwners);
+  }, [totalAmount]);
+
+  /*   useEffect(() => {
+    if (contract && contract.address) {
+      console.log(
+        "got address",
+        contract.address,
+        "hash",
+        contract.deployTransactionHash
+      );
+      setDeployedContractAddress(contract.address);
+    }
+  }, [contract]); */
 
   const {
     data: submitTransactionData,
@@ -56,16 +143,6 @@ export function MultisigSettings() {
   });
 
   const latestTxIndex = new BN(multisigTransactionCount).toNumber() - 1;
-
-  const [threshold, setThreshold] = useState<number>();
-  const [totalAmount, setTotalAmount] = useState<number>(3);
-  const [owners, setOwners] = useState<string[]>([]);
-
-  useEffect(() => {
-    const emptyOwners = [...Array(totalAmount).keys()].map((item) => "");
-    emptyOwners[0] = account ?? "";
-    setOwners(emptyOwners);
-  }, [totalAmount]);
 
   const onThresholdChange = (value: string) => {
     setThreshold(+value);
@@ -141,7 +218,8 @@ export function MultisigSettings() {
             </div>
           );
         })}
-        <button onClick={deploy}>Deploy multisig</button>
+        <button onClick={onDeploy}>Deploy multisig</button>
+        Contract address: {deployedContractAddress}
       </div>
       {/* <button onClick={() => invoke({ args: ["0x1"] })}>Send</button> */}
       <div>

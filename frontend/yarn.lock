@@ -1609,7 +1609,7 @@ source-map-js@^1.0.1:
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.0.2.tgz#adbc361d9c62df380125e7f161f71c826f1e490c"
   integrity sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==
 
-starknet@^3.5:
+starknet@^3.5.1:
   version "3.5.1"
   resolved "https://registry.yarnpkg.com/starknet/-/starknet-3.5.1.tgz#b51fc89105235e14a71a576c60db5034e51d9734"
   integrity sha512-iFmdx2FF16x1hItQysMVRvCQr2VYEp+WBfSk5c3VAyDI22HIa+5Zh3p9S6Q9YL2eLKJK8Ys/b2fRmeTPtnxHTw==
