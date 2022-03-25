@@ -333,13 +333,15 @@ func constructor{
     }(
         owners_len : felt,
         owners : felt*,
-        
+        confirmations_required : felt,
     ):
-    
+    with_attr error_message("invalid number of required confirmations"):
+        assert_le(confirmations_required, owners_len)
+    end
 
     _owners_len.write(value=owners_len)
     _set_owners(owners_index=0, owners_len=owners_len, owners=owners)
-    
+    _confirmations_required.write(value=confirmations_required)
     return ()
 end
 

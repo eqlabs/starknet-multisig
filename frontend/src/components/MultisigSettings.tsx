@@ -7,7 +7,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { useContractFactory } from "~/hooks/deploy";
 import { useMultisigContract } from "~/hooks/multisigContractHook";
-import MultisigSource from "../contracts/MultiSig.json";
+import MultisigSource from "../../public/MultiSig.json";
 import {
   Abi,
   CompiledContract,
@@ -21,8 +21,22 @@ import { number, stark } from "starknet";
 
 const BN = require("bn.js");
 
-export function MultisigSettings() {
+interface Props {
+  //thing: string;
+}
+
+export function MultisigSettings(props: Props) {
   const { account, library } = useStarknet();
+
+  const getCompiled = async () => {
+    const raw = await fetch("/MultiSig.json");
+    //const compiled = MultisigSource as CompiledContract;
+    const compiled = json.parse(
+      //fs.readFileSync("~/src/contracts/MultiSig.json").toString("ascii")
+      await raw.text()
+    );
+    return compiled;
+  };
 
   const { contract: multisig } = useMultisigContract();
   const { addTransaction } = useStarknetTransactionManager();
@@ -33,71 +47,35 @@ export function MultisigSettings() {
   const [deployedContractAddress, setDeployedContractAddress] =
     useState<string>("");
 
-  /*   const { deploy, contract } = useContractFactory({
-    compiledContract: compiled,
-    abi: MultisigSource.abi as Abi,
-  }); */
-
-  const oldDeploy = async () => {};
-
-  //console.log("num", num, num.toString());
   const num = number.toBN(
     "0x0559696814f4bb15744dfcb98330f8db2f26e02706fbf8ae11b985995abd9ee7"
   );
-  //const stringified = JSON.stringify(MultisigSource);
-  //console.log("long", stringified);
 
-  //console.log("dompile", compiled);
-  //  console.log("contract len",
+  //const compiled = getCompiled();
+
+  const [compiled, setCompiled] = useState();
+
+  useEffect(() => {
+    if (!compiled) {
+      getCompiled().then(setCompiled);
+    }
+  }, []);
+
+  const { deploy, contract, factory } = useContractFactory({
+    compiledContract: compiled,
+    abi: MultisigSource.abi as Abi,
+  });
+
   const onDeploy = async () => {
-    const raw = await fetch("/MultiSig.json");
-    //const compiled = MultisigSource as CompiledContract;
-    const compiled = json.parse(
-      //fs.readFileSync("~/src/contracts/MultiSig.json").toString("ascii")
-      await raw.text()
-    );
-
-    const fact = new ContractFactory(
-      compiled,
-      library as Provider,
-      compiled.abi
-    );
-    const factDeploy = await fact.deploy([1, num]);
-    addTransaction({
-      status: "TRANSACTION_RECEIVED",
-      transactionHash: factDeploy.deployTransactionHash ?? "",
-    });
-    console.log("fact", factDeploy.address, factDeploy.deployTransactionHash);
-    /*     await deploy({
-      constructorCalldata: ["1", num],
-    });
-
-    await deploy({
-      constructorCalldata: [number.toBN(1), new BN(num)],
-    });
- */
-
-    /* 
-    await deploy({
-      constructorCalldata: [[num, 1]],
-    });
-    await deploy({
-      constructorCalldata: [1, num, 1],
-    });
-    await deploy({
-      constructorCalldata: [1, [num], 1],
-    }); */
-    /* 
-    await deploy({
-      constructorCalldata: [number.toBN(1), new BN(num)],
-    }); */
-
-    /*     await deploy({
-      constructorCalldata: [number.toBN(1), num.toString(), number.toBN(1)],
-    });
-    await deploy({
-      constructorCalldata: [number.toBN(1), num, number.toBN(1)], 
-    }); */
+    if (factory) {
+      const bnOwners = owners.map((o) => number.toBN(o));
+      const deployment = await deploy({
+        constructorCalldata: [bnOwners.length, ...bnOwners, threshold],
+      });
+      if (deployment) {
+        setDeployedContractAddress(deployment.address);
+      }
+    }
   };
 
   useEffect(() => {
@@ -105,18 +83,6 @@ export function MultisigSettings() {
     emptyOwners[0] = account ?? "";
     setOwners(emptyOwners);
   }, [totalAmount]);
-
-  /*   useEffect(() => {
-    if (contract && contract.address) {
-      console.log(
-        "got address",
-        contract.address,
-        "hash",
-        contract.deployTransactionHash
-      );
-      setDeployedContractAddress(contract.address);
-    }
-  }, [contract]); */
 
   const {
     data: submitTransactionData,

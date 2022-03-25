@@ -52,12 +52,6 @@ export function useContractFactory({
   const deploy = useCallback(
     async ({ constructorCalldata, addressSalt }: DeployArgs) => {
       if (factory) {
-        console.log(
-          "calldata",
-          constructorCalldata,
-          constructorCalldata[0]?.toString(),
-          constructorCalldata[1]?.toString()
-        );
         const contract = await factory.deploy(constructorCalldata, addressSalt);
         addTransaction({
           status: "TRANSACTION_RECEIVED",
