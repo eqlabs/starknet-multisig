@@ -8,6 +8,7 @@ import React, { useEffect, useState } from "react";
 import { useContractFactory } from "~/hooks/deploy";
 import { useMultisigContract } from "~/hooks/multisigContractHook";
 import MultisigSource from "../../public/MultiSig.json";
+import TargetSource from "../../public/Target.json";
 import {
   Abi,
   CompiledContract,
@@ -16,67 +17,81 @@ import {
   json,
   Provider,
 } from "starknet";
-//import fs from "fs";
 import { number, stark } from "starknet";
+import { useTargetContract } from "~/hooks/targetContractHook";
 
-const BN = require("bn.js");
-
-interface Props {
-  //thing: string;
-}
-
-export function MultisigSettings(props: Props) {
-  const { account, library } = useStarknet();
-
-  const getCompiled = async () => {
-    const raw = await fetch("/MultiSig.json");
-    //const compiled = MultisigSource as CompiledContract;
-    const compiled = json.parse(
-      //fs.readFileSync("~/src/contracts/MultiSig.json").toString("ascii")
-      await raw.text()
-    );
-    return compiled;
-  };
-
-  const { contract: multisig } = useMultisigContract();
-  const { addTransaction } = useStarknetTransactionManager();
+export function MultisigSettings() {
+  const { account } = useStarknet();
 
   const [threshold, setThreshold] = useState<number>();
   const [totalAmount, setTotalAmount] = useState<number>(3);
   const [owners, setOwners] = useState<string[]>([]);
-  const [deployedContractAddress, setDeployedContractAddress] =
+  const [deployedMultisigAddress, setDeployedMultisigAddress] =
     useState<string>("");
+  const [deployedTargetAddress, setDeployedTargetAddress] =
+    useState<string>("");
+  const [deployedMultisigHash, setDeployedMultisigHash] = useState<string>("");
+  const [deployedTargetHash, setDeployedTargetHash] = useState<string>("");
+  const [targetBalance, setTargetBalance] = useState<number>(42);
 
-  const num = number.toBN(
-    "0x0559696814f4bb15744dfcb98330f8db2f26e02706fbf8ae11b985995abd9ee7"
+  const [compiledMultisig, setCompiledMultisig] = useState<CompiledContract>();
+  const [compiledTarget, setCompiledTarget] = useState<CompiledContract>();
+
+  const { contract: multisigContract } = useMultisigContract(
+    deployedMultisigAddress
   );
+  const { contract: targetContract } = useTargetContract(deployedTargetAddress);
 
-  //const compiled = getCompiled();
-
-  const [compiled, setCompiled] = useState();
-
-  useEffect(() => {
-    if (!compiled) {
-      getCompiled().then(setCompiled);
-    }
-  }, []);
-
-  const { deploy, contract, factory } = useContractFactory({
-    compiledContract: compiled,
+  const { deploy: deployMultisig } = useContractFactory({
+    compiledContract: compiledMultisig,
     abi: MultisigSource.abi as Abi,
   });
+  const { deploy: deployTarget } = useContractFactory({
+    compiledContract: compiledTarget,
+    abi: TargetSource.abi as Abi,
+  });
 
-  const onDeploy = async () => {
-    if (factory) {
-      const bnOwners = owners.map((o) => number.toBN(o));
-      const deployment = await deploy({
-        constructorCalldata: [bnOwners.length, ...bnOwners, threshold],
-      });
-      if (deployment) {
-        setDeployedContractAddress(deployment.address);
-      }
+  const {
+    data: submitTransactionData,
+    loading: submitTransactionLoading,
+    error: submitTransactionError,
+    invoke: submitTransaction,
+  } = useStarknetInvoke({
+    contract: multisigContract,
+    method: "submit_transaction",
+  });
+
+  console.log(
+    "data",
+    submitTransactionData,
+    submitTransactionError,
+    submitTransactionLoading
+  );
+
+  const { invoke: confirmTransaction } = useStarknetInvoke({
+    contract: multisigContract,
+    method: "confirm_transaction",
+  });
+
+  const { invoke: executeTransaction } = useStarknetInvoke({
+    contract: multisigContract,
+    method: "execute_transaction",
+  });
+
+  const { data: multisigTransactionCount } = useStarknetCall({
+    contract: multisigContract,
+    method: "get_transactions_len",
+    args: [],
+  });
+
+  useEffect(() => {
+    if (!compiledMultisig) {
+      getCompiledMultisig().then(setCompiledMultisig);
     }
-  };
+    if (!compiledTarget) {
+      getCompiledTarget().then(setCompiledTarget);
+    }
+  }, []);
 
   useEffect(() => {
     const emptyOwners = [...Array(totalAmount).keys()].map((item) => "");
@@ -84,31 +99,51 @@ export function MultisigSettings(props: Props) {
     setOwners(emptyOwners);
   }, [totalAmount]);
 
-  const {
-    data: submitTransactionData,
-    loading: submitTransactionLoading,
-    error: submitTransactionError,
-    reset,
-    invoke: submitTransaction,
-  } = useStarknetInvoke({ contract: multisig, method: "submit_transaction" });
+  const getCompiledMultisig = async () => {
+    // Can't import the JSON directly due to a bug in StarkNet: https://github.com/0xs34n/starknet.js/issues/104
+    // (even if the issue is closed, the underlying Starknet issue remains)
+    const raw = await fetch("/MultiSig.json");
+    const compiled = json.parse(await raw.text());
+    return compiled;
+  };
 
-  const { invoke: confirmTransaction } = useStarknetInvoke({
-    contract: multisig,
-    method: "confirm_transaction",
-  });
+  const getCompiledTarget = async () => {
+    // Can't import the JSON directly due to a bug in StarkNet: https://github.com/0xs34n/starknet.js/issues/104
+    // (even if the issue is closed, the underlying Starknet issue remains)
+    const raw = await fetch("/Target.json");
+    const compiled = json.parse(await raw.text());
+    return compiled;
+  };
 
-  const { invoke: executeTransaction } = useStarknetInvoke({
-    contract: multisig,
-    method: "execute_transaction",
-  });
+  const onDeploy = async () => {
+    const _deployMultisig = async () => {
+      const bnOwners = owners.map((o) => number.toBN(o));
+      const deployment = await deployMultisig({
+        constructorCalldata: [bnOwners.length, ...bnOwners, threshold],
+      });
+      if (deployment) {
+        setDeployedMultisigAddress(deployment.address);
+        if (deployment.deployTransactionHash) {
+          setDeployedMultisigHash(deployment.deployTransactionHash);
+        }
+      }
+    };
+    const _deployTarget = async () => {
+      const deployment = await deployTarget({
+        constructorCalldata: [],
+      });
+      if (deployment) {
+        setDeployedTargetAddress(deployment.address);
+        if (deployment.deployTransactionHash) {
+          setDeployedTargetHash(deployment.deployTransactionHash);
+        }
+      }
+    };
+    await _deployTarget();
+    await _deployMultisig();
+  };
 
-  const { data: multisigTransactionCount } = useStarknetCall({
-    contract: multisig,
-    method: "get_transactions_len",
-    args: [],
-  });
-
-  const latestTxIndex = new BN(multisigTransactionCount).toNumber() - 1;
+  const latestTxIndex = number.toBN(multisigTransactionCount).toNumber() - 1;
 
   const onThresholdChange = (value: string) => {
     setThreshold(+value);
@@ -129,7 +164,7 @@ export function MultisigSettings(props: Props) {
       args: [
         "0x05bac2320c9c3a5417d65f525f1e3de4602db12549a31386e5c9a2941853330a", // address of Target in alpha network
         "0x3a08f483ebe6c7533061acfc5f7c1746482621d16cff4c2c35824dec4181fa6", // selector of "set_balance" function
-        [42],
+        [9],
       ],
     });
   };
@@ -158,6 +193,7 @@ export function MultisigSettings(props: Props) {
         >
           <option value="1">1</option>
           <option value="2">2</option>
+          <option value="3">3</option>
         </select>
         Total:{" "}
         <select
@@ -185,18 +221,45 @@ export function MultisigSettings(props: Props) {
           );
         })}
         <button onClick={onDeploy}>Deploy multisig</button>
-        Contract address: {deployedContractAddress}
+        <div>
+          <div>
+            Multisig contract address: {deployedMultisigAddress} with tx hash:{" "}
+            {deployedMultisigHash}
+          </div>
+          <div>
+            Target contract address: {deployedTargetAddress} with tx hash:{" "}
+            {deployedTargetHash}
+          </div>
+        </div>
       </div>
       {/* <button onClick={() => invoke({ args: ["0x1"] })}>Send</button> */}
       <div>
-        <div>
-          Multisig transaction count: {multisigTransactionCount?.toString()}
-        </div>
-        <div>
-          <button onClick={submit}>Submit a new transaction</button>
-          <button onClick={confirm}>Confirm the latest transaction</button>
-          <button onClick={execute}>Execute the latest transaction</button>
-        </div>
+        {multisigContract && targetContract && (
+          <div>
+            <div>
+              Target balance:{" "}
+              <input
+                type="text"
+                value={targetBalance}
+                onChange={(e) => setTargetBalance(+e.target.value)}
+              ></input>
+              <button onClick={submit}>
+                Submit a new transaction to change the balance
+              </button>
+            </div>
+
+            {multisigTransactionCount && +multisigTransactionCount > 0 && (
+              <span>
+                <button onClick={confirm}>
+                  Confirm the latest transaction
+                </button>
+                <button onClick={execute}>
+                  Execute the latest transaction
+                </button>
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
