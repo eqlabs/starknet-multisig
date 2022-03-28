@@ -10,7 +10,7 @@ import { TransactionList } from "~/components/TransactionList";
 const Home: NextPage = () => {
   return (
     <div>
-      <h2>Wallet</h2>
+      <h2>Multisig</h2>
       <ConnectWallet />
 
       <MultisigSettings />

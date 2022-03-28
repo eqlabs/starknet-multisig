@@ -51,22 +51,10 @@ export function MultisigSettings() {
     abi: TargetSource.abi as Abi,
   });
 
-  const {
-    data: submitTransactionData,
-    loading: submitTransactionLoading,
-    error: submitTransactionError,
-    invoke: submitTransaction,
-  } = useStarknetInvoke({
+  const { invoke: submitTransaction } = useStarknetInvoke({
     contract: multisigContract,
     method: "submit_transaction",
   });
-
-  console.log(
-    "data",
-    submitTransactionData,
-    submitTransactionError,
-    submitTransactionLoading
-  );
 
   const { invoke: confirmTransaction } = useStarknetInvoke({
     contract: multisigContract,
@@ -84,6 +72,12 @@ export function MultisigSettings() {
     args: [],
   });
 
+  const { data: targetRetrievedBalance } = useStarknetCall({
+    contract: targetContract,
+    method: "get_balance",
+    args: [],
+  });
+
   useEffect(() => {
     if (!compiledMultisig) {
       getCompiledMultisig().then(setCompiledMultisig);
@@ -97,7 +91,7 @@ export function MultisigSettings() {
     const emptyOwners = [...Array(totalAmount).keys()].map((item) => "");
     emptyOwners[0] = account ?? "";
     setOwners(emptyOwners);
-  }, [totalAmount]);
+  }, [totalAmount, account]);
 
   const getCompiledMultisig = async () => {
     // Can't import the JSON directly due to a bug in StarkNet: https://github.com/0xs34n/starknet.js/issues/104
@@ -162,9 +156,9 @@ export function MultisigSettings() {
   const submit = async () => {
     await submitTransaction({
       args: [
-        "0x05bac2320c9c3a5417d65f525f1e3de4602db12549a31386e5c9a2941853330a", // address of Target in alpha network
+        deployedTargetAddress, // address of Target in alpha network
         "0x3a08f483ebe6c7533061acfc5f7c1746482621d16cff4c2c35824dec4181fa6", // selector of "set_balance" function
-        [9],
+        [targetBalance],
       ],
     });
   };
@@ -184,7 +178,7 @@ export function MultisigSettings() {
   return (
     <div>
       <div>
-        Threshold:{" "}
+        Multisig threshold:{" "}
         <select
           onChange={(e) => {
             onThresholdChange(e.target.value);
@@ -194,8 +188,8 @@ export function MultisigSettings() {
           <option value="1">1</option>
           <option value="2">2</option>
           <option value="3">3</option>
-        </select>
-        Total:{" "}
+        </select>{" "}
+        of total:{" "}
         <select
           onChange={(e) => {
             onTotalAmountChange(e.target.value);
@@ -220,7 +214,7 @@ export function MultisigSettings() {
             </div>
           );
         })}
-        <button onClick={onDeploy}>Deploy multisig</button>
+        <button onClick={onDeploy}>Deploy multisig and Target contract</button>
         <div>
           <div>
             Multisig contract address: {deployedMultisigAddress} with tx hash:{" "}
@@ -237,26 +231,34 @@ export function MultisigSettings() {
         {multisigContract && targetContract && (
           <div>
             <div>
-              Target balance:{" "}
-              <input
-                type="text"
-                value={targetBalance}
-                onChange={(e) => setTargetBalance(+e.target.value)}
-              ></input>
-              <button onClick={submit}>
-                Submit a new transaction to change the balance
-              </button>
-            </div>
+              <div>
+                Target balance:{" "}
+                <input
+                  type="text"
+                  value={targetBalance}
+                  onChange={(e) => setTargetBalance(+e.target.value)}
+                ></input>
+                <button onClick={submit}>
+                  Submit a new transaction to change the balance
+                </button>
+              </div>
 
-            {multisigTransactionCount && +multisigTransactionCount > 0 && (
-              <span>
-                <button onClick={confirm}>
-                  Confirm the latest transaction
-                </button>
-                <button onClick={execute}>
-                  Execute the latest transaction
-                </button>
-              </span>
+              {multisigTransactionCount && +multisigTransactionCount > 0 && (
+                <span>
+                  <button onClick={confirm}>
+                    Confirm the latest transaction
+                  </button>
+                  <button onClick={execute}>
+                    Execute the latest transaction
+                  </button>
+                </span>
+              )}
+            </div>
+            {multisigTransactionCount && (
+              <div>
+                Current balance in Target contract:{" "}
+                {number.toBN(targetRetrievedBalance).toNumber()}
+              </div>
             )}
           </div>
         )}
