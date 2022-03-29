@@ -23,7 +23,7 @@ import { useTargetContract } from "~/hooks/targetContractHook";
 export function MultisigSettings() {
   const { account } = useStarknet();
 
-  const [threshold, setThreshold] = useState<number>();
+  const [threshold, setThreshold] = useState<number>(1);
   const [totalAmount, setTotalAmount] = useState<number>(3);
   const [owners, setOwners] = useState<string[]>([]);
   const [deployedMultisigAddress, setDeployedMultisigAddress] =
@@ -127,8 +127,10 @@ export function MultisigSettings() {
   const onDeploy = async () => {
     const _deployMultisig = async () => {
       const bnOwners = owners.map((o) => number.toBN(o));
+      const calldata = [bnOwners.length, ...bnOwners, threshold];
+      //console.log("deploy c", calldata);
       const deployment = await deployMultisig({
-        constructorCalldata: [bnOwners.length, ...bnOwners, threshold],
+        constructorCalldata: calldata,
       });
       if (deployment) {
         setDeployedMultisigAddress(deployment.address);
@@ -188,6 +190,10 @@ export function MultisigSettings() {
     });
   };
 
+  const multisigLink =
+    "https://goerli.voyager.online/tx/" + deployedMultisigHash;
+  const targetLink = "https://goerli.voyager.online/tx/" + deployedTargetHash;
+
   return (
     <div>
       <div>
@@ -231,14 +237,20 @@ export function MultisigSettings() {
         <div>
           {deployedMultisigAddress && (
             <div>
-              Multisig contract address: {deployedMultisigAddress} with tx hash:{" "}
-              {deployedMultisigHash}
+              Multisig contract address: {deployedMultisigAddress}{" "}
+              <a href={multisigLink} target="_blank">
+                Voyager link
+              </a>
+              {}
             </div>
           )}
           {deployedTargetAddress && (
             <div>
-              Target contract address: {deployedTargetAddress} with tx hash:{" "}
-              {deployedTargetHash}
+              Target contract address: {deployedTargetAddress}{" "}
+              <a href={targetLink} target="_blank">
+                Voyager link
+              </a>
+              {}
             </div>
           )}
         </div>
