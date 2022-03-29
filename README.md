@@ -18,17 +18,17 @@ The current version is a preliminary version. This version consists of three pie
 
 The current version supports only on-chain multi-signatures. The multisig is a separate contract, which is called through your regular account contract (wallet).
 
-Check the folders <a href='frontend/README.md'>frontend</a> and <a href='contracts/README.md'>contract</a> for more information.
-
 ## Usage
 
 ### Network
 
 You can try either in alpha network (Goerli) or mainnet, but alpha is highly recommended since it's a lot faster. Do note that _faster_ means that it may take only 10 minutes for a transaction to go through, depending on the network conditions.
 
+Currently StarkNet devnet doesn't work properly with this version.
+
 ### What is there to test?
 
-Currently you can test the multisig with only one target contract. The target contract is a trivial contract which keep track of some balance and has unrestricted functionality to update the balance.
+Currently you can test the multisig with only one target contract. The target contract is a trivial contract which keep track of some balance and has unrestricted functionality to update the balance. You can't change the target contract (without some development work).
 
 If you want to have a fresh start, just refresh your browser window. No data is stored between sessions.
 
@@ -48,9 +48,9 @@ Note: You should wait for each transaction to get status "ACCEPTED_ON_L2" before
 
 ### Warnings
 
-There are very few validations currently. Enter sensible data if you want to get sensible data out.
+There are very few validations currently. Enter sensible data in if you want to get sensible data out.
 
-The network also doesn't provide any sensible error messages, so if some of your transactions are rejected, you just have to figure out what failed in your setup.
+The network also doesn't provide any sensible error messages so if some of your transactions are rejected, you just have to figure out what failed in your setup.
 
 ## Future development
 
