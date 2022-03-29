@@ -44,11 +44,11 @@ export function MultisigSettings() {
 
   const { deploy: deployMultisig } = useContractFactory({
     compiledContract: compiledMultisig,
-    abi: MultisigSource.abi as Abi,
+    abi: (MultisigSource as any).abi as Abi,
   });
   const { deploy: deployTarget } = useContractFactory({
     compiledContract: compiledTarget,
-    abi: TargetSource.abi as Abi,
+    abi: TargetSource.abi as any as Abi,
   });
 
   const { invoke: submitTransaction } = useStarknetInvoke({
@@ -72,6 +72,21 @@ export function MultisigSettings() {
     args: [],
   });
 
+  const latestTxIndex = number.toBN(multisigTransactionCount).toNumber() - 1;
+  let confirmations = 0;
+
+  const { data: multisigLatestTransaction } = useStarknetCall({
+    contract: multisigContract,
+    method: "get_transaction",
+    args: [latestTxIndex],
+  });
+
+  if (multisigLatestTransaction) {
+    confirmations = number
+      .toBN((multisigLatestTransaction as any).tx.num_confirmations)
+      .toNumber();
+    console.log("latest", multisigLatestTransaction);
+  }
   const { data: targetRetrievedBalance } = useStarknetCall({
     contract: targetContract,
     method: "get_balance",
@@ -136,8 +151,6 @@ export function MultisigSettings() {
     await _deployTarget();
     await _deployMultisig();
   };
-
-  const latestTxIndex = number.toBN(multisigTransactionCount).toNumber() - 1;
 
   const onThresholdChange = (value: string) => {
     setThreshold(+value);
@@ -216,14 +229,18 @@ export function MultisigSettings() {
         })}
         <button onClick={onDeploy}>Deploy multisig and Target contract</button>
         <div>
-          <div>
-            Multisig contract address: {deployedMultisigAddress} with tx hash:{" "}
-            {deployedMultisigHash}
-          </div>
-          <div>
-            Target contract address: {deployedTargetAddress} with tx hash:{" "}
-            {deployedTargetHash}
-          </div>
+          {deployedMultisigAddress && (
+            <div>
+              Multisig contract address: {deployedMultisigAddress} with tx hash:{" "}
+              {deployedMultisigHash}
+            </div>
+          )}
+          {deployedTargetAddress && (
+            <div>
+              Target contract address: {deployedTargetAddress} with tx hash:{" "}
+              {deployedTargetHash}
+            </div>
+          )}
         </div>
       </div>
       {/* <button onClick={() => invoke({ args: ["0x1"] })}>Send</button> */}
@@ -244,14 +261,15 @@ export function MultisigSettings() {
               </div>
 
               {multisigTransactionCount && +multisigTransactionCount > 0 && (
-                <span>
+                <div>
+                  <div>Number of confirmations: {confirmations}</div>
                   <button onClick={confirm}>
                     Confirm the latest transaction
                   </button>
                   <button onClick={execute}>
                     Execute the latest transaction
                   </button>
-                </span>
+                </div>
               )}
             </div>
             {multisigTransactionCount && (

@@ -14,6 +14,13 @@ const Home: NextPage = () => {
       <ConnectWallet />
 
       <MultisigSettings />
+      <p>
+        Please check{" "}
+        <a href="https://github.com/eqlabs/starknet-multisig" target="_blank">
+          GitHub
+        </a>{" "}
+        for more information.
+      </p>
       <h2>Recent Transactions</h2>
       <TransactionList />
     </div>

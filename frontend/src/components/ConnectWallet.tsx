@@ -1,11 +1,15 @@
-import { useStarknet, InjectedConnector } from '@starknet-react/core'
+import { useStarknet, InjectedConnector } from "@starknet-react/core";
 
 export function ConnectWallet() {
-  const { account, connect } = useStarknet()
+  const { account, connect } = useStarknet();
 
   if (account) {
-    return <p>Account: {account}</p>
+    return <p></p>; /* <p>Account: {account}</p> */
   }
 
-  return <button onClick={() => connect(new InjectedConnector())}>Connect</button>
+  return (
+    <button onClick={() => connect(new InjectedConnector())}>
+      Connect wallet (Argent X)
+    </button>
+  );
 }
