@@ -1,6 +1,6 @@
-# Starknet-multisig
+# Starknet multisig
 
-Multi-signature functionality for StarkNet.
+Multi-signature functionality for <a href='https://starknet.io/what-is-starknet/' target='_blank'>StarkNet</a>.
 
 > ## ⚠️ WARNING! ⚠️
 >
@@ -12,9 +12,9 @@ Multi-signature functionality for StarkNet.
 
 The current version is a preliminary version. This version consists of three pieces:
 
-- Cairo contract code, with an OpenZeppelin account contract
+- Cairo contract code
 - Unit tests for testing all the multisig functionality
-- A _very_ rough UI for testing a new multisig
+- A _very_ rough UI for testing a multisig
 
 The current version supports only on-chain multi-signatures. The multisig is a separate contract, which is called through your regular account contract (wallet).
 
@@ -24,19 +24,27 @@ The current version supports only on-chain multi-signatures. The multisig is a s
 
 You can try either in alpha network (Goerli) or mainnet, but alpha is highly recommended since it's a lot faster. Do note that _faster_ means that it may take only 10 minutes for a transaction to go through, depending on the network conditions.
 
-Currently StarkNet devnet doesn't work properly with this version.
+Using the Goerli network means you operate on Goerli through a separate StarkNet alpha network. You do not interact directly with the Goerli network.
+
+Currently StarkNet _devnet_ doesn't work properly with this version.
 
 ### What is there to test?
 
-Currently you can test the multisig with only one target contract. The target contract is a trivial contract which keep track of some balance and has unrestricted functionality to update the balance. You can't change the target contract (without some development work).
+Currently you can test the multisig with only one target contract. The target contract is a trivial contract which keeps track of some balance and has unrestricted functionality to update the balance. You can't change the target contract (without some development work).
 
 If you want to have a fresh start, just refresh your browser window. No data is stored between sessions.
+
+### Fees
+
+You do not need any assets in your wallets in order to use this functionality. StarkNet does not currently enforce fees and subsidises Goerli fees.
 
 ### UI
 
 The UI can be found at <a href='http://starknet-multisig.vercel.app' target='_blank'>http://starknet-multisig.vercel.app</a>.
 
-1. If you don't have yet, get the Argent X browser extension (not the regular Argent wallet!). Change the network. Create some accounts
+How to use:
+
+1. If you don't have yet, get the Argent X browser extension (not the regular Argent wallet!). Change the network to Goerli. Create some accounts
 1. Choose what is the threshold and how many signers in total. The threshold states how many signers have to sing a transaction before it can be executed. The total number states how many signers there are in total.
 1. Enter owner addresses
 1. Deploy the multisig
@@ -50,13 +58,14 @@ Note: You should wait for each transaction to get status "ACCEPTED_ON_L2" (or L1
 
 There are very few validations currently. Enter sensible data in if you want to get sensible data out.
 
-The network also doesn't provide any sensible error messages so if some of your transactions are rejected, you just have to figure out what failed in your setup.
+The network also doesn't provide any sensible error messages. If some of your transactions are rejected, you just have to figure out what failed in your setup.
 
 ## Future development
 
 In near future we'll get here:
 
-- A real UI, with possibility to choose an arbitrary target transaction
+- A real UI
+- Possibility to choose an arbitrary target transaction
 - Possibly an option to use an account contract as multisig
 - Possibly off-chain signatures
 
@@ -68,4 +77,6 @@ The current implementation uses Option 1 in the following image. Option 2 is in 
 
 ## Fluffy stuff
 
-Created by https://equilibrium.co
+Created by <a href='https://equilibrium.co' target='_blank'>Equilibrium</a>.
+
+For support, free to poke LauriP#8728 at <a href='https://discord.gg/uJ9HZTUk2Y' target='_blank'>StarkNet Discord</a>.
