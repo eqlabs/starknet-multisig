@@ -44,7 +44,7 @@ The UI can be found at <a href='http://starknet-multisig.vercel.app' target='_bl
 1. Confirm the transaction with at least _threshold_ amount of signer accounts
 1. Execute the transaction. The displayed current balance in Target contract should reflect the changed balance.
 
-Note: You should wait for each transaction to get status "ACCEPTED_ON_L2" before proceeding with the next transaction. This can take some time.
+Note: You should wait for each transaction to get status "ACCEPTED_ON_L2" (or L1) before proceeding with the next transaction. This can take some time.
 
 ### Warnings
 
