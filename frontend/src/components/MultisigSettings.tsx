@@ -30,8 +30,6 @@ export function MultisigSettings() {
     useState<string>("");
   const [deployedTargetAddress, setDeployedTargetAddress] =
     useState<string>("");
-  const [deployedMultisigHash, setDeployedMultisigHash] = useState<string>("");
-  const [deployedTargetHash, setDeployedTargetHash] = useState<string>("");
   const [targetBalance, setTargetBalance] = useState<number>(42);
 
   const [compiledMultisig, setCompiledMultisig] = useState<CompiledContract>();
@@ -134,9 +132,6 @@ export function MultisigSettings() {
       });
       if (deployment) {
         setDeployedMultisigAddress(deployment.address);
-        if (deployment.deployTransactionHash) {
-          setDeployedMultisigHash(deployment.deployTransactionHash);
-        }
       }
     };
     const _deployTarget = async () => {
@@ -145,9 +140,6 @@ export function MultisigSettings() {
       });
       if (deployment) {
         setDeployedTargetAddress(deployment.address);
-        if (deployment.deployTransactionHash) {
-          setDeployedTargetHash(deployment.deployTransactionHash);
-        }
       }
     };
     await _deployTarget();
@@ -191,8 +183,9 @@ export function MultisigSettings() {
   };
 
   const multisigLink =
-    "https://goerli.voyager.online/tx/" + deployedMultisigHash;
-  const targetLink = "https://goerli.voyager.online/tx/" + deployedTargetHash;
+    "https://goerli.voyager.online/contract/" + deployedMultisigAddress;
+  const targetLink =
+    "https://goerli.voyager.online/contract/" + deployedTargetAddress;
 
   return (
     <div>
@@ -224,7 +217,7 @@ export function MultisigSettings() {
         {owners.map((owner, i) => {
           return (
             <div key={i}>
-              Owner {i + 1} address:
+              Signer {i + 1} address:
               <input
                 type="text"
                 onChange={(e) => onOwnerChange(e.target.value, i)}
@@ -237,25 +230,22 @@ export function MultisigSettings() {
         <div>
           {deployedMultisigAddress && (
             <div>
-              Multisig contract address: {deployedMultisigAddress}{" "}
+              Multisig contract:
               <a href={multisigLink} target="_blank">
-                Voyager link
+                {deployedMultisigAddress}
               </a>
-              {}
             </div>
           )}
           {deployedTargetAddress && (
             <div>
-              Target contract address: {deployedTargetAddress}{" "}
+              Target contract
               <a href={targetLink} target="_blank">
-                Voyager link
+                {deployedTargetAddress}
               </a>
-              {}
             </div>
           )}
         </div>
       </div>
-      {/* <button onClick={() => invoke({ args: ["0x1"] })}>Send</button> */}
       <div>
         {multisigContract && targetContract && (
           <div>
