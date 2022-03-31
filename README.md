@@ -56,7 +56,7 @@ Note: You should wait for each transaction to get status "ACCEPTED_ON_L2" (or L1
 
 ### Warnings
 
-There are very few validations currently. Enter sensible data in if you want to get sensible data out.
+There are very few UI validations currently. Enter sensible data in if you want to get sensible data out.
 
 The network also doesn't provide any sensible error messages. If some of your transactions are rejected, you just have to figure out what failed in your setup.
 
