@@ -14,7 +14,7 @@ function TransactionItem({ transaction }: { transaction: Transaction }) {
 
 export function TransactionList() {
   const { transactions } = useStarknetTransactionManager();
-  var revMyArr = ([] as Transaction[]).concat(transactions).reverse();
+  const revMyArr = ([] as Transaction[]).concat(transactions).reverse();
   return (
     <ul>
       {revMyArr.map((transaction, index) => (
