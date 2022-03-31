@@ -64,7 +64,7 @@ The network also doesn't provide any sensible error messages. If some of your tr
 
 In near future we'll get here:
 
-- A real UI
+- A clearer UI
 - Possibility to choose an arbitrary target transaction
 - Possibly an option to use an account contract as multisig
 - Possibly off-chain signatures
