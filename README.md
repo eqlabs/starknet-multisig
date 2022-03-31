@@ -45,7 +45,7 @@ The UI can be found at <a href='http://starknet-multisig.vercel.app' target='_bl
 How to use:
 
 1. If you don't have it yet, get the Argent X browser extension (not the regular Argent wallet!). Change the network to Goerli. Create some accounts
-1. Choose what is the threshold and how many signers in total. The threshold states how many signers have to sing a transaction before it can be executed. The total number states how many signers there are in total.
+1. Choose what the threshold is and how many signers there can be in total. The threshold states how many signers have to sign a transaction before it can be executed. The total number of signers states how many signers the contract supports in total.
 1. Enter owner addresses
 1. Deploy the multisig
 1. Enter some number in "Target balance" and submit the transaction
