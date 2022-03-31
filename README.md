@@ -49,7 +49,7 @@ How to use:
 1. Enter owner addresses
 1. Deploy the multisig
 1. Enter some number in "Target balance" and submit the transaction
-1. Confirm the transaction with at least _threshold_ amount of signer accounts
+1. Confirm the transaction with at least the _threshold_ amount of signer accounts
 1. Execute the transaction. The displayed current balance in Target contract should reflect the changed balance.
 
 Note: You should wait for each transaction to get status "ACCEPTED_ON_L2" (or L1) before proceeding with the next transaction. This can take some time.
