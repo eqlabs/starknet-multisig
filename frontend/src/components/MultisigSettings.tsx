@@ -22,7 +22,8 @@ import { getSelectorFromName, starknetKeccak } from "starknet/dist/utils/hash";
 export function MultisigSettings() {
   const { account } = useStarknet();
 
-  const [threshold, setThreshold] = useState<number>(1);
+  const [createNewMultisig, setCreateNewMultisig] = useState<boolean>(true);
+  const [threshold, setThreshold] = useState<number>(2);
   const [totalAmount, setTotalAmount] = useState<number>(3);
   const [owners, setOwners] = useState<string[]>([]);
   const [deployedMultisigAddress, setDeployedMultisigAddress] =
@@ -66,7 +67,6 @@ export function MultisigSettings() {
   });
 
   const latestTxIndex = number.toBN(multisigTransactionCount).toNumber() - 1;
-  let confirmations = 0;
 
   const { data: multisigLatestTransaction } = useStarknetCall({
     contract: multisigContract,
@@ -74,8 +74,18 @@ export function MultisigSettings() {
     args: [latestTxIndex],
   });
 
+  let latestTxTarget = "";
+  let latestTxFunction = "";
+  let latestTxArgs = "";
+  let latestTxConfirmation = 0;
+
   if (multisigLatestTransaction) {
-    confirmations = number
+    const tx = multisigLatestTransaction as any;
+    latestTxTarget = number.toHex(tx.tx.to).toString();
+    latestTxFunction = tx.tx.function_selector.toString();
+    latestTxArgs = tx.tx_calldata.toString();
+    //console.log("latest", target, func, args);
+    latestTxConfirmation = number
       .toBN((multisigLatestTransaction as any).tx.num_confirmations)
       .toNumber();
   }
@@ -167,43 +177,75 @@ export function MultisigSettings() {
   return (
     <div>
       <div>
-        Multisig threshold:{" "}
-        <select
-          onChange={(e) => {
-            onThresholdChange(e.target.value);
+        <input
+          type="radio"
+          checked={createNewMultisig}
+          onChange={() => {
+            setCreateNewMultisig(true);
+            setDeployedMultisigAddress("");
           }}
-          value={threshold}
-        >
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </select>{" "}
-        of total:{" "}
-        <select
-          onChange={(e) => {
-            onTotalAmountChange(e.target.value);
-          }}
-          value={totalAmount}
-        >
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </select>
+        ></input>{" "}
+        Create a new multisig
+        <input
+          type="radio"
+          checked={!createNewMultisig}
+          onChange={() => setCreateNewMultisig(false)}
+        ></input>{" "}
+        Use an existing multisig
       </div>
-      {owners.map((owner, i) => {
-        return (
-          <div key={i}>
-            Signer {i + 1} address:
-            <input
-              type="text"
-              onChange={(e) => onOwnerChange(e.target.value, i)}
-              value={owner}
-            ></input>
+      {createNewMultisig && (
+        <fieldset>
+          <legend>Multisig creation</legend>
+          <div>
+            Threshold:{" "}
+            <select
+              onChange={(e) => {
+                onThresholdChange(e.target.value);
+              }}
+              value={threshold}
+            >
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>{" "}
+            of total:{" "}
+            <select
+              onChange={(e) => {
+                onTotalAmountChange(e.target.value);
+              }}
+              value={totalAmount}
+            >
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
           </div>
-        );
-      })}
-      <div></div>
-      <button onClick={onDeploy}>Deploy multisig contract</button>
+          {owners.map((owner, i) => {
+            return (
+              <div key={i}>
+                Signer {i + 1} address:
+                <input
+                  type="text"
+                  onChange={(e) => onOwnerChange(e.target.value, i)}
+                  value={owner}
+                ></input>
+              </div>
+            );
+          })}
+          <div></div>
+          <button onClick={onDeploy}>Deploy multisig contract</button>
+        </fieldset>
+      )}
+      {!createNewMultisig && (
+        <div>
+          Existing multisig contract address:{" "}
+          <input
+            type="text"
+            onChange={(e) => setDeployedMultisigAddress(e.target.value)}
+          ></input>
+        </div>
+      )}
+
       <div>
         {deployedMultisigAddress && (
           <div>
@@ -218,7 +260,8 @@ export function MultisigSettings() {
         {deployedMultisigAddress && (
           <div>
             <div>
-              <div>
+              <fieldset>
+                <legend>Transaction creation</legend>
                 <div>
                   Target contract address:{" "}
                   <input
@@ -226,9 +269,11 @@ export function MultisigSettings() {
                     value={targetAddress}
                     onChange={(e) => setTargetAddress(e.target.value)}
                   ></input>{" "}
-                  <a href={targetLink} target="_blank">
-                    Voyager link
-                  </a>
+                  {targetAddress && (
+                    <a href={targetLink} target="_blank">
+                      Voyager link
+                    </a>
+                  )}
                 </div>
                 <div>
                   Target function name:{" "}
@@ -247,11 +292,24 @@ export function MultisigSettings() {
                   ></input>
                 </div>
                 <button onClick={submit}>Submit a new transaction</button>
-              </div>
+              </fieldset>
 
               {multisigTransactionCount && +multisigTransactionCount > 0 && (
                 <div>
-                  <div>Number of confirmations: {confirmations}</div>
+                  <div>
+                    <div>
+                      <fieldset>
+                        <legend>Latest multisig transaction's data</legend>
+
+                        <div>
+                          Number of confirmations: {latestTxConfirmation}
+                        </div>
+                        <div>Contract address:: {latestTxTarget}</div>
+                        <div>Function selector: {latestTxFunction}</div>
+                        <div>Function arguments: {latestTxArgs}</div>
+                      </fieldset>
+                    </div>
+                  </div>
                   <button onClick={confirm}>
                     Confirm the latest transaction
                   </button>
