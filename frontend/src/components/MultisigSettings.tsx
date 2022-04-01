@@ -225,7 +225,7 @@ export function MultisigSettings() {
                     type="text"
                     value={targetAddress}
                     onChange={(e) => setTargetAddress(e.target.value)}
-                  ></input>
+                  ></input>{" "}
                   <a href={targetLink} target="_blank">
                     Voyager link
                   </a>
