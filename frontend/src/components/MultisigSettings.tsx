@@ -19,6 +19,7 @@ import {
 } from "starknet";
 import { number, stark } from "starknet";
 import { useTargetContract } from "~/hooks/targetContractHook";
+import { getSelectorFromName, starknetKeccak } from "starknet/dist/utils/hash";
 
 export function MultisigSettings() {
   const { account } = useStarknet();
@@ -28,25 +29,21 @@ export function MultisigSettings() {
   const [owners, setOwners] = useState<string[]>([]);
   const [deployedMultisigAddress, setDeployedMultisigAddress] =
     useState<string>("");
-  const [deployedTargetAddress, setDeployedTargetAddress] =
+  const [targetAddress, setTargetAddress] = useState<string>("");
+  const [targetFunctionName, setTargetFunctionName] = useState<string>("");
+  const [targetFunctionSelector, setTargetFunctionSelector] =
     useState<string>("");
-  const [targetBalance, setTargetBalance] = useState<number>(42);
+  const [targetParameters, setTargetParameters] = useState<string>("");
 
   const [compiledMultisig, setCompiledMultisig] = useState<CompiledContract>();
-  const [compiledTarget, setCompiledTarget] = useState<CompiledContract>();
 
   const { contract: multisigContract } = useMultisigContract(
     deployedMultisigAddress
   );
-  const { contract: targetContract } = useTargetContract(deployedTargetAddress);
 
   const { deploy: deployMultisig } = useContractFactory({
     compiledContract: compiledMultisig,
     abi: (MultisigSource as any).abi as Abi,
-  });
-  const { deploy: deployTarget } = useContractFactory({
-    compiledContract: compiledTarget,
-    abi: TargetSource.abi as any as Abi,
   });
 
   const { invoke: submitTransaction } = useStarknetInvoke({
@@ -84,20 +81,19 @@ export function MultisigSettings() {
       .toBN((multisigLatestTransaction as any).tx.num_confirmations)
       .toNumber();
   }
-  const { data: targetRetrievedBalance } = useStarknetCall({
-    contract: targetContract,
-    method: "get_balance",
-    args: [],
-  });
 
   useEffect(() => {
     if (!compiledMultisig) {
       getCompiledMultisig().then(setCompiledMultisig);
     }
-    if (!compiledTarget) {
-      getCompiledTarget().then(setCompiledTarget);
-    }
   }, []);
+
+  useEffect(() => {
+    if (targetFunctionName) {
+      const newSelector = number.toBN(getSelectorFromName(targetFunctionName));
+      setTargetFunctionSelector(newSelector);
+    }
+  }, [targetFunctionName]);
 
   useEffect(() => {
     const emptyOwners = [...Array(totalAmount).keys()].map((item) => "");
@@ -109,14 +105,6 @@ export function MultisigSettings() {
     // Can't import the JSON directly due to a bug in StarkNet: https://github.com/0xs34n/starknet.js/issues/104
     // (even if the issue is closed, the underlying Starknet issue remains)
     const raw = await fetch("/MultiSig.json");
-    const compiled = json.parse(await raw.text());
-    return compiled;
-  };
-
-  const getCompiledTarget = async () => {
-    // Can't import the JSON directly due to a bug in StarkNet: https://github.com/0xs34n/starknet.js/issues/104
-    // (even if the issue is closed, the underlying Starknet issue remains)
-    const raw = await fetch("/Target.json");
     const compiled = json.parse(await raw.text());
     return compiled;
   };
@@ -133,15 +121,6 @@ export function MultisigSettings() {
         setDeployedMultisigAddress(deployment.address);
       }
     };
-    const _deployTarget = async () => {
-      const deployment = await deployTarget({
-        constructorCalldata: [],
-      });
-      if (deployment) {
-        setDeployedTargetAddress(deployment.address);
-      }
-    };
-    await _deployTarget();
     await _deployMultisig();
   };
 
@@ -160,12 +139,14 @@ export function MultisigSettings() {
   };
 
   const submit = async () => {
+    console.log(
+      "submit",
+      targetAddress,
+      targetFunctionSelector.toString(),
+      targetParameters
+    );
     await submitTransaction({
-      args: [
-        deployedTargetAddress, // address of Target in alpha network
-        "0x3a08f483ebe6c7533061acfc5f7c1746482621d16cff4c2c35824dec4181fa6", // selector of "set_balance" function
-        [targetBalance],
-      ],
+      args: [targetAddress, targetFunctionSelector, [targetParameters]],
     });
   };
 
@@ -183,8 +164,7 @@ export function MultisigSettings() {
 
   const multisigLink =
     "https://goerli.voyager.online/contract/" + deployedMultisigAddress;
-  const targetLink =
-    "https://goerli.voyager.online/contract/" + deployedTargetAddress;
+  const targetLink = "https://goerli.voyager.online/contract/" + targetAddress;
 
   return (
     <div>
@@ -212,53 +192,63 @@ export function MultisigSettings() {
           <option value="3">3</option>
         </select>
       </div>
+      {owners.map((owner, i) => {
+        return (
+          <div key={i}>
+            Signer {i + 1} address:
+            <input
+              type="text"
+              onChange={(e) => onOwnerChange(e.target.value, i)}
+              value={owner}
+            ></input>
+          </div>
+        );
+      })}
+      <div></div>
+      <button onClick={onDeploy}>Deploy multisig contract</button>
       <div>
-        {owners.map((owner, i) => {
-          return (
-            <div key={i}>
-              Signer {i + 1} address:
-              <input
-                type="text"
-                onChange={(e) => onOwnerChange(e.target.value, i)}
-                value={owner}
-              ></input>
-            </div>
-          );
-        })}
-        <button onClick={onDeploy}>Deploy multisig and Target contract</button>
-        <div>
-          {deployedMultisigAddress && (
-            <div>
-              Multisig contract:{" "}
-              <a href={multisigLink} target="_blank">
-                {deployedMultisigAddress}
-              </a>
-            </div>
-          )}
-          {deployedTargetAddress && (
-            <div>
-              Target contract:{" "}
-              <a href={targetLink} target="_blank">
-                {deployedTargetAddress}
-              </a>
-            </div>
-          )}
-        </div>
+        {deployedMultisigAddress && (
+          <div>
+            Multisig contract:{" "}
+            <a href={multisigLink} target="_blank">
+              {deployedMultisigAddress}
+            </a>
+          </div>
+        )}
       </div>
       <div>
-        {multisigContract && targetContract && (
+        {deployedMultisigAddress && (
           <div>
             <div>
               <div>
-                Target balance:{" "}
-                <input
-                  type="text"
-                  value={targetBalance}
-                  onChange={(e) => setTargetBalance(+e.target.value)}
-                ></input>
-                <button onClick={submit}>
-                  Submit a new transaction to change the balance
-                </button>
+                <div>
+                  Target contract address:{" "}
+                  <input
+                    type="text"
+                    value={targetAddress}
+                    onChange={(e) => setTargetAddress(e.target.value)}
+                  ></input>
+                  <a href={targetLink} target="_blank">
+                    Voyager link
+                  </a>
+                </div>
+                <div>
+                  Target function name:{" "}
+                  <input
+                    type="text"
+                    value={targetFunctionName}
+                    onChange={(e) => setTargetFunctionName(e.target.value)}
+                  ></input>
+                </div>
+                <div>
+                  Target function parameters:{" "}
+                  <input
+                    type="text"
+                    value={targetParameters}
+                    onChange={(e) => setTargetParameters(e.target.value)}
+                  ></input>
+                </div>
+                <button onClick={submit}>Submit a new transaction</button>
               </div>
 
               {multisigTransactionCount && +multisigTransactionCount > 0 && (
@@ -273,12 +263,6 @@ export function MultisigSettings() {
                 </div>
               )}
             </div>
-            {multisigTransactionCount && (
-              <div>
-                Current balance in Target contract:{" "}
-                {number.toBN(targetRetrievedBalance).toNumber()}
-              </div>
-            )}
           </div>
         )}
       </div>

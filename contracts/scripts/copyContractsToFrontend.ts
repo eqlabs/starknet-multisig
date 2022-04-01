@@ -5,7 +5,6 @@ import * as fs from "fs";
 const sourceFolderBase = __dirname + "/../starknet-artifacts/contracts/";
 const targetFolder = __dirname + "/../../frontend/public/";
 
-const targetContract = "Target.json";
 const multisigContract = "MultiSig.json";
 
 const copyFile = (sourcePath: string, fileName: string) => {
@@ -22,5 +21,4 @@ const copyFile = (sourcePath: string, fileName: string) => {
     }
   });
 };
-copyFile("mock/Target.cairo/", targetContract);
 copyFile("MultiSig.cairo/", multisigContract);
