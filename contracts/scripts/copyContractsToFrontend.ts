@@ -5,7 +5,7 @@ import * as fs from "fs";
 const sourceFolderBase = __dirname + "/../starknet-artifacts/contracts/";
 const targetFolder = __dirname + "/../../frontend/public/";
 
-const multisigContract = "MultiSig.json";
+const multisigContract = "Multisig.json";
 
 const copyFile = (sourcePath: string, fileName: string) => {
   if (!fs.existsSync(targetFolder)) {
@@ -21,4 +21,4 @@ const copyFile = (sourcePath: string, fileName: string) => {
     }
   });
 };
-copyFile("MultiSig.cairo/", multisigContract);
+copyFile("Multisig.cairo/", multisigContract);

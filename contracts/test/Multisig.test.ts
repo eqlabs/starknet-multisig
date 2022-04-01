@@ -34,7 +34,7 @@ describe("Multisig with single owner", function () {
     privateKey = account.privateKey;
     publicKey = account.publicKey;
 
-    let multisigFactory = await starknet.getContractFactory("MultiSig");
+    let multisigFactory = await starknet.getContractFactory("Multisig");
     multisig = await multisigFactory.deploy({
       owners: [number.toBN(accountAddress)],
       confirmations_required: 1,
@@ -421,7 +421,7 @@ describe("Multisig with multiple owners", function () {
     account2 = await starknet.deployAccount("OpenZeppelin");
     account3 = await starknet.deployAccount("OpenZeppelin");
 
-    let multisigFactory = await starknet.getContractFactory("MultiSig");
+    let multisigFactory = await starknet.getContractFactory("Multisig");
     multisig = await multisigFactory.deploy({
       owners: [
         number.toBN(account1.starknetContract.address),

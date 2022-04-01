@@ -7,8 +7,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { useContractFactory } from "~/hooks/deploy";
 import { useMultisigContract } from "~/hooks/multisigContractHook";
-import MultisigSource from "../../public/MultiSig.json";
-import TargetSource from "../../public/Target.json";
+import MultisigSource from "../../public/Multisig.json";
 import {
   Abi,
   CompiledContract,
@@ -18,7 +17,6 @@ import {
   Provider,
 } from "starknet";
 import { number, stark } from "starknet";
-import { useTargetContract } from "~/hooks/targetContractHook";
 import { getSelectorFromName, starknetKeccak } from "starknet/dist/utils/hash";
 
 export function MultisigSettings() {
@@ -104,7 +102,7 @@ export function MultisigSettings() {
   const getCompiledMultisig = async () => {
     // Can't import the JSON directly due to a bug in StarkNet: https://github.com/0xs34n/starknet.js/issues/104
     // (even if the issue is closed, the underlying Starknet issue remains)
-    const raw = await fetch("/MultiSig.json");
+    const raw = await fetch("/Multisig.json");
     const compiled = json.parse(await raw.text());
     return compiled;
   };
