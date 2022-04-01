@@ -8,6 +8,7 @@ import {
   Account,
 } from "hardhat/types/runtime";
 import { number, stark } from "starknet";
+import { getSelectorFromName } from "starknet/dist/utils/hash";
 
 describe("Multisig with single owner", function () {
   this.timeout(300_000);
@@ -53,7 +54,7 @@ describe("Multisig with single owner", function () {
     it("transaction submit works", async function () {
       txIndex++;
 
-      const selector = number.toBN(stark.getSelectorFromName("set_balance"));
+      const selector = number.toBN(getSelectorFromName("set_balance"));
       console.log("sel", selector, selector.toString());
       const target = number.toBN(targetContract.address);
       const payload = {
@@ -92,10 +93,37 @@ describe("Multisig with single owner", function () {
       expect(bal.res).to.equal(BigInt(txIndex * 2));
     });
 
+    it("transaction execute works for subsequent transactions", async function () {
+      txIndex++;
+
+      let payload = defaultPayload(targetContract.address, txIndex * 2);
+      await account.invoke(multisig, "submit_transaction", payload);
+      await account.invoke(multisig, "confirm_transaction", {
+        tx_index: txIndex,
+      });
+      await account.invoke(multisig, "execute_transaction", {
+        tx_index: txIndex,
+      });
+
+      txIndex++;
+      // submit another transaction with the same multisig
+      payload = defaultPayload(targetContract.address, txIndex * 2);
+      await account.invoke(multisig, "submit_transaction", payload);
+      await account.invoke(multisig, "confirm_transaction", {
+        tx_index: txIndex,
+      });
+      await account.invoke(multisig, "execute_transaction", {
+        tx_index: txIndex,
+      });
+
+      const bal = await targetContract.call("get_balance");
+      expect(bal.res).to.equal(BigInt(txIndex * 2));
+    });
+
     it("transaction with complex arguments work", async function () {
       txIndex++;
 
-      const selector = number.toBN(stark.getSelectorFromName("complex_inputs"));
+      const selector = number.toBN(getSelectorFromName("complex_inputs"));
       const target = number.toBN(targetContract.address);
       const simpleArray = [1, 2, 3];
       const structArrayData = [
@@ -511,7 +539,7 @@ describe("Multisig with multiple owners", function () {
 });
 
 const defaultPayload = (contractAddress: string, newValue: number) => {
-  const setSelector = number.toBN(stark.getSelectorFromName("set_balance"));
+  const setSelector = number.toBN(getSelectorFromName("set_balance"));
   const target = number.toBN(contractAddress);
   const setPayload = {
     to: target,
