@@ -83,7 +83,6 @@ export function MultisigSettings() {
     confirmations = number
       .toBN((multisigLatestTransaction as any).tx.num_confirmations)
       .toNumber();
-    console.log("latest", multisigLatestTransaction);
   }
   const { data: targetRetrievedBalance } = useStarknetCall({
     contract: targetContract,

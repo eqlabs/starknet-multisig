@@ -52,9 +52,9 @@ How to use:
 1. Confirm the transaction with at least the _threshold_ amount of signer accounts
 1. Execute the transaction. The displayed current balance in Target contract should reflect the changed balance.
 
-Note: You should wait for each transaction to get status "ACCEPTED_ON_L2" (or L1) before proceeding with the next transaction. This can take some time.
-
 ### Warnings
+
+You should wait for each transaction to get status "ACCEPTED_ON_L2" (or L1) before proceeding with the next transaction. This can take some time. It may also take a bit of time for the UI to receive the latest data from the blockchain after a transaction has passed, so be patient.
 
 There are very few UI validations currently. Enter sensible data in if you want to get sensible data out.
 
