@@ -229,7 +229,7 @@ export function MultisigSettings() {
         <div>
           {deployedMultisigAddress && (
             <div>
-              Multisig contract:
+              Multisig contract:{" "}
               <a href={multisigLink} target="_blank">
                 {deployedMultisigAddress}
               </a>
@@ -237,7 +237,7 @@ export function MultisigSettings() {
           )}
           {deployedTargetAddress && (
             <div>
-              Target contract
+              Target contract:{" "}
               <a href={targetLink} target="_blank">
                 {deployedTargetAddress}
               </a>
