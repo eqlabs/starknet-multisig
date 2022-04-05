@@ -76,15 +76,15 @@ export function MultisigSettings() {
 
   let latestTxTarget = "";
   let latestTxFunction = "";
-  let latestTxArgs = "";
   let latestTxConfirmation = 0;
+  let latestTxArgs: [] = [];
 
   if (multisigLatestTransaction) {
     const tx = multisigLatestTransaction as any;
     latestTxTarget = number.toHex(tx.tx.to).toString();
     latestTxFunction = tx.tx.function_selector.toString();
-    latestTxArgs = tx.tx_calldata.toString().replaceAll(",", " ");
-    console.log("lat", tx);
+    latestTxArgs = tx.tx_calldata.toString().split(",");
+    //console.log("lat", tx);
     latestTxConfirmation = number
       .toBN((multisigLatestTransaction as any).tx.num_confirmations)
       .toNumber();
@@ -309,7 +309,16 @@ export function MultisigSettings() {
                         </div>
                         <div>Target contract address:: {latestTxTarget}</div>
                         <div>Target function selector: {latestTxFunction}</div>
-                        <div>Target function arguments: {latestTxArgs}</div>
+                        <div>
+                          Target function parameters:{" ["}
+                          {latestTxArgs.map((arg, i) => (
+                            <div style={{ marginLeft: "20px" }}>
+                              {arg}
+                              {i != latestTxArgs.length - 1 ? "," : ""}
+                            </div>
+                          ))}
+                          {" ]"}
+                        </div>
                       </fieldset>
                     </div>
                   </div>
