@@ -83,8 +83,8 @@ export function MultisigSettings() {
     const tx = multisigLatestTransaction as any;
     latestTxTarget = number.toHex(tx.tx.to).toString();
     latestTxFunction = tx.tx.function_selector.toString();
-    latestTxArgs = tx.tx_calldata.toString();
-    //console.log("latest", target, func, args);
+    latestTxArgs = tx.tx_calldata.toString().replaceAll(",", " ");
+    console.log("lat", tx);
     latestTxConfirmation = number
       .toBN((multisigLatestTransaction as any).tx.num_confirmations)
       .toNumber();
@@ -147,14 +147,17 @@ export function MultisigSettings() {
   };
 
   const submit = async () => {
+    const pars = targetParameters.split(" ").map((p) => number.toBN(p));
     console.log(
       "submit",
       targetAddress,
       targetFunctionSelector.toString(),
-      targetParameters
+      targetParameters,
+      [targetParameters],
+      pars
     );
     await submitTransaction({
-      args: [targetAddress, targetFunctionSelector, [targetParameters]],
+      args: [targetAddress, targetFunctionSelector, pars],
     });
   };
 
@@ -304,9 +307,9 @@ export function MultisigSettings() {
                         <div>
                           Number of confirmations: {latestTxConfirmation}
                         </div>
-                        <div>Contract address:: {latestTxTarget}</div>
-                        <div>Function selector: {latestTxFunction}</div>
-                        <div>Function arguments: {latestTxArgs}</div>
+                        <div>Target contract address:: {latestTxTarget}</div>
+                        <div>Target function selector: {latestTxFunction}</div>
+                        <div>Target function arguments: {latestTxArgs}</div>
                       </fieldset>
                     </div>
                   </div>
