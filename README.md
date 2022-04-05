@@ -8,15 +8,17 @@ Multi-signature functionality for <a href='https://starknet.io/what-is-starknet/
 > Expect rapid iteration.
 > **Do not use in production.**
 
-## Current preliminary version
+## Current version
 
-The current version is a preliminary version. This version consists of three pieces:
+The current version contains all basic multisig functionality. This version consists of three pieces:
 
 - Cairo contract code
 - Unit tests for testing all the multisig functionality
 - A _very_ rough UI for testing a multisig
 
 The current version supports only on-chain multi-signatures. The multisig is a separate contract, which is called through your regular account contract (wallet).
+
+Unfortunately, the current version is not very user-friendly nor pretty. But it provides all on-chain multisig functionality.
 
 ## Usage
 
@@ -56,7 +58,7 @@ How to use:
    1. Enter the target function name
    1. Enter the target function parameters. See below for more details
 1. Confirm the latest transaction with at least the _threshold_ amount of signer accounts
-   1. You can see the latest transaction's data. Unfortunately the _function selector_ is a hash of the original function name and it can't be reversed.
+   1. You can see the latest transaction's data. Unfortunately the _function selector_ is a hash of the original function name and it can't be reversed. Also possible addresses are in integer format.
 1. Once the latest transaction has enough confirmations, execute the latest transaction with any of the signer accounts
 
 ### Warnings
