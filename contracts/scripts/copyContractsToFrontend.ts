@@ -2,7 +2,8 @@ import * as fs from "fs";
 
 // Used for copying the contracts artifacts for the frontend
 
-const sourceFolderBase = __dirname + "/../starknet-artifacts/contracts/";
+const sourceFolderBase =
+  __dirname + "/../starknet-artifacts/contracts/multisig/";
 const targetFolder = __dirname + "/../../frontend/public/";
 
 const multisigContract = "Multisig.json";
