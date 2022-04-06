@@ -10,6 +10,7 @@ export const StyledButton = styled("button", {
   fontFamily: "$body",
   fontWeight: "$normal",
   alignItems: "center",
+  textTransform: "uppercase",
   boxSizing: "border-box",
   userSelect: "none",
   "&::before": {
