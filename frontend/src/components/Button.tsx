@@ -82,7 +82,7 @@ export const StyledButton = styled("button", {
         },
         "&:focus": {
           boxShadow:
-            "inset 0 0 0 1px $colors$buttonFocusOutline, inset 0 0 0 2px $colors$buttonFocusOutline",
+            "inset 0 0 0 1px $colors$focusOutline, inset 0 0 0 2px $colors$focusOutline",
         },
       },
     },
