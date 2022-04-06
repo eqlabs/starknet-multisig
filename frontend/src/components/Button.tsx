@@ -1,7 +1,13 @@
 import React from "react";
-import { styled } from "../../stitches.config";
+import { keyframes, styled } from "../../stitches.config";
 import Box from "~/components/Box";
 import Spinner from "~/components/Spinner";
+
+const shine = keyframes({
+  "0%": { transform: "translateX(-30px) scale(0.7)", opacity: 0 },
+  "50%": { transform: "translateX(0) scale(1)", opacity: 1 },
+  "100%": { transform: "translateX(30px) scale(0.7)", opacity: 0 },
+});
 
 export const StyledButton = styled("button", {
   all: "unset",
@@ -15,9 +21,33 @@ export const StyledButton = styled("button", {
   userSelect: "none",
   "&::before": {
     boxSizing: "border-box",
+    filter: "blur(6px)",
+    opacity: 0,
+    transform: "translateX(-70px) scale(0.7)",
+    position: "absolute",
+    top: "-8px",
+    right: "18%",
+    content: "",
+    display: "block",
+    background: "radial-gradient(rgba(255,255,255,.8), rgba(255,255,255,0))",
+    width: "20px",
+    height: "20px",
+    transformOrigin: "center center",
   },
   "&::after": {
     boxSizing: "border-box",
+    filter: "blur(12px)",
+    opacity: 0,
+    transform: "translateX(-60px) scale(0.7)",
+    position: "absolute",
+    top: "-15px",
+    right: "10%",
+    content: "",
+    display: "block",
+    background: "radial-gradient(rgba(255,255,255,.8), rgba(255,255,255,0))",
+    width: "40px",
+    height: "40px",
+    transformOrigin: "center center",
   },
   display: "inline-flex",
   flexShrink: 0,
@@ -75,6 +105,14 @@ export const StyledButton = styled("button", {
           "&:hover": {
             backgroundColor: "$buttonBgHover",
             background: "$buttonHoverGradient",
+            "&::before": {
+              animation: `${shine} 1260ms linear`,
+
+              animationDelay: "130ms",
+            },
+            "&::after": {
+              animation: `${shine} 1200ms linear`,
+            },
           },
         },
         "&:active": {
