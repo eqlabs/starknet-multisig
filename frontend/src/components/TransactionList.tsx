@@ -5,9 +5,13 @@ import {
 import React from "react";
 
 function TransactionItem({ transaction }: { transaction: Transaction }) {
+  const link =
+    "https://goerli.voyager.online/tx/" + transaction.transactionHash;
   return (
     <span>
-      {transaction.transactionHash} - {transaction.status}
+      <a href={link} target="_blank">
+        {transaction.status}
+      </a>
     </span>
   );
 }

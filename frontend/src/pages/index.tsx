@@ -1,4 +1,4 @@
-import { useStarknetCall } from "@starknet-react/core";
+import { useStarknet, useStarknetCall } from "@starknet-react/core";
 import type { NextPage } from "next";
 import { useMemo } from "react";
 import { json } from "starknet";
@@ -8,12 +8,14 @@ import { MultisigSettings } from "~/components/MultisigSettings";
 import { TransactionList } from "~/components/TransactionList";
 
 const Home: NextPage = () => {
+  const { account } = useStarknet();
+
   return (
     <div>
       <h2>Multisig</h2>
       <ConnectWallet />
 
-      <MultisigSettings />
+      {account && <MultisigSettings />}
       <p>
         Please check{" "}
         <a href="https://github.com/eqlabs/starknet-multisig" target="_blank">
