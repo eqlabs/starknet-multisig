@@ -7,11 +7,14 @@ import { ConnectWallet } from "~/components/ConnectWallet";
 import { MultisigSettings } from "~/components/MultisigSettings";
 import { TransactionList } from "~/components/TransactionList";
 
+import ThemeChanger from "~/components/ThemeChanger";
+
 const Home: NextPage = () => {
   const { account } = useStarknet();
 
   return (
     <div>
+      <ThemeChanger />
       <h2>Multisig</h2>
       <ConnectWallet />
 
