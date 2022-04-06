@@ -19,6 +19,9 @@ import {
 import { number, stark } from "starknet";
 import { getSelectorFromName, starknetKeccak } from "starknet/dist/utils/hash";
 
+import Button from "~/components/Button";
+import Input from "~/components/Input";
+
 export function MultisigSettings() {
   const { account } = useStarknet();
 
@@ -220,25 +223,25 @@ export function MultisigSettings() {
             return (
               <div key={i}>
                 Signer {i + 1} address:
-                <input
+                <Input
                   type="text"
                   onChange={(e) => onOwnerChange(e.target.value, i)}
                   value={owner}
-                ></input>
+                ></Input>
               </div>
             );
           })}
           <div></div>
-          <button onClick={onDeploy}>Deploy multisig contract</button>
+          <Button onClick={onDeploy}>Deploy multisig contract</Button>
         </fieldset>
       )}
       {!createNewMultisig && (
         <div>
           Existing multisig contract address:{" "}
-          <input
+          <Input
             type="text"
             onChange={(e) => setDeployedMultisigAddress(e.target.value)}
-          ></input>
+          ></Input>
         </div>
       )}
 
@@ -260,11 +263,11 @@ export function MultisigSettings() {
                 <legend>Transaction creation</legend>
                 <div>
                   Target contract address:{" "}
-                  <input
+                  <Input
                     type="text"
                     value={targetAddress}
                     onChange={(e) => setTargetAddress(e.target.value)}
-                  ></input>{" "}
+                  ></Input>{" "}
                   {targetAddress && (
                     <a href={targetLink} target="_blank">
                       Voyager link
@@ -273,19 +276,19 @@ export function MultisigSettings() {
                 </div>
                 <div>
                   Target function name:{" "}
-                  <input
+                  <Input
                     type="text"
                     value={targetFunctionName}
                     onChange={(e) => setTargetFunctionName(e.target.value)}
-                  ></input>
+                  ></Input>
                 </div>
                 <div>
                   Target function parameters:{" "}
-                  <input
+                  <Input
                     type="text"
                     value={targetParameters}
                     onChange={(e) => setTargetParameters(e.target.value)}
-                  ></input>
+                  ></Input>
                 </div>
                 <button onClick={submit}>Submit a new transaction</button>
               </fieldset>
@@ -315,12 +318,12 @@ export function MultisigSettings() {
                       </fieldset>
                     </div>
                   </div>
-                  <button onClick={confirm}>
+                  <Button onClick={confirm}>
                     Confirm the latest transaction
-                  </button>
-                  <button onClick={execute}>
+                  </Button>
+                  <Button onClick={execute}>
                     Execute the latest transaction
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
