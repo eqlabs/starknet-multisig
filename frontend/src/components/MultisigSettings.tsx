@@ -148,14 +148,7 @@ export function MultisigSettings() {
 
   const submit = async () => {
     const pars = targetParameters.split(" ").map((p) => number.toBN(p));
-    console.log(
-      "submit",
-      targetAddress,
-      targetFunctionSelector.toString(),
-      targetParameters,
-      [targetParameters],
-      pars
-    );
+
     await submitTransaction({
       args: [targetAddress, targetFunctionSelector, pars],
     });
