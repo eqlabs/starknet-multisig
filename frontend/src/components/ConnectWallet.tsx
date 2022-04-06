@@ -1,4 +1,5 @@
 import { useStarknet, InjectedConnector } from "@starknet-react/core";
+import Button from "~/components/Button";
 
 export function ConnectWallet() {
   const { account, connect } = useStarknet();
@@ -8,8 +9,8 @@ export function ConnectWallet() {
   }
 
   return (
-    <button onClick={() => connect(new InjectedConnector())}>
+    <Button fullWidth onClick={() => connect(new InjectedConnector())}>
       Connect wallet (Argent X)
-    </button>
+    </Button>
   );
 }
