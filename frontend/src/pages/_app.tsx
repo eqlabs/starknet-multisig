@@ -17,7 +17,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         }}
       >
         <NextHead>
-          <title>Multisig</title>
+          <title>Starsign — StarkNet Multisig</title>
         </NextHead>
         <Component {...pageProps} />
       </ThemeProvider>

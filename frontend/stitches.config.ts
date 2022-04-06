@@ -42,13 +42,13 @@ export const {
       accent: "$mint9",
       background: "$indigo3",
       text: "$indigo12",
-      textMuted: "$indigo6",
+      textMuted: "#464C82",
       error: "$red9",
       warning: "$amber11",
       success: "$grass11",
       focusOutline: "$accent",
       inputBg: "$indigo1",
-      inputBorder: "$indigo4",
+      inputBorder: "$indigo12",
       buttonText: "$indigo1",
       buttonBg: "$indigo12",
       buttonHover: "$indigo11",
@@ -354,13 +354,17 @@ export const darkTheme = createTheme("dark", {
     ...redDark,
     ...mintDark,
     ...indigoDark,
+
     accent: "$mint9",
     background: "$indigo1",
     text: "$indigo12",
-    textMuted: "$indigo6",
+    textMuted: "#B6B8C6",
     error: "$red9",
     warning: "$amber11",
     success: "$grass11",
+    buttonGradient: "linear-gradient(210deg, $whiteA12, $whiteA9)",
+    buttonHoverGradient: "linear-gradient(210deg, $whiteA12, $whiteA10)",
+    buttonActiveGradient: "linear-gradient(210deg, $whiteA12, $whiteA11)",
   },
 });
 
@@ -380,9 +384,9 @@ export const globalStyles = globalCss({
     },
     {
       fontFamily: "Space Grotesk",
-      fontStyle: "normal",
-      fontWeight: "600",
-      src: 'local(""), url("/fonts/space-grotesk-v10-latin-600.woff2") format("woff2"), url("/fonts/space-grotesk-v10-latin-600.woff") format("woff")',
+      fontStyle: "bold",
+      fontWeight: "500",
+      src: 'local(""), url("/fonts/space-grotesk-v10-latin-500.woff2") format("woff2"), url("/fonts/space-grotesk-v10-latin-500.woff") format("woff")',
     },
   ],
   "html, body": {
@@ -396,6 +400,13 @@ export const globalStyles = globalCss({
   },
   a: {
     color: "inherit",
-    textDecoration: "none",
+  },
+  hr: {
+    border: "2px solid $accent",
+    margin: "$6 0",
+  },
+  "h1, h2, h3, h4, h5": {
+    letterSpacing: "-0.02rem",
+    fontWeight: "500",
   },
 });

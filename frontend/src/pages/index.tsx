@@ -6,9 +6,21 @@ import { toBN } from "starknet/dist/utils/number";
 import { ConnectWallet } from "~/components/ConnectWallet";
 import { MultisigSettings } from "~/components/MultisigSettings";
 import { TransactionList } from "~/components/TransactionList";
-import Box from "~/components/Box";
+import { motion, AnimatePresence } from "framer-motion";
 
+import Box from "~/components/Box";
 import Header from "~/components/Header";
+import Footer from "~/components/Footer";
+import { styled } from "../../stitches.config";
+
+const BorderedContainer = styled(motion.div, {
+  boxSizing: "border-box",
+  width: "100%",
+  maxWidth: "520px",
+  margin: "0 auto",
+  border: "3px solid $indigo12",
+  padding: "$8",
+});
 
 const Home: NextPage = () => {
   const { account } = useStarknet();
@@ -26,39 +38,47 @@ const Home: NextPage = () => {
       <Box
         css={{
           display: "flex",
-          alignContent: "center",
+          flexDirection: "column",
+          alignItems: "center",
           justifyContent: "center",
           flex: "1",
+          position: "relative",
         }}
       >
-        <Box
-          css={{
-            width: "100%",
-            maxWidth: "620px",
-            margin: "0 auto",
-            border: "3px solid $indigo12",
-            padding: "$8",
-            alignSelf: "center",
-          }}
-        >
-          <ConnectWallet />
-
-          {account && <MultisigSettings />}
-
-          <p>
-            Please check{" "}
-            <a
-              href="https://github.com/eqlabs/starknet-multisig"
-              target="_blank"
+        <AnimatePresence exitBeforeEnter>
+          {!account && (
+            <BorderedContainer
+              key="connect-account"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{
+                y: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.2 },
+              }}
             >
-              GitHub
-            </a>{" "}
-            for more information.
-          </p>
-          <h2>Recent Transactions</h2>
-          <TransactionList />
-        </Box>
+              <ConnectWallet />
+            </BorderedContainer>
+          )}
+
+          {account && (
+            <BorderedContainer
+              key="connected-account"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{
+                y: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.2 },
+              }}
+            >
+              <MultisigSettings />
+              <TransactionList />
+            </BorderedContainer>
+          )}
+        </AnimatePresence>
       </Box>
+      <Footer />
     </Box>
   );
 };

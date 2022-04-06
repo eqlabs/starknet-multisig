@@ -20,12 +20,19 @@ export function TransactionList() {
   const { transactions } = useStarknetTransactionManager();
   const revMyArr = ([] as Transaction[]).concat(transactions).reverse();
   return (
-    <ul>
-      {revMyArr.map((transaction, index) => (
-        <li key={index}>
-          <TransactionItem transaction={transaction} />
-        </li>
-      ))}
-    </ul>
+    <>
+      {revMyArr.length > 0 && (
+        <>
+          <h2>Recent Transactions</h2>
+          <ul>
+            {revMyArr.map((transaction, index) => (
+              <li key={index}>
+                <TransactionItem transaction={transaction} />
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </>
   );
 }
