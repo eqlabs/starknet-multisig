@@ -1,4 +1,5 @@
 #!/bin/bash
+
 if git describe --tags --exact-match ; then
     echo "New tag found, publishing a new release"
     exit 1;
