@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if git diff HEAD^ HEAD --quiet ./frontend/ && git describe --exact-match HEAD ; then
+if git describe --exact-match HEAD ; then
     echo "New tag found, publishing a new release"
     exit 1;
 else
