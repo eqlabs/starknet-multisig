@@ -20,7 +20,8 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-icons": "^4.3.1",
-    "starknet": "^3.5.1"
+    "starknet": "^3.5.1",
+    "valtio": "^1.5.2"
   },
   "devDependencies": {
     "@types/node": "17.0.17",

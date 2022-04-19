@@ -1,29 +1,23 @@
 import {
   useStarknet,
   useStarknetCall,
-  useStarknetInvoke,
-  useStarknetTransactionManager,
+  useStarknetInvoke
 } from "@starknet-react/core";
 import React, { useEffect, useState } from "react";
+import {
+  Abi,
+  CompiledContract, json, number
+} from "starknet";
+import { getSelectorFromName } from "starknet/dist/utils/hash";
+import Button from "~/components/Button";
+import { Input, Select } from "~/components/Input";
+import Paragraph from "~/components/Paragraph";
 import { useContractFactory } from "~/hooks/deploy";
 import { useMultisigContract } from "~/hooks/multisigContractHook";
 import MultisigSource from "../../public/Multisig.json";
-import {
-  Abi,
-  CompiledContract,
-  Contract,
-  ContractFactory,
-  json,
-  Provider,
-} from "starknet";
-import { number, stark } from "starknet";
-import { getSelectorFromName, starknetKeccak } from "starknet/dist/utils/hash";
-
-import Paragraph from "~/components/Paragraph";
-import Button from "~/components/Button";
-import { Input, Select } from "~/components/Input";
-
 import { styled } from "../../stitches.config";
+
+
 
 const ModeSwitch = styled("div", {
   display: "flex",
@@ -278,6 +272,7 @@ export function MultisigSettings() {
                 <Label>Signer {i + 1} address:</Label>
                 <Input
                   type="text"
+                  autoComplete="off"
                   onChange={(e) => onOwnerChange(e.target.value, i)}
                   value={owner}
                 ></Input>
