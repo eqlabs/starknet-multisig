@@ -4,8 +4,7 @@ import BorderedContainer from "~/components/BorderedContainer";
 import Box from "~/components/Box";
 import Footer from "~/components/Footer";
 import Header from "~/components/Header";
-import { MultisigSettings } from "~/components/MultisigSettings";
-import { TransactionList } from "~/components/TransactionList";
+import { NewMultisig } from "~/components/NewMultisig";
 
 const Create: NextPage = () => (
   <Box
@@ -38,8 +37,7 @@ const Create: NextPage = () => (
             opacity: { duration: 0.2 },
           }}
         >
-          <MultisigSettings />
-          <TransactionList />
+          <NewMultisig />
         </BorderedContainer>
       </AnimatePresence>
     </Box>

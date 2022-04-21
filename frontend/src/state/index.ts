@@ -2,12 +2,14 @@ import { proxy, subscribe } from 'valtio';
 
 export type State = {
   walletAddress: false | string
+  multisigs: Array<string>
 }
 
 const storeKey = 'starsign-state'
 
 const defaultState: State = {
   walletAddress: false,
+  multisigs: []
 };
 
 const persistState = (state: State) => {
