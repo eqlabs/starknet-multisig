@@ -5,22 +5,17 @@ import {
 } from "@starknet-react/core";
 import React, { useEffect, useState } from "react";
 import {
-  Abi,
   CompiledContract, json, number
 } from "starknet";
 import { getSelectorFromName } from "starknet/dist/utils/hash";
 import Button from "~/components/Button";
 import { Input } from "~/components/Input";
-import { useContractFactory } from "~/hooks/deploy";
 import { useMultisigContract } from "~/hooks/multisigContractHook";
-import MultisigSource from "../../public/Multisig.json";
 import ModeToggle from "./ModeToggle";
 
 export function ExistingMultisig() {
   const { account } = useStarknet();
 
-  const [createNewMultisig, setCreateNewMultisig] = useState<boolean>(true);
-  const [threshold, setThreshold] = useState<number>(2);
   const [totalAmount, setTotalAmount] = useState<number>(3);
   const [owners, setOwners] = useState<string[]>([]);
   const [deployedMultisigAddress, setDeployedMultisigAddress] =
@@ -36,11 +31,6 @@ export function ExistingMultisig() {
   const { contract: multisigContract } = useMultisigContract(
     deployedMultisigAddress
   );
-
-  const { deploy: deployMultisig } = useContractFactory({
-    compiledContract: compiledMultisig,
-    abi: (MultisigSource as any).abi as Abi,
-  });
 
   const { invoke: submitTransaction } = useStarknetInvoke({
     contract: multisigContract,
@@ -81,7 +71,6 @@ export function ExistingMultisig() {
     latestTxTarget = number.toHex(tx.tx.to).toString();
     latestTxFunction = tx.tx.function_selector.toString();
     latestTxArgs = tx.tx_calldata.toString().split(",");
-    //console.log("lat", tx);
     latestTxConfirmation = number
       .toBN((multisigLatestTransaction as any).tx.num_confirmations)
       .toNumber();
@@ -114,35 +103,6 @@ export function ExistingMultisig() {
     return compiled;
   };
 
-  const onDeploy = async () => {
-    const _deployMultisig = async () => {
-      const bnOwners = owners.map((o) => number.toBN(o));
-      const calldata = [bnOwners.length, ...bnOwners, threshold];
-      //console.log("deploy c", calldata);
-      const deployment = await deployMultisig({
-        constructorCalldata: calldata,
-      });
-      if (deployment) {
-        setDeployedMultisigAddress(deployment.address);
-      }
-    };
-    await _deployMultisig();
-  };
-
-  const onThresholdChange = (value: string) => {
-    setThreshold(+value);
-  };
-
-  const onTotalAmountChange = (value: string) => {
-    setTotalAmount(+value);
-  };
-
-  const onOwnerChange = (value: string, index: number) => {
-    const copy = [...owners];
-    copy[index] = value;
-    setOwners(copy);
-  };
-
   const submit = async () => {
     const pars = targetParameters.split(" ").map((p) => number.toBN(p));
 
@@ -171,15 +131,13 @@ export function ExistingMultisig() {
     <div>
       <ModeToggle />
 
-      {!createNewMultisig && (
-        <div>
-          Existing multisig contract address:{" "}
-          <Input
-            type="text"
-            onChange={(e) => setDeployedMultisigAddress(e.target.value)}
-          ></Input>
-        </div>
-      )}
+      <div>
+        Existing multisig contract address:{" "}
+        <Input
+          type="text"
+          onChange={(e) => setDeployedMultisigAddress(e.target.value)}
+        ></Input>
+      </div>
 
       <div>
         {deployedMultisigAddress && (
