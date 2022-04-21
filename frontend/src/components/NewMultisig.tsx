@@ -242,25 +242,12 @@ export function NewMultisig() {
             }}
             value={threshold}
           >
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
+            {[...Array(totalAmount).keys()].map((_, index) => {
+              const thresholdOption = index + 1
+              return <option value={thresholdOption.toString()}>{thresholdOption.toString()}</option>
+            })}
           </Select>{" "}
-          of total{" "}
-          <Select
-            css={{
-              margin: "0 $2",
-            }}
-            onChange={(e) => {
-              onTotalAmountChange(e.target.value);
-            }}
-            value={totalAmount}
-          >
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </Select>{" "}
-          signers{" "}
+          of total {totalAmount} signers{" "}
         </Threshold>
 
         <Button fullWidth onClick={onDeploy}>
