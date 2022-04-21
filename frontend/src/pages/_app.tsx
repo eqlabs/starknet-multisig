@@ -1,10 +1,28 @@
+import { InjectedConnector, StarknetProvider, useStarknet } from "@starknet-react/core";
+import { ThemeProvider } from "next-themes";
 import type { AppProps } from "next/app";
 import NextHead from "next/head";
-import { ThemeProvider } from "next-themes";
+import { useRouter } from 'next/router';
+import { useEffect } from "react";
+import { useSnapshot } from "valtio";
+import { state } from "~/state";
 import { darkTheme } from "../../stitches.config";
-import { StarknetProvider } from "@starknet-react/core";
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const router = useRouter()
+  const { account, connect } = useStarknet();
+  const { walletAddress } = useSnapshot(state)
+
+  useEffect(() => {
+    if (!account && !walletAddress) {
+      router.push("/")
+    } else if (!walletAddress && account) {
+      state.walletAddress = account
+    } else if (walletAddress && !account) {
+      connect(new InjectedConnector())
+    }
+  }, [account])
+
   return (
     <StarknetProvider>
       <ThemeProvider

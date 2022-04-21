@@ -1,11 +1,20 @@
-import { useStarknet, InjectedConnector } from "@starknet-react/core";
-import Button from "~/components/Button";
+import { InjectedConnector, useStarknet } from "@starknet-react/core";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 import Box from "~/components/Box";
-import Paragraph from "~/components/Paragraph";
+import Button from "~/components/Button";
 import { Symbol } from "~/components/Logos";
+import Paragraph from "~/components/Paragraph";
 
 export function ConnectWallet() {
-  const { connect } = useStarknet();
+  const router = useRouter()
+  const { connect, account } = useStarknet()
+
+  useEffect(() => {
+    if (account) {
+      router.push("/create")
+    }
+  }, [account])
 
   return (
     <>
