@@ -2,13 +2,11 @@ import {
   useStarknet,
   useStarknetCall
 } from "@starknet-react/core";
-import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import {
   Abi,
   CompiledContract, json, number
 } from "starknet";
-import { getSelectorFromName } from "starknet/dist/utils/hash";
 import Button from "~/components/Button";
 import { Input, Select } from "~/components/Input";
 import Paragraph from "~/components/Paragraph";
@@ -18,44 +16,6 @@ import MultisigSource from "../../public/Multisig.json";
 import { styled } from "../../stitches.config";
 import ModeToggle from "./ModeToggle";
 
-
-
-const ModeSwitch = styled("div", {
-  display: "flex",
-  padding: "3px",
-  borderRadius: "24px",
-  background: "$text",
-  marginBottom: "$6",
-});
-
-const Switch = styled("input", {
-  position: "absolute",
-  clip: "rect(0, 0, 0, 0)",
-  height: "1px",
-  width: "1px",
-
-  "&:checked + label": {
-    background: "$background",
-    color: "$text",
-    opacity: "1",
-  },
-});
-
-const SwitchLabel = styled("label", {
-  textAlign: "center",
-  padding: "$3 $4",
-  flex: 1,
-  color: "$background",
-  transition: "opacity .3s",
-  opacity: "0.6",
-  borderRadius: "24px",
-  textTransform: "uppercase",
-  fontSize: "$sm",
-  "&:hover": {
-    opacity: 1,
-    cursor: "pointer",
-  },
-});
 
 const Fieldset = styled("fieldset", {
   padding: "$1 0",
@@ -71,6 +31,13 @@ const Legend = styled("legend", {
 const Signer = styled("div", {
   margin: "$4 0",
   display: "block",
+  variants: {
+    inactive: {
+      true: {
+        opacity: "0.5",
+      }
+    }
+  }
 });
 
 const Label = styled("label", {
@@ -85,13 +52,10 @@ const Threshold = styled("div", {
 export function NewMultisig() {
   const { account } = useStarknet();
 
-  const [threshold, setThreshold] = useState<number>(2);
-  const [totalAmount, setTotalAmount] = useState<number>(3);
+  const [threshold, setThreshold] = useState<number>(1);
+  const [totalAmount, setTotalAmount] = useState<number>(2);
   const [owners, setOwners] = useState<string[]>([]);
   const [deployedMultisigAddress, setDeployedMultisigAddress] =
-    useState<string>("");
-  const [targetFunctionName, setTargetFunctionName] = useState<string>("");
-  const [targetFunctionSelector, setTargetFunctionSelector] =
     useState<string>("");
 
   const [compiledMultisig, setCompiledMultisig] = useState<CompiledContract>();
@@ -142,17 +106,10 @@ export function NewMultisig() {
   }, []);
 
   useEffect(() => {
-    if (targetFunctionName) {
-      const newSelector = number.toBN(getSelectorFromName(targetFunctionName));
-      setTargetFunctionSelector(newSelector);
-    }
-  }, [targetFunctionName]);
-
-  useEffect(() => {
     const emptyOwners = [...Array(totalAmount).keys()].map((item) => "");
     emptyOwners[0] = account ?? "";
     setOwners(emptyOwners);
-  }, [totalAmount, account]);
+  }, []);
 
   const getCompiledMultisig = async () => {
     // Can't import the JSON directly due to a bug in StarkNet: https://github.com/0xs34n/starknet.js/issues/104
@@ -166,7 +123,6 @@ export function NewMultisig() {
     const _deployMultisig = async () => {
       const bnOwners = owners.map((o) => number.toBN(o));
       const calldata = [bnOwners.length, ...bnOwners, threshold];
-      //console.log("deploy c", calldata);
       const deployment = await deployMultisig({
         constructorCalldata: calldata,
       });
@@ -181,17 +137,29 @@ export function NewMultisig() {
     setThreshold(+value);
   };
 
-  const onTotalAmountChange = (value: string) => {
-    setTotalAmount(+value);
-  };
-
   const onOwnerChange = (value: string, index: number) => {
-    const copy = [...owners];
+    // Put the new entry in copied version of owners[]
+    let copy = [...owners];
     copy[index] = value;
+
+    const allFieldsFilled = copy.every((owner)=> owner !== "")
+    let lastFilledIndex = 0
+    owners.forEach((owner, i) => {
+      if (owner !== "") {
+        lastFilledIndex = i
+      }
+    })
+
+    // Trim || extend owners[]
+    if (allFieldsFilled && value !== "") {
+      copy.push("")
+    } else if (lastFilledIndex !== -1 && value === "") {
+      copy = copy.slice(0, lastFilledIndex + 1)
+    }
+    
+    setTotalAmount(copy.length - 1);
     setOwners(copy);
   };
-
-  const router = useRouter()
 
   return (
     <div>
@@ -206,7 +174,7 @@ export function NewMultisig() {
         </Paragraph>
         {owners.map((owner, i) => {
           return (
-            <Signer key={i}>
+            <Signer key={i} inactive={i === totalAmount.valueOf() && owners[i] === ""}>
               <Label>Signer {i + 1} address:</Label>
               <Input
                 type="text"
@@ -222,7 +190,7 @@ export function NewMultisig() {
         <Paragraph css={{ color: "$textMuted" }}>
           Specify how many of them have to confirm a transaction before it
           gets executed. In general, the more confirmations required, the more
-          secure your contract is
+          secure your contract is.
         </Paragraph>
         <Threshold>
           <Paragraph
@@ -244,7 +212,7 @@ export function NewMultisig() {
           >
             {[...Array(totalAmount).keys()].map((_, index) => {
               const thresholdOption = index + 1
-              return <option value={thresholdOption.toString()}>{thresholdOption.toString()}</option>
+              return <option value={thresholdOption.toString()} key={`thresholdOption-${thresholdOption.toString()}`}>{thresholdOption.toString()}</option>
             })}
           </Select>{" "}
           of total {totalAmount} signers{" "}
