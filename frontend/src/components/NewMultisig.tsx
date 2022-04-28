@@ -150,13 +150,13 @@ export function NewMultisig() {
       }
     })
 
-    // Trim || extend owners[]
+    // Extend/trim owners[]
     if (allFieldsFilled && value !== "") {
       copy.push("")
-    } else if (lastFilledIndex !== -1 && value === "") {
+    } else if (lastFilledIndex === index && value === "") {
       copy = copy.slice(0, lastFilledIndex + 1)
     }
-    
+
     setTotalAmount(copy.length - 1);
     setOwners(copy);
   };
@@ -172,19 +172,17 @@ export function NewMultisig() {
           first owner with your connected wallet details, but you are free to
           change this to a different owner.
         </Paragraph>
-        {owners.map((owner, i) => {
-          return (
-            <Signer key={i} inactive={i === totalAmount.valueOf() && owners[i] === ""}>
-              <Label>Signer {i + 1} address:</Label>
-              <Input
-                type="text"
-                autoComplete="off"
-                onChange={(e) => onOwnerChange(e.target.value, i)}
-                value={owner}
-              ></Input>
-            </Signer>
-          );
-        })}
+        {owners.map((owner, i) => (
+          <Signer key={i} inactive={i === totalAmount.valueOf() && owner === ""}>
+            <Label>Signer {i + 1} address:</Label>
+            <Input
+              type="text"
+              autoComplete="off"
+              onChange={(e) => onOwnerChange(e.target.value, i)}
+              value={owner}
+            ></Input>
+          </Signer>
+        ))}
 
         <hr />
         <Paragraph css={{ color: "$textMuted" }}>
