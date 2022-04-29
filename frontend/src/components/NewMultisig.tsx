@@ -2,6 +2,7 @@ import {
   useStarknet,
   useStarknetCall
 } from "@starknet-react/core";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import {
   Abi,
@@ -51,6 +52,7 @@ const Threshold = styled("div", {
 
 export function NewMultisig() {
   const { account } = useStarknet();
+  const router = useRouter();
 
   const [threshold, setThreshold] = useState<number>(1);
   const [totalAmount, setTotalAmount] = useState<number>(2);
@@ -121,13 +123,14 @@ export function NewMultisig() {
 
   const onDeploy = async () => {
     const _deployMultisig = async () => {
-      const bnOwners = owners.map((o) => number.toBN(o));
+      const bnOwners = owners.slice(0, owners.length - 1).map((o) => number.toBN(o));
       const calldata = [bnOwners.length, ...bnOwners, threshold];
       const deployment = await deployMultisig({
         constructorCalldata: calldata,
       });
       if (deployment) {
         setDeployedMultisigAddress(deployment.address);
+        router.push(`/contract/${deployment.address}`)
       }
     };
     await _deployMultisig();
@@ -173,7 +176,7 @@ export function NewMultisig() {
           change this to a different owner.
         </Paragraph>
         {owners.map((owner, i) => (
-          <Signer key={i} inactive={i === totalAmount.valueOf() && owner === ""}>
+          <Signer key={i} inactive={owners.length > 2 && i === totalAmount.valueOf() && owner === ""}>
             <Label>Signer {i + 1} address:</Label>
             <Input
               type="text"
