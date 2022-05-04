@@ -9,7 +9,7 @@ const storeKey = 'starsign-state'
 
 const defaultState: State = {
   walletAddress: false,
-  multisigs: []
+  multisigs: [] // TODO: Integrate transaction state to multisig info? Deployment transaction, its state etc
 };
 
 const persistState = (state: State) => {

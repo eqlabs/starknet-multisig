@@ -1,6 +1,6 @@
 import {
   Transaction,
-  useStarknetTransactionManager,
+  useStarknetTransactionManager
 } from "@starknet-react/core";
 import React from "react";
 
