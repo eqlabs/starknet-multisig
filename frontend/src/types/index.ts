@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
 export type SSRProps = {
-  children?: ReactNode;,
+  children?: ReactNode,
   contractAddress: string
 }
