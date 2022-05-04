@@ -1,6 +1,5 @@
 import {
-  useStarknet,
-  useStarknetCall
+  useStarknet
 } from "@starknet-react/core";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -73,44 +72,10 @@ export function NewMultisig() {
   const [totalSigners, setTotalSigners] = useState<number>(2);
   const [signers, setSigners] = useState<string[]>([]);
 
-
-  const [deployedMultisigAddress, setDeployedMultisigAddress] =
-    useState<string>("");
-
   const { deploy: deployMultisig } = useContractFactory({
     compiledContract: compiledMultisig,
     abi: (MultisigSource as any).abi as Abi,
   });
-
-  const { data: multisigTransactionCount } = useStarknetCall({
-    contract: multisigContract,
-    method: "get_transactions_len",
-    args: [],
-  });
-
-  const latestTxIndex = number.toBN(multisigTransactionCount).toNumber() - 1;
-
-  const { data: multisigLatestTransaction } = useStarknetCall({
-    contract: multisigContract,
-    method: "get_transaction",
-    args: [latestTxIndex],
-  });
-
-  let latestTxTarget = "";
-  let latestTxFunction = "";
-  let latestTxConfirmation = 0;
-  let latestTxArgs: [] = [];
-
-  if (multisigLatestTransaction) {
-    const tx = multisigLatestTransaction as any;
-    latestTxTarget = number.toHex(tx.tx.to).toString();
-    latestTxFunction = tx.tx.function_selector.toString();
-    latestTxArgs = tx.tx_calldata.toString().split(",");
-    //console.log("lat", tx);
-    latestTxConfirmation = number
-      .toBN((multisigLatestTransaction as any).tx.num_confirmations)
-      .toNumber();
-  }
 
   useEffect(() => {
     const emptyOwners = [...Array(totalSigners).keys()].map((item) => "");
@@ -126,7 +91,6 @@ export function NewMultisig() {
         constructorCalldata: calldata,
       });
       if (deployment) {
-        setDeployedMultisigAddress(deployment.address);
         router.push(`/contract/${deployment.address}`)
       }
     };
