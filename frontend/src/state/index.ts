@@ -35,6 +35,5 @@ const getInitialState = () => {
 export const state = proxy<State>(getInitialState())
 
 subscribe(state, () => {
-  console.log('does this work at all?')
   persistState(state)
 });

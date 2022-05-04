@@ -11,16 +11,16 @@ import { getSelectorFromName } from "starknet/dist/utils/hash";
 import Button from "~/components/Button";
 import { Input } from "~/components/Input";
 import { useMultisigContract } from "~/hooks/multisigContractHook";
-import ModeToggle from "./ModeToggle";
 
-export function ExistingMultisig() {
+interface MultisigProps {
+  contractAddress: string
+}
+
+export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
   const { account } = useStarknet();
 
-  const [totalAmount, setTotalAmount] = useState<number>(3);
-  const [owners, setOwners] = useState<string[]>([]);
-  const [deployedMultisigAddress, setDeployedMultisigAddress] =
-    useState<string>("");
-  const [targetAddress, setTargetAddress] = useState<string>("");
+  console.log(contractAddress, account)
+
   const [targetFunctionName, setTargetFunctionName] = useState<string>("");
   const [targetFunctionSelector, setTargetFunctionSelector] =
     useState<string>("");
@@ -29,7 +29,7 @@ export function ExistingMultisig() {
   const [compiledMultisig, setCompiledMultisig] = useState<CompiledContract>();
 
   const { contract: multisigContract } = useMultisigContract(
-    deployedMultisigAddress
+    contractAddress
   );
 
   const { invoke: submitTransaction } = useStarknetInvoke({
@@ -89,12 +89,6 @@ export function ExistingMultisig() {
     }
   }, [targetFunctionName]);
 
-  useEffect(() => {
-    const emptyOwners = [...Array(totalAmount).keys()].map((item) => "");
-    emptyOwners[0] = account ?? "";
-    setOwners(emptyOwners);
-  }, [totalAmount, account]);
-
   const getCompiledMultisig = async () => {
     // Can't import the JSON directly due to a bug in StarkNet: https://github.com/0xs34n/starknet.js/issues/104
     // (even if the issue is closed, the underlying Starknet issue remains)
@@ -107,7 +101,7 @@ export function ExistingMultisig() {
     const pars = targetParameters.split(" ").map((p) => number.toBN(p));
 
     await submitTransaction({
-      args: [targetAddress, targetFunctionSelector, pars],
+      args: [contractAddress, targetFunctionSelector, pars],
     });
   };
 
@@ -124,50 +118,26 @@ export function ExistingMultisig() {
   };
 
   const multisigLink =
-    "https://goerli.voyager.online/contract/" + deployedMultisigAddress;
-  const targetLink = "https://goerli.voyager.online/contract/" + targetAddress;
+    "https://goerli.voyager.online/contract/" + contractAddress;
 
   return (
     <div>
-      <ModeToggle />
-
       <div>
-        Existing multisig contract address:{" "}
-        <Input
-          type="text"
-          onChange={(e) => setDeployedMultisigAddress(e.target.value)}
-        ></Input>
-      </div>
-
-      <div>
-        {deployedMultisigAddress && (
+        {contractAddress && (
           <div>
             Multisig contract:{" "}
             <a href={multisigLink} target="_blank">
-              {deployedMultisigAddress}
+              {contractAddress}
             </a>
           </div>
         )}
       </div>
       <div>
-        {deployedMultisigAddress && (
+        {contractAddress && (
           <div>
             <div>
               <fieldset>
                 <legend>Transaction creation</legend>
-                <div>
-                  Target contract address:{" "}
-                  <Input
-                    type="text"
-                    value={targetAddress}
-                    onChange={(e) => setTargetAddress(e.target.value)}
-                  ></Input>{" "}
-                  {targetAddress && (
-                    <a href={targetLink} target="_blank">
-                      Voyager link
-                    </a>
-                  )}
-                </div>
                 <div>
                   Target function name:{" "}
                   <Input

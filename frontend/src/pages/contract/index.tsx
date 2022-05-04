@@ -2,10 +2,10 @@ import { AnimatePresence } from "framer-motion";
 import type { NextPage } from "next";
 import BorderedContainer from "~/components/BorderedContainer";
 import Box from "~/components/Box";
-import { ExistingMultisig } from "~/components/ExistingMultisig";
 import Footer from "~/components/Footer";
 import Header from "~/components/Header";
-import { TransactionList } from "~/components/TransactionList";
+import ModeToggle from "~/components/ModeToggle";
+import MultisigList from "~/components/MultisigList";
 
 const Contract: NextPage = () => (
   <Box
@@ -38,8 +38,8 @@ const Contract: NextPage = () => (
             opacity: { duration: 0.2 },
           }}
         >
-          <ExistingMultisig />
-          <TransactionList />
+          <ModeToggle />
+          <MultisigList />
         </BorderedContainer>
       </AnimatePresence>
     </Box>

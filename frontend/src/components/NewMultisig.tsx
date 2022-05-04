@@ -12,7 +12,6 @@ import Button from "~/components/Button";
 import { Input, Select } from "~/components/Input";
 import Paragraph from "~/components/Paragraph";
 import { useContractFactory } from "~/hooks/deploy";
-import { useMultisigContract } from "~/hooks/multisigContractHook";
 import MultisigSource from "../../public/Multisig.json";
 import { styled } from "../../stitches.config";
 import ModeToggle from "./ModeToggle";
@@ -54,17 +53,29 @@ export function NewMultisig() {
   const { account } = useStarknet();
   const router = useRouter();
 
-  const [threshold, setThreshold] = useState<number>(1);
-  const [totalAmount, setTotalAmount] = useState<number>(2);
-  const [owners, setOwners] = useState<string[]>([]);
+  // Compile the multisig contract on mount
+  const [compiledMultisig, setCompiledMultisig] = useState<CompiledContract>();
+  useEffect(() => {
+    const getCompiledMultisig = async (): Promise<CompiledContract> => {
+      // Can't import the JSON directly due to a bug in StarkNet: https://github.com/0xs34n/starknet.js/issues/104
+      // (even if the issue is closed, the underlying Starknet issue remains)
+      const raw = await fetch("/Multisig.json");
+      const compiled = json.parse(await raw.text());
+      return compiled;
+    };
+    if (!compiledMultisig) {
+      getCompiledMultisig().then(setCompiledMultisig);
+    }
+  }, []);
+
+  // Input state
+  const [signerThreshold, setSignerThreshold] = useState<number>(1);
+  const [totalSigners, setTotalSigners] = useState<number>(2);
+  const [signers, setSigners] = useState<string[]>([]);
+
+
   const [deployedMultisigAddress, setDeployedMultisigAddress] =
     useState<string>("");
-
-  const [compiledMultisig, setCompiledMultisig] = useState<CompiledContract>();
-
-  const { contract: multisigContract } = useMultisigContract(
-    deployedMultisigAddress
-  );
 
   const { deploy: deployMultisig } = useContractFactory({
     compiledContract: compiledMultisig,
@@ -102,29 +113,15 @@ export function NewMultisig() {
   }
 
   useEffect(() => {
-    if (!compiledMultisig) {
-      getCompiledMultisig().then(setCompiledMultisig);
-    }
-  }, []);
-
-  useEffect(() => {
-    const emptyOwners = [...Array(totalAmount).keys()].map((item) => "");
+    const emptyOwners = [...Array(totalSigners).keys()].map((item) => "");
     emptyOwners[0] = account ?? "";
-    setOwners(emptyOwners);
+    setSigners(emptyOwners);
   }, []);
-
-  const getCompiledMultisig = async () => {
-    // Can't import the JSON directly due to a bug in StarkNet: https://github.com/0xs34n/starknet.js/issues/104
-    // (even if the issue is closed, the underlying Starknet issue remains)
-    const raw = await fetch("/Multisig.json");
-    const compiled = json.parse(await raw.text());
-    return compiled;
-  };
 
   const onDeploy = async () => {
     const _deployMultisig = async () => {
-      const bnOwners = owners.slice(0, owners.length - 1).map((o) => number.toBN(o));
-      const calldata = [bnOwners.length, ...bnOwners, threshold];
+      const bnOwners = signers.slice(0, signers.length - 1).map((o) => number.toBN(o));
+      const calldata = [bnOwners.length, ...bnOwners, signerThreshold];
       const deployment = await deployMultisig({
         constructorCalldata: calldata,
       });
@@ -137,31 +134,31 @@ export function NewMultisig() {
   };
 
   const onThresholdChange = (value: string) => {
-    setThreshold(+value);
+    setSignerThreshold(+value);
   };
 
   const onOwnerChange = (value: string, index: number) => {
-    // Put the new entry in copied version of owners[]
-    let copy = [...owners];
+    // Put the new entry in copied version of signers[]
+    let copy = [...signers];
     copy[index] = value;
 
     const allFieldsFilled = copy.every((owner)=> owner !== "")
     let lastFilledIndex = 0
-    owners.forEach((owner, i) => {
+    signers.forEach((owner, i) => {
       if (owner !== "") {
         lastFilledIndex = i
       }
     })
 
-    // Extend/trim owners[]
+    // Extend/trim signers[]
     if (allFieldsFilled && value !== "") {
       copy.push("")
     } else if (lastFilledIndex === index && value === "") {
       copy = copy.slice(0, lastFilledIndex + 1)
     }
 
-    setTotalAmount(copy.length - 1);
-    setOwners(copy);
+    setTotalSigners(copy.length - 1);
+    setSigners(copy);
   };
 
   return (
@@ -171,12 +168,12 @@ export function NewMultisig() {
       <Fieldset>
         <Legend as="h2">Add Signers</Legend>
         <Paragraph css={{ color: "$textMuted" }}>
-          Your contract will have one or more owners. We have prefilled the
+          Your contract will have one or more signers. We have prefilled the
           first owner with your connected wallet details, but you are free to
           change this to a different owner.
         </Paragraph>
-        {owners.map((owner, i) => (
-          <Signer key={i} inactive={owners.length > 2 && i === totalAmount.valueOf() && owner === ""}>
+        {signers.map((owner, i) => (
+          <Signer key={i} inactive={signers.length > 2 && i === totalSigners.valueOf() && owner === ""}>
             <Label>Signer {i + 1} address:</Label>
             <Input
               type="text"
@@ -209,14 +206,14 @@ export function NewMultisig() {
             onChange={(e) => {
               onThresholdChange(e.target.value);
             }}
-            value={threshold}
+            value={signerThreshold}
           >
-            {[...Array(totalAmount).keys()].map((_, index) => {
+            {[...Array(totalSigners).keys()].map((_, index) => {
               const thresholdOption = index + 1
               return <option value={thresholdOption.toString()} key={`thresholdOption-${thresholdOption.toString()}`}>{thresholdOption.toString()}</option>
             })}
           </Select>{" "}
-          of total {totalAmount} signers{" "}
+          of total {totalSigners} signers{" "}
         </Threshold>
 
         <Button fullWidth onClick={onDeploy}>
