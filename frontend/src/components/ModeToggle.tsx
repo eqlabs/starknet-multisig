@@ -56,8 +56,8 @@ const ModeToggle = () => {
       <Switch
         type="radio"
         id="use-existing-multisig"
-        checked={router.asPath.split("/")[1] === "contract"}
-        onChange={() => router.push("/contract")}
+        checked={router.asPath.split("/")[1] === "wallet"}
+        onChange={() => router.push("/wallet")}
       ></Switch>{" "}
       <SwitchLabel htmlFor="use-existing-multisig">
         Use an existing multisig
