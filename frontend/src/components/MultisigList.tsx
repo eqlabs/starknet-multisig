@@ -25,35 +25,97 @@ const AddressPart = styled("span", {
     left: {
       true: {
         display: "flex",
+        position: "relative",
         flexShrink: 1,
         textAlign: "left",
         justifyContent: "flex-start",
         minWidth: 0,
         overflow: "hidden",
+        "&::after": {
+          position: "absolute",
+          top: 0,
+          right: 0,
+          content: "",
+          width: "100%",
+          height: "100%",
+          zIndex: 2,
+        }
       }
     },
     middle: {
       true: {
         display: "flex",
+        position: "relative",
         flexShrink: 0,
         maxWidth: "min-content",
         width: "max-content",
         textAlign: "center",
         margin: "0 0.5em",
         zIndex: 2,
-        boxShadow: "1px 1px 50px $background"
+        textDecoration: "none !important"
       }
     },
     right: {
       true: {
         display: "flex",
+        position: "relative",
         flexShrink: 1,
         textAlign: "right",
         justifyContent: "flex-end",
         minWidth: 0,
         overflow: "hidden",
+        "&::after": {
+          position: "absolute",
+          top: 0,
+          right: 0,
+          content: "",
+          width: "100%",
+          height: "100%",
+          zIndex: 2,
+        }
       }
     }
+  }
+})
+
+const TextFade = styled("div", {
+  variants: {
+    left: {
+      true: {
+        display: "flex",
+        position: "absolute",
+        zIndex: 3,
+        width: "12rem",
+        maxWidth: "100%",
+        height: "100%",
+        right: 0,
+        background: "linear-gradient(to left, $background 0%, transparent 100%);"
+      }
+    },
+    right: {
+      true: {
+        display: "flex",
+        position: "absolute",
+        zIndex: 3,
+        width: "12rem",
+        maxWidth: "100%",
+        height: "100%",
+        left: 0,
+        background: "linear-gradient(to right, $background 0%, transparent 100%);"
+      }
+    }
+  }
+})
+
+const LinkWrapper = styled("div", {
+  position: "relative",
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-evenly",
+  maxWidth: "100%",
+  cursor: "pointer",
+  "&:hover > span": {
+    textDecoration: "underline"
   }
 })
 
@@ -65,7 +127,7 @@ const MultisigList = () => {
     <>
       {multisigs?.map(contractAddress => (
         <Multisig key={`contractList-${contractAddress}`}>
-          <Link href={`/wallet/${contractAddress}`}><><AddressPart left>{contractAddress}</AddressPart><AddressPart middle>{ellipsis}</AddressPart><AddressPart right>{contractAddress}</AddressPart></></Link>
+          <Link href={`/wallet/${contractAddress}`}><LinkWrapper><AddressPart left>{contractAddress}<TextFade left /></AddressPart><AddressPart middle>{ellipsis}</AddressPart><AddressPart right>{contractAddress}<TextFade right /></AddressPart></LinkWrapper></Link>
         </Multisig>
       ))}
     </>

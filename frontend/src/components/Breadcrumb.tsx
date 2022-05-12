@@ -10,7 +10,6 @@ const Nav = styled("nav", {
 
 const Separator = styled("div", {
   padding: "0 0.5rem",
-  content: "/",
   "&::before": {
     content: "/"
   }
