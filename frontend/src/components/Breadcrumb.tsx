@@ -6,6 +6,12 @@ import { useEffect, useState } from "react"
 const Nav = styled("nav", {
   display: "flex",
   flexDirection: "row",
+  "> a": {
+    textDecoration: "none",
+    "&:hover": {
+      textDecoration: "underline"
+    }
+  }
 })
 
 const Separator = styled("div", {
@@ -13,10 +19,6 @@ const Separator = styled("div", {
   "&::before": {
     content: "/"
   }
-})
-
-const BreadcrumbLink = styled(Link, {
-  textDecoration: "none"
 })
 
 const Breadcrumb= () => {
@@ -46,9 +48,9 @@ const Breadcrumb= () => {
             text = "START"
           }
 
-          let returnable = <><BreadcrumbLink href={href}>{text}</BreadcrumbLink></>
+          let returnable = <><Link href={href}>{text}</Link></>
           if (index < path.length - 1) {
-            returnable = <><BreadcrumbLink href={href}>{text}</BreadcrumbLink><Separator /></>
+            returnable = <><Link href={href}>{text}</Link><Separator /></>
           }
           return returnable
         }
