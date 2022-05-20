@@ -30,22 +30,28 @@ const Breadcrumb= () => {
   return (
     <Nav>
       {path.map((link, index) => {
-        let href = path.reduce((previous, current, currentIndex) => {
-          if (currentIndex < index - 1) {
-            return previous + current
-          } else {
-            return previous
+        if (index > 0) {
+          let href = path.reduce((previous, current, currentIndex) => {
+            if (currentIndex < index - 1) {
+              return previous + current
+            } else {
+              return previous
+            }
+          })
+          let text = link.toUpperCase()
+
+          if (link.substring(0, 2) === "0x" && link.length === 65) {
+            text = link.substring(0, 5).concat("…").concat(link.substring(link.length - 3, link.length)).toUpperCase()
+          } else if (link === "") {
+            text = "START"
           }
-        })
-        let text = link.toUpperCase()
-        if (link.substring(0, 2) === "0x" && link.length === 65) {
-          text = link.substring(0, 5).concat("…").concat(link.substring(link.length - 3, link.length)).toUpperCase()
-          console.log(text)
-        } else if (link === "") {
-          text = "START"
+
+          let returnable = <><BreadcrumbLink href={href}>{text}</BreadcrumbLink></>
+          if (index < path.length - 1) {
+            returnable = <><BreadcrumbLink href={href}>{text}</BreadcrumbLink><Separator /></>
+          }
+          return returnable
         }
-        let returnable = <><BreadcrumbLink href={href}>{text}</BreadcrumbLink><Separator /></>
-        return returnable
       })}
     </Nav>
   )
