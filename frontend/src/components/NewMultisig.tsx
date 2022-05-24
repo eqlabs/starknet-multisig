@@ -13,36 +13,8 @@ import Paragraph from "~/components/Paragraph";
 import { useContractFactory } from "~/hooks/deploy";
 import MultisigSource from "../../public/Multisig.json";
 import { styled } from "../../stitches.config";
+import { Field, Fieldset, Label, Legend } from "./Forms";
 import ModeToggle from "./ModeToggle";
-
-
-const Fieldset = styled("fieldset", {
-  padding: "$1 0",
-  border: 0,
-  margin: 0,
-});
-
-const Legend = styled("legend", {
-  margin: 0,
-  padding: 0,
-});
-
-const Signer = styled("div", {
-  margin: "$4 0",
-  display: "block",
-  variants: {
-    inactive: {
-      true: {
-        opacity: "0.5",
-      }
-    }
-  }
-});
-
-const Label = styled("label", {
-  marginBottom: "$2",
-  display: "block",
-});
 
 const Threshold = styled("div", {
   padding: "0 0 $4",
@@ -137,7 +109,7 @@ export function NewMultisig() {
           change this to a different owner.
         </Paragraph>
         {signers.map((owner, i) => (
-          <Signer key={i} inactive={signers.length > 2 && i === totalSigners.valueOf() && owner === ""}>
+          <Field key={i} inactive={signers.length > 2 && i === totalSigners.valueOf() && owner === ""}>
             <Label>Signer {i + 1} address:</Label>
             <Input
               type="text"
@@ -145,7 +117,7 @@ export function NewMultisig() {
               onChange={(e) => onOwnerChange(e.target.value, i)}
               value={owner}
             ></Input>
-          </Signer>
+          </Field>
         ))}
 
         <hr />

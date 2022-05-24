@@ -3,6 +3,7 @@ import {
   useStarknetCall,
   useStarknetInvoke
 } from "@starknet-react/core";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import {
   CompiledContract, json, number
@@ -11,6 +12,8 @@ import { getSelectorFromName } from "starknet/dist/utils/hash";
 import Button from "~/components/Button";
 import { Input } from "~/components/Input";
 import { useMultisigContract } from "~/hooks/multisigContractHook";
+import { useTransactionsToAddress } from "~/hooks/transactions";
+import { Field, Fieldset, Label, Legend } from "./Forms";
 
 interface MultisigProps {
   contractAddress: string
@@ -27,6 +30,8 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
   const [targetParameters, setTargetParameters] = useState<string>("");
 
   const [compiledMultisig, setCompiledMultisig] = useState<CompiledContract>();
+
+  const transactions = useTransactionsToAddress()
 
   const { contract: multisigContract } = useMultisigContract(
     contractAddress
@@ -121,79 +126,66 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
     "https://goerli.voyager.online/contract/" + contractAddress;
 
   return (
-    <div>
-      <div>
-        {contractAddress && (
-          <div>
-            Multisig contract:{" "}
-            <a href={multisigLink} target="_blank">
-              {contractAddress}
-            </a>
-          </div>
-        )}
-      </div>
-      <div>
-        {contractAddress && (
+    <Fieldset>
+      <Legend as="h2">Add Signers</Legend>
+
+      <Link href={multisigLink}>
+        Contract on explorer
+      </Link>
+
+      <Field>
+        <Label>Target function name:</Label>
+        <Input
+          type="text"
+          value={targetFunctionName}
+          onChange={(e) => setTargetFunctionName(e.target.value)}
+        ></Input>
+      </Field>
+
+      <Field>
+        <Label>Target function parameters:</Label>
+        <Input
+          type="text"
+          value={targetParameters}
+          onChange={(e) => setTargetParameters(e.target.value)}
+        ></Input>
+      </Field>
+      
+      <Button fullWidth onClick={submit}>Submit a new transaction</Button>
+
+      {multisigTransactionCount && +multisigTransactionCount > 0 && (
+        <div>
           <div>
             <div>
               <fieldset>
-                <legend>Transaction creation</legend>
-                <div>
-                  Target function name:{" "}
-                  <Input
-                    type="text"
-                    value={targetFunctionName}
-                    onChange={(e) => setTargetFunctionName(e.target.value)}
-                  ></Input>
-                </div>
-                <div>
-                  Target function parameters:{" "}
-                  <Input
-                    type="text"
-                    value={targetParameters}
-                    onChange={(e) => setTargetParameters(e.target.value)}
-                  ></Input>
-                </div>
-                <button onClick={submit}>Submit a new transaction</button>
-              </fieldset>
+                <legend>Latest multisig transaction's data</legend>
 
-              {multisigTransactionCount && +multisigTransactionCount > 0 && (
                 <div>
-                  <div>
-                    <div>
-                      <fieldset>
-                        <legend>Latest multisig transaction's data</legend>
-
-                        <div>
-                          Number of confirmations: {latestTxConfirmation}
-                        </div>
-                        <div>Target contract address:: {latestTxTarget}</div>
-                        <div>Target function selector: {latestTxFunction}</div>
-                        <div>
-                          Target function parameters:{" ["}
-                          {latestTxArgs.map((arg, i) => (
-                            <div style={{ marginLeft: "20px" }}>
-                              {arg}
-                              {i != latestTxArgs.length - 1 ? "," : ""}
-                            </div>
-                          ))}
-                          {" ]"}
-                        </div>
-                      </fieldset>
+                  Number of confirmations: {latestTxConfirmation}
+                </div>
+                <div>Target contract address:: {latestTxTarget}</div>
+                <div>Target function selector: {latestTxFunction}</div>
+                <div>
+                  Target function parameters:{" ["}
+                  {latestTxArgs.map((arg, i) => (
+                    <div style={{ marginLeft: "20px" }}>
+                      {arg}
+                      {i != latestTxArgs.length - 1 ? "," : ""}
                     </div>
-                  </div>
-                  <Button onClick={confirm}>
-                    Confirm the latest transaction
-                  </Button>
-                  <Button onClick={execute}>
-                    Execute the latest transaction
-                  </Button>
+                  ))}
+                  {" ]"}
                 </div>
-              )}
+              </fieldset>
             </div>
           </div>
-        )}
-      </div>
-    </div>
+          <Button onClick={confirm}>
+            Confirm the latest transaction
+          </Button>
+          <Button onClick={execute}>
+            Execute the latest transaction
+          </Button>
+        </div>
+      )}
+    </Fieldset>
   );
 }

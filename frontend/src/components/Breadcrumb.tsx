@@ -33,13 +33,13 @@ const Breadcrumb= () => {
     <Nav>
       {path.map((link, index) => {
         if (index > 0) {
-          let href = path.reduce((previous, current, currentIndex) => {
-            if (currentIndex < index - 1) {
-              return previous + current
-            } else {
-              return previous
+          let href = path.filter((_part, j) => {
+            if (j < index) {
+              return true
             }
-          })
+            return false
+          }).join("/")
+          console.log(href, path)
           let text = link.toUpperCase()
 
           if (link.substring(0, 2) === "0x" && link.length === 65) {

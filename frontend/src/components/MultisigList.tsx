@@ -20,7 +20,7 @@ const Multisig = styled("div", {
   }
 });
 
-const AddressPart = styled("span", {
+export const AddressPart = styled("span", {
   variants: {
     left: {
       true: {
