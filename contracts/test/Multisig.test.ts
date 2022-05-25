@@ -64,7 +64,7 @@ describe("Multisig with single owner", function () {
       };
       await account.invoke(multisig, "submit_transaction", payload);
 
-      const res = await account.call(multisig, "get_transaction", {
+      const res = await multisig.call("get_transaction", {
         tx_index: txIndex,
       });
 
@@ -192,7 +192,7 @@ describe("Multisig with single owner", function () {
       }
     });
   });
-
+  /* 
   describe("- confirmation - ", function () {
     it("non-owner can't confirm a transaction", async function () {
       txIndex++;
@@ -400,10 +400,10 @@ describe("Multisig with single owner", function () {
         assertErrorMsg(err.message, "tx already executed");
       }
     });
-  });
+  }); */
 });
 
-describe("Multisig with multiple owners", function () {
+/* describe("Multisig with multiple owners", function () {
   this.timeout(300_000);
 
   let targetFactory: StarknetContractFactory;
@@ -536,7 +536,7 @@ describe("Multisig with multiple owners", function () {
       assertErrorMsg(err.message, "need more confirmations");
     }
   });
-});
+}); */
 
 const defaultPayload = (contractAddress: string, newValue: number) => {
   const setSelector = number.toBN(getSelectorFromName("set_balance"));

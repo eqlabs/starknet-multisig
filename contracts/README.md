@@ -32,7 +32,7 @@ python -m pip install starknet-devnet
 
 Inside the virtual environment:
 
-After that, run the _devnet_ in one tab (`starknet-devnet`) and run the unit tests in another tab with `npx hardhat test`.
+After that, run the _devnet_ in one tab (`npm run local`) and run the unit tests in another tab with `npx hardhat test`.
 
 Tested to be working at least with devnet version 0.1.19.
 
