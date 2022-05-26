@@ -43,7 +43,7 @@ Usually there is no need to manually deploy anything. But if needed, here are in
 1. Compile all contracts: `npm run compile`
 1. Deploy an account contract: `npx hardhat starknet-deploy-account --starknet-network alpha --wallet OpenZeppelin --wait`
 1. Deploy the target contract: `npx hardhat starknet-deploy --starknet-network alpha ./starknet-artifacts/contracts/mock/Target.cairo --wait`
-1. Deploy the multisig. Remember to change the parameter to be your own account (in ArgentX if testing through UI): `npx hardhat starknet-deploy --starknet-network alpha ./starknet-artifacts/contracts/Multisig.cairo --inputs "1 0x011833a87cdffb58c2bde4af8708f16c744656666ff97506fd302a7bbd56d27f 1" --wait`
+1. Deploy the multisig. Remember to change the parameter to be your own account (in your wallet if testing through UI): `npx hardhat starknet-deploy --starknet-network alpha ./starknet-artifacts/contracts/Multisig.cairo --inputs "1 0x011833a87cdffb58c2bde4af8708f16c744656666ff97506fd302a7bbd56d27f 1" --wait`
 
 ## Acknowledgements
 

@@ -46,7 +46,7 @@ The UI can be found at <a href='http://starknet-multisig.vercel.app' target='_bl
 
 How to use:
 
-1. If you don't have it yet, get the Argent X browser extension (not the regular Argent wallet!). Change the network to Goerli. Create some accounts
+1. If you don't have it yet, get a StarkNet wallet ([Braavos wallet](https://chrome.google.com/webstore/detail/braavos-wallet/jnlgamecbpmbajjfhmmmlhejkemejdma) or the Argent X browser extension (not the regular Argent wallet!)). Change the network to Goerli. Create some accounts
 1. Choose whether to create a new multisig or use an existing one. If you choose to create a new one:
    1. Choose what the threshold is and how many signers there can be in total. The threshold states how many signers have to sign a transaction before it can be executed. The total number of signers states how many signers the contract supports in total.
    1. Enter signer addresses
@@ -81,7 +81,7 @@ All parameters need to be in integer format. If you need for example a _string_ 
 
 A typical use case would be for the multisig to contain some valuable assets. For testing this kind of realistic scenario you can use any StarkNet ERC-20 token.
 
-Probably easiest would be to use ArgentX's test token: https://argentlabs.github.io/argent-x/
+Probably easiest would be to use TST token: https://braavos.app/faucet/
 
 Here's how you could test the use case:
 

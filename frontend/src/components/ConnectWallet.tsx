@@ -8,8 +8,8 @@ export function ConnectWallet() {
   }
 
   return (
-    <button onClick={() => connect(new InjectedConnector())}>
-      Connect wallet (Argent X)
+      <button onClick={() => connect(new InjectedConnector())}>
+      Connect StarkNet wallet
     </button>
   );
 }
