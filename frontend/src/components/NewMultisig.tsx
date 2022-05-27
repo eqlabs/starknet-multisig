@@ -63,7 +63,7 @@ export function NewMultisig() {
         constructorCalldata: calldata,
       });
       if (deployment) {
-        router.push(`/contract/${deployment.address}`)
+        router.push(`/wallet/${deployment.address}`)
       }
     };
     await _deployMultisig();

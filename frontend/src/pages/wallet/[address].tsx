@@ -7,7 +7,6 @@ import { ExistingMultisig } from "~/components/ExistingMultisig";
 import Footer from "~/components/Footer";
 import Header from "~/components/Header";
 import ModeToggle from "~/components/ModeToggle";
-import { TransactionList } from "~/components/TransactionList";
 import { state } from "~/state";
 import { SSRProps } from "~/types";
 
@@ -51,7 +50,6 @@ const Contract: NextPage<SSRProps> = ({ contractAddress }) => {
           >
             <ModeToggle />
             <ExistingMultisig contractAddress={contractAddress} />
-            <TransactionList />
           </BorderedContainer>
         </AnimatePresence>
       </Box>
