@@ -441,11 +441,9 @@ func set_confirmations_required{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*
 ):
     const lower_bound = 1
 
-    # TODO: add check: caller shall be multisig itself
     let (caller) = get_caller_address()
     let (contract_address) = get_contract_address()
 
-    # TODO: enought?
     with_attr error_message("caller shall be multisig"):
         assert caller = contract_address
     end
@@ -471,11 +469,9 @@ func set_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_pt
 ):
     alloc_locals
 
-    # TODO: add check: caller shall be multisig itself
     let (caller) = get_caller_address()
     let (contract_address) = get_contract_address()
 
-    # TODO: enought?
     with_attr error_message("caller shall be multisig"):
         assert caller = contract_address
     end
