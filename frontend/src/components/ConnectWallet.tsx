@@ -5,6 +5,7 @@ import Box from "~/components/Box";
 import Button from "~/components/Button";
 import { Symbol } from "~/components/Logos";
 import Paragraph from "~/components/Paragraph";
+import { state } from "~/state";
 
 export function ConnectWallet() {
   const router = useRouter()
@@ -12,6 +13,7 @@ export function ConnectWallet() {
 
   useEffect(() => {
     if (account) {
+      state.walletAddress = account
       router.push("/create")
     }
   }, [account])

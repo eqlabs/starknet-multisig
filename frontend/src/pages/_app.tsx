@@ -20,6 +20,9 @@ function MyApp({ Component, pageProps }: AppProps) {
       state.walletAddress = account
     } else if (walletAddress && !account) {
       connect(new InjectedConnector())
+    } else if (walletAddress && account) {
+      state.walletAddress = account
+      connect(new InjectedConnector())
     }
   }, [account])
 
