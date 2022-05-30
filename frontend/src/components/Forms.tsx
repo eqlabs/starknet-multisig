@@ -2,8 +2,10 @@ import { styled } from "@stitches/react";
 
 export const Fieldset = styled("fieldset", {
   padding: "$1 0",
+  position: "relative",
   border: 0,
   margin: 0,
+  maxWidth: "100%",
 });
 
 export const Legend = styled("legend", {

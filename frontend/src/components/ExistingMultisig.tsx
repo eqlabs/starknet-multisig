@@ -8,7 +8,8 @@ import React from "react";
 import { useMultisigContract } from "~/hooks/multisigContractHook";
 import ArbitraryTransaction from './ArbitraryTransaction';
 import Erc20Transaction from './Erc20Transaction';
-import { Fieldset, Legend } from "./Forms";
+import { Legend } from "./Forms";
+import MultisigTransactionList from './MultisigTransactionList';
 
 interface MultisigProps {
   contractAddress: string
@@ -19,7 +20,6 @@ const StyledTabs = styled(Tabs.List, {
   position: "relative",
   display: "flex",
   flexDirection: "row",
-  marginTop: "$6",
   height: "$14",
 });
 
@@ -49,20 +49,23 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
     contractAddress
   );
 
-  console.log(transactions)
-
   const multisigLink =
     "https://goerli.voyager.online/contract/" + contractAddress;
 
   return (
-    <Fieldset>
-      <Legend as="h2">Multisig Contract</Legend>
+    <>
+      <Legend as="h2"><Link href={multisigLink}>Multisig Contract</Link></Legend>
       <div>{account && owners.includes(account) ? "You are an owner of this wallet." : "You cannot sign transactions in this wallet."}</div>
       <div>Required signers: {threshold + "/" + owners.length}</div>
-      <Link href={multisigLink}>
-        Contract on explorer
-      </Link>
 
+      <hr></hr>
+      
+      <Legend as="h2">Pending Transactions</Legend>
+      <MultisigTransactionList multisigContract={multisigContract} transactions={transactions} threshold={threshold} />
+
+      <hr></hr>
+
+      <Legend as="h2">New Transaction</Legend>
       <Tabs.Root defaultValue="tab1" orientation="vertical">
         <StyledTabs aria-label="tabs example">
           <StyledTrigger value="tab1">ERC-20 Transfer</StyledTrigger>
@@ -76,40 +79,6 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
           <ArbitraryTransaction multisigContract={multisigContract} />
         </Tabs.Content>
       </Tabs.Root>
-
-      {/* {multisigTransactionCount && +multisigTransactionCount > 0 && (
-        <div>
-          <div>
-            <div>
-              <fieldset>
-                <legend>Latest multisig transaction's data</legend>
-
-                <div>
-                  Number of confirmations: {latestTxConfirmation}
-                </div>
-                <div>Target contract address:: {latestTxTarget}</div>
-                <div>Target function selector: {latestTxFunction}</div>
-                <div>
-                  Target function parameters:{" ["}
-                  {latestTxArgs.map((arg, i) => (
-                    <div style={{ marginLeft: "20px" }}>
-                      {arg}
-                      {i != latestTxArgs.length - 1 ? "," : ""}
-                    </div>
-                  ))}
-                  {" ]"}
-                </div>
-              </fieldset>
-            </div>
-          </div>
-          <Button onClick={confirm}>
-            Confirm the latest transaction
-          </Button>
-          <Button onClick={execute}>
-            Execute the latest transaction
-          </Button>
-        </div>
-      )} */}
-    </Fieldset>
+    </>
   );
 }

@@ -1,30 +1,36 @@
 import { useContract } from "@starknet-react/core";
 import { useEffect, useState } from "react";
-import { Abi, Contract, Transaction } from "starknet";
+import { Abi, Contract } from "starknet";
 import { BigNumberish, toBN, toHex } from "starknet/dist/utils/number";
+import { MultisigTransaction } from "~/types";
+import { filterNonFeltChars, shortStringFeltToStr } from "~/utils";
 import Source from "../../public/Multisig.json";
 
 export const useMultisigContract = (
   address: string
 ): {
   contract: Contract | undefined;
+  loading: boolean;
   owners: string[];
   threshold: number;
   transactionCount: number;
-  transactions: Transaction[];
+  transactions: MultisigTransaction[];
 } => {
   const { contract: multisigContract } = useContract({
     abi: Source.abi as Abi,
     address: address,
   });
 
+  const [loading, setLoading] = useState<boolean>(true);
   const [owners, setOwners] = useState<string[]>([]);
   const [threshold, setThreshold] = useState<number>(0);
   const [transactionCount, setTransactionCount] = useState<number>(0);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<MultisigTransaction[]>([]);
 
   useEffect(() => {
     const fetchInfo = async () => {
+      setLoading(true);
+
       const { owners } = (await multisigContract?.get_owners()) || {
         owners: [],
       };
@@ -40,6 +46,8 @@ export const useMultisigContract = (
       setOwners(owners.map((owner: BigNumberish) => toHex(owner)));
       setThreshold(threshold.toNumber());
       transactionCount && setTransactionCount(transactionCount.toNumber());
+
+      setLoading(false);
     };
     fetchInfo();
 
@@ -52,24 +60,43 @@ export const useMultisigContract = (
 
   useEffect(() => {
     const fetchTransactions = async () => {
+      setLoading(true);
+
       if (multisigContract && transactionCount > 0) {
-        let currentTransactionIndex = transactionCount;
-        let transactions: Transaction[] = [];
-        while (currentTransactionIndex > 0) {
-          const transaction = await multisigContract.get_transaction(
-            currentTransactionIndex
-          );
-          transactions.push(transaction);
+        let currentTransactionIndex = transactionCount - 1;
+        let transactions: MultisigTransaction[] = [];
+
+        while (currentTransactionIndex >= 0) {
+          const { tx: transaction, tx_calldata: calldata } =
+            await multisigContract.get_transaction(currentTransactionIndex);
+
+          const parsedTransaction: MultisigTransaction = {
+            txId: currentTransactionIndex,
+            to: toHex(transaction.to),
+            function_selector: shortStringFeltToStr(
+              toBN(filterNonFeltChars(transaction.function_selector.toString()))
+            ),
+            calldata: calldata.toString().split(","),
+            calldata_len: transaction.calldata_len.toNumber(),
+            executed: transaction.executed.toNumber() === 1,
+            num_confirmations: transaction.num_confirmations.toNumber(),
+          };
+
+          transactions.push(parsedTransaction);
           currentTransactionIndex -= 1;
         }
+
         setTransactions(transactions);
       }
+
+      setLoading(false);
     };
     fetchTransactions();
   }, [multisigContract, transactionCount]);
 
   return {
     contract: multisigContract,
+    loading,
     owners,
     threshold,
     transactionCount,
