@@ -8,7 +8,8 @@
   "scripts": {
     "compile": "npx hardhat starknet-compile contracts/multisig && npx hardhat starknet-compile contracts/account/Account.cairo --account-contract && npx hardhat run scripts/copyContractsToFrontend.ts",
     "deploy:multisig": "npx hardhat starknet-deploy --starknet-network devnet ./starknet-artifacts/contracts/Multisig.cairo --inputs \"1 0x5aca08c8e5e5bccfe3a83df289887c619eebbececa111f4ef79d9419fd16bcf 1\"",
-    "deploy:target": "npx hardhat starknet-deploy --starknet-network devnet ./starknet-artifacts/contracts/mock/Target.cairo"
+    "deploy:target": "npx hardhat starknet-deploy --starknet-network devnet ./starknet-artifacts/contracts/mock/Target.cairo",
+    "local": "starknet-devnet --lite-mode"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",

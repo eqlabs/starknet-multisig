@@ -38,7 +38,7 @@ If you want to have a fresh start, just refresh your browser window. No data is 
 
 ### Fees
 
-You do not need any assets in your wallets in order to use this functionality. StarkNet does not currently enforce fees and subsidises Goerli fees.
+You do not need any assets in your wallets in order to use this functionality. StarkNet does not currently enforce fees and subsidises Goerli fees. Note that this will change at the start of June 2022 with StarkNet Cairo version 0.9: you will need to pay transaction fees.
 
 ### UI
 
