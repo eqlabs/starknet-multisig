@@ -1,11 +1,15 @@
 import { AnimatePresence } from "framer-motion";
 import type { NextPage } from "next";
+import { snapshot } from "valtio";
 import BorderedContainer from "~/components/BorderedContainer";
 import Box from "~/components/Box";
 import Footer from "~/components/Footer";
+import { Legend } from "~/components/Forms";
 import Header from "~/components/Header";
 import ModeToggle from "~/components/ModeToggle";
+import MultisigAddressInput from "~/components/MultisigAddressInput";
 import MultisigList from "~/components/MultisigList";
+import { state } from "~/state";
 
 const Contract: NextPage = () => (
   <Box
@@ -39,7 +43,15 @@ const Contract: NextPage = () => (
           }}
         >
           <ModeToggle />
-          <MultisigList />
+          <Legend as="h2">Manual Input</Legend>
+          <MultisigAddressInput />
+          {snapshot(state).multisigs?.length > 0 && (
+            <>
+              <hr />
+              <Legend as="h2">Visited Multisigs</Legend>
+              <MultisigList />
+            </>
+          )}
         </BorderedContainer>
       </AnimatePresence>
     </Box>

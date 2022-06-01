@@ -1,6 +1,5 @@
 import { styled } from "@stitches/react";
 import { Contract } from "starknet";
-import { useMultisigTransactions } from "~/hooks/transactions";
 import { MultisigTransaction } from "~/types";
 import { StyledButton } from "./Button";
 
@@ -23,9 +22,7 @@ const TransactionInfo = styled("div", {
   alignItems: "center",
 })
 
-const MultisigTransactionList = ({multisigContract, threshold, transactions}: {multisigContract?: Contract, threshold: number, transactions: MultisigTransaction[]}) => {
-  const { confirmTransaction, executeTransaction } = useMultisigTransactions(multisigContract)
-  return <ul style={{ display: "flex", flexDirection: "column", position: "relative", alignItems: "stretch", margin: "0", padding: "0"}}>
+const MultisigTransactionList = ({multisigContract, threshold, transactions}: {multisigContract?: Contract, threshold: number, transactions: MultisigTransaction[]}) => (<ul style={{ display: "flex", flexDirection: "column", position: "relative", alignItems: "stretch", margin: "0", padding: "0"}}>
     {transactions.filter(transaction => !transaction.executed).map(transaction => (
       <Transaction key={`multisigTransaction-${transaction.txId}`}>
         <TransactionInfo>
@@ -36,17 +33,13 @@ const MultisigTransactionList = ({multisigContract, threshold, transactions}: {m
         <TransactionInfo>
           <span>Confirmations: {transaction.num_confirmations + "/" + threshold}</span>
           <div>
-            {transaction.num_confirmations < threshold ? <StyledButton size="sm" onClick={async () => await confirmTransaction({
-              args: [transaction.txId],
-            })}>Confirm</StyledButton> : <StyledButton disabled={transaction.num_confirmations < threshold} size="sm" onClick={async () => await executeTransaction({
-                args: [transaction.txId],
-              })}>Execute</StyledButton>
+            {transaction.num_confirmations < threshold ? <StyledButton size="sm" onClick={() => multisigContract?.confirm_transaction(transaction.txId)}>Confirm</StyledButton> : <StyledButton disabled={transaction.num_confirmations < threshold} size="sm" onClick={() => multisigContract?.execute_transaction(transaction.txId)}>Execute</StyledButton>
             }
           </div>
         </TransactionInfo>
       </Transaction>
     ))}
   </ul>
-};
+);
 
 export default MultisigTransactionList;

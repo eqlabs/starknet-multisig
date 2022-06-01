@@ -43,7 +43,7 @@ const StyledTrigger = styled(Tabs.Trigger, {
 });
 
 export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
-  const { account } = useStarknet();
+  const { account, connect } = useStarknet();
   
   const { contract: multisigContract, owners, threshold, transactions } = useMultisigContract(
     contractAddress
@@ -58,13 +58,15 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
       <div>{account && owners.includes(account) ? "You are an owner of this wallet." : "You cannot sign transactions in this wallet."}</div>
       <div>Required signers: {threshold + "/" + owners.length}</div>
 
-      <hr></hr>
-      
-      <Legend as="h2">Pending Transactions</Legend>
-      <MultisigTransactionList multisigContract={multisigContract} transactions={transactions} threshold={threshold} />
+      {transactions.length > 0 && (
+        <>
+          <hr></hr>
+          <Legend as="h2">Pending Transactions</Legend>
+          <MultisigTransactionList multisigContract={multisigContract} transactions={transactions} threshold={threshold} />
+        </>
+      )}
 
       <hr></hr>
-
       <Legend as="h2">New Transaction</Legend>
       <Tabs.Root defaultValue="tab1" orientation="vertical">
         <StyledTabs aria-label="tabs example">

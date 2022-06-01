@@ -1,46 +1,29 @@
-import { useContract } from "@starknet-react/core";
-import { useEffect, useState } from "react";
-import { Abi, Contract } from "starknet";
+import { useState } from "react";
+import { Contract } from "starknet";
 import { getSelectorFromName } from "starknet/dist/utils/hash";
 import { toBN } from "starknet/dist/utils/number";
-import { useMultisigTransactions } from "~/hooks/transactions";
-import { filterNonFeltChars, shortStringFeltToStr } from "~/utils";
-import Source from "../../public/erc20.json";
 import Button from "./Button";
 import { Field, Fieldset, Label } from "./Forms";
 import { Input } from "./Input";
 
 const Erc20Transaction = ({multisigContract}: {multisigContract?: Contract}) => {
-  const { submitTransaction } = useMultisigTransactions(multisigContract)
-
+  const targetFunctionSelector = toBN(getSelectorFromName("transfer"));
   const [targetAddress, setTargetAddress] = useState<string>("");
-  const [targetFunctionName, setTargetFunctionName] = useState<string>("");
-  const [targetFunctionSelector, setTargetFunctionSelector] =
-    useState<string>("");
-  const [targetParameters, setTargetParameters] = useState<string>("");
-
-  const [symbol, setSymbol] = useState<string>("");
-
+  const [receiver, setReceiver] = useState<string>("");
+  const [amount, setAmount] = useState<string>("");
+  
+  const submit = async () => {
+    const bigNumberizedParameters = [toBN(receiver), toBN(amount)];
+    const response = await multisigContract?.submit_transaction(targetAddress, targetFunctionSelector, bigNumberizedParameters);
+    console.log(response)
+  };
+  
+  /* TODO: Fetch token info
   const { contract: targetContract } = useContract({
     abi: Source.abi as Abi,
     address: targetAddress,
   });
-
-  useEffect(() => {
-    if (targetFunctionName) {
-      const newSelector = toBN(getSelectorFromName(targetFunctionName));
-      setTargetFunctionSelector(newSelector);
-    }
-  }, [targetFunctionName]);
-
-  const submit = async () => {
-    const bigNumberizedParameters = targetParameters.split(" ").map((p) => toBN(p));
-
-    await submitTransaction({
-      args: [targetAddress, targetFunctionSelector, bigNumberizedParameters],
-    });
-  };
-
+  const [symbol, setSymbol] = useState<string>("");
   useEffect(() => {
     const fetchTokenInfo = async () => {
       const symbol = await targetContract?.symbol();
@@ -50,6 +33,7 @@ const Erc20Transaction = ({multisigContract}: {multisigContract?: Contract}) => 
     };
     fetchTokenInfo();
   }, [targetContract])
+  */
 
   return (
     <Fieldset>
@@ -63,14 +47,12 @@ const Erc20Transaction = ({multisigContract}: {multisigContract?: Contract}) => 
         ></Input>
       </Field>
 
-      <div>{symbol}</div>
-
       <Field>
         <Label>Receiver:</Label>
         <Input
           type="text"
-          value={targetFunctionName}
-          onChange={(e) => setTargetFunctionName(e.target.value)}
+          value={receiver}
+          onChange={(e) => setReceiver(e.target.value)}
         ></Input>
       </Field>
 
@@ -78,12 +60,12 @@ const Erc20Transaction = ({multisigContract}: {multisigContract?: Contract}) => 
         <Label>Amount:</Label>
         <Input
           type="text"
-          value={targetParameters}
-          onChange={(e) => setTargetParameters(e.target.value)}
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
         ></Input>
       </Field>
 
-      <Button fullWidth onClick={submit}>Submit a new transaction</Button>
+      <Button fullWidth onClick={() => submit()}>Submit a new transaction</Button>
     </Fieldset>
   )
 }

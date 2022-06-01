@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Abi, Contract } from "starknet";
 import { BigNumberish, toBN, toHex } from "starknet/dist/utils/number";
 import { MultisigTransaction } from "~/types";
-import { filterNonFeltChars, shortStringFeltToStr } from "~/utils";
+import { mapTargetHashToText } from "~/utils";
 import Source from "../../public/Multisig.json";
 
 export const useMultisigContract = (
@@ -42,7 +42,6 @@ export const useMultisigContract = (
         (await multisigContract?.get_transactions_len()) || {
           transactions_len: toBN(0),
         };
-
       setOwners(owners.map((owner: BigNumberish) => toHex(owner)));
       setThreshold(threshold.toNumber());
       transactionCount && setTransactionCount(transactionCount.toNumber());
@@ -61,37 +60,41 @@ export const useMultisigContract = (
   useEffect(() => {
     const fetchTransactions = async () => {
       setLoading(true);
+      try {
+        if (multisigContract && transactionCount > 0) {
+          let currentTransactionIndex = transactionCount - 1;
+          let transactions: MultisigTransaction[] = [];
 
-      if (multisigContract && transactionCount > 0) {
-        let currentTransactionIndex = transactionCount - 1;
-        let transactions: MultisigTransaction[] = [];
+          while (currentTransactionIndex >= 0) {
+            const { tx: transaction, tx_calldata: calldata } =
+              await multisigContract.get_transaction(currentTransactionIndex);
+            console.log("ebin.");
+            const parsedTransaction: MultisigTransaction = {
+              txId: currentTransactionIndex,
+              to: toHex(transaction.to),
+              function_selector: mapTargetHashToText(
+                transaction.function_selector.toString()
+              ),
+              calldata: calldata.toString().split(","),
+              calldata_len: transaction.calldata_len.toNumber(),
+              executed: transaction.executed.toNumber() === 1,
+              num_confirmations: transaction.num_confirmations.toNumber(),
+            };
 
-        while (currentTransactionIndex >= 0) {
-          const { tx: transaction, tx_calldata: calldata } =
-            await multisigContract.get_transaction(currentTransactionIndex);
+            transactions.push(parsedTransaction);
+            currentTransactionIndex -= 1;
+          }
 
-          const parsedTransaction: MultisigTransaction = {
-            txId: currentTransactionIndex,
-            to: toHex(transaction.to),
-            function_selector: shortStringFeltToStr(
-              toBN(filterNonFeltChars(transaction.function_selector.toString()))
-            ),
-            calldata: calldata.toString().split(","),
-            calldata_len: transaction.calldata_len.toNumber(),
-            executed: transaction.executed.toNumber() === 1,
-            num_confirmations: transaction.num_confirmations.toNumber(),
-          };
-
-          transactions.push(parsedTransaction);
-          currentTransactionIndex -= 1;
+          setTransactions(transactions);
         }
-
-        setTransactions(transactions);
+      } catch (_e) {
+        setLoading(false);
       }
-
       setLoading(false);
     };
-    fetchTransactions();
+
+    !loading && fetchTransactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [multisigContract, transactionCount]);
 
   return {

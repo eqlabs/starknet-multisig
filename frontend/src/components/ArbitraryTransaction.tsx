@@ -2,14 +2,11 @@ import { useEffect, useState } from "react";
 import { Contract } from "starknet";
 import { getSelectorFromName } from "starknet/dist/utils/hash";
 import { toBN } from "starknet/dist/utils/number";
-import { useMultisigTransactions } from "~/hooks/transactions";
 import Button from "./Button";
 import { Field, Fieldset, Label } from "./Forms";
 import { Input } from "./Input";
 
 const ArbitraryTransaction = ({multisigContract}: {multisigContract?: Contract}) => {
-  const { submitTransaction } = useMultisigTransactions(multisigContract)
-
   const [targetAddress, setTargetAddress] = useState<string>("");
   const [targetFunctionName, setTargetFunctionName] = useState<string>("");
   const [targetFunctionSelector, setTargetFunctionSelector] =
@@ -25,10 +22,7 @@ const ArbitraryTransaction = ({multisigContract}: {multisigContract?: Contract})
 
   const submit = async () => {
     const bigNumberizedParameters = targetParameters.split(" ").map((p) => toBN(p));
-
-    await submitTransaction({
-      args: [targetAddress, targetFunctionSelector, bigNumberizedParameters],
-    });
+    await multisigContract?.submit_transaction(targetAddress, targetFunctionSelector, bigNumberizedParameters);
   };
 
   return (
