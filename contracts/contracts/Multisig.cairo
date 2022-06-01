@@ -5,7 +5,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import assert_le, assert_lt
 from starkware.starknet.common.syscalls import call_contract, get_caller_address
 
-from account.constants import FALSE, TRUE
+from constants import FALSE, TRUE
 
 #
 # Events
