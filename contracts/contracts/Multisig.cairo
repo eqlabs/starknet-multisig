@@ -152,11 +152,24 @@ func require_confirmed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_c
     return ()
 end
 
-func require_valid_tx{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(tx_index):
+# Require tx_index to be greater then the last update of set of owners.
+# Since updating owners invalidates all pending transations
+func require_tx_valid{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(tx_index):
     let (tx_valid_since) = _tx_valid_since.read()
 
-    with_attr error_message("invalid transaction index"):
+    with_attr error_message("tx invalidated: config changed after submission"):
         assert_le(tx_valid_since, tx_index)
+    end
+
+    return ()
+end
+
+func require_multisig{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+    let (caller) = get_caller_address()
+    let (contract_address) = get_contract_address()
+
+    with_attr error_message("caller shall be multisig"):
+        assert caller = contract_address
     end
 
     return ()
@@ -314,7 +327,7 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
         assert_in_range(confirmations_required, lower_bound, owners_len + 1)
     end
 
-    with_attr error_message("owners has to be unique"):
+    with_attr error_message("owners not unique"):
         assert_unique_addresses(owners_len, owners)
     end
 
@@ -361,7 +374,7 @@ func confirm_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     require_owner()
     require_tx_exists(tx_index=tx_index)
     require_not_executed(tx_index=tx_index)
-    require_valid_tx(tx_index=tx_index)
+    require_tx_valid(tx_index=tx_index)
     # TODO: clarify if needed
     require_not_confirmed(tx_index=tx_index)
 
@@ -384,7 +397,7 @@ func revoke_confirmation{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
 ):
     require_owner()
     require_tx_exists(tx_index=tx_index)
-    require_valid_tx(tx_index=tx_index)
+    require_tx_valid(tx_index=tx_index)
     require_not_executed(tx_index=tx_index)
     require_confirmed(tx_index=tx_index)
 
@@ -407,7 +420,7 @@ func execute_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
 ) -> (response_len : felt, response : felt*):
     require_owner()
     require_tx_exists(tx_index=tx_index)
-    require_valid_tx(tx_index=tx_index)
+    require_tx_valid(tx_index=tx_index)
     require_not_executed(tx_index=tx_index)
 
     let (tx, tx_calldata_len, tx_calldata) = get_transaction(tx_index=tx_index)
@@ -439,17 +452,11 @@ end
 func set_confirmations_required{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     confirmations_required : felt
 ):
+    require_multisig()
+
     const lower_bound = 1
 
-    let (caller) = get_caller_address()
-    let (contract_address) = get_contract_address()
-
-    with_attr error_message("caller shall be multisig"):
-        assert caller = contract_address
-    end
-
     let (owners_len) = _owners_len.read()
-
     with_attr error_message("invalid number of required confirmations"):
         assert_in_range(confirmations_required, lower_bound, owners_len + 1)
     end
@@ -469,12 +476,7 @@ func set_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_pt
 ):
     alloc_locals
 
-    let (caller) = get_caller_address()
-    let (contract_address) = get_contract_address()
-
-    with_attr error_message("caller shall be multisig"):
-        assert caller = contract_address
-    end
+    require_multisig()
 
     with_attr error_message("invalid num of owners"):
         assert_not_zero(owners_len)
@@ -493,6 +495,8 @@ func set_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_pt
     if lt == TRUE:
         # Lower number of confirmation
         _confirmations_required.write(owners_len)
+        ConfirmationsSet.emit(owners_len)
+
         tempvar syscall_ptr = syscall_ptr
         tempvar pedersen_ptr : HashBuiltin* = pedersen_ptr
         tempvar range_check_ptr = range_check_ptr
