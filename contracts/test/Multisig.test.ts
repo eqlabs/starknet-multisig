@@ -1,14 +1,20 @@
 import { expect } from "chai";
 import { assert } from "console";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { starknet } from "hardhat";
 import {
   StarknetContract,
   StarknetContractFactory,
   Account,
+  TransactionReceipt,
 } from "hardhat/types/runtime";
 import { number, stark } from "starknet";
 import { getSelectorFromName } from "starknet/dist/utils/hash";
+
+interface IEventDataEntry {
+  data: any;
+  isAddress?: boolean;
+}
 
 describe("Multisig with single signer", function () {
   this.timeout(300_000);
@@ -57,14 +63,26 @@ describe("Multisig with single signer", function () {
         function_selector: selector,
         calldata: [5],
       };
-      await account.invoke(multisig, "submit_transaction", payload);
+      const txHash = await account.invoke(
+        multisig,
+        "submit_transaction",
+        payload
+      );
+
+      const receipt = await starknet.getTransactionReceipt(txHash);
 
       const txIndex =
         Number((await multisig.call("get_transactions_len")).res) - 1;
-
       const res = await multisig.call("get_transaction", {
         tx_index: txIndex,
       });
+
+      const eventData: IEventDataEntry[] = [
+        { data: accountAddress, isAddress: true },
+        { data: "0x" + txIndex },
+        { data: targetContract.address, isAddress: true },
+      ];
+      assertEvent(receipt, "SubmitTransaction", eventData);
 
       expect(res.tx.to.toString()).to.equal(target.toString());
       expect(res.tx.function_selector.toString()).to.equal(selector.toString());
@@ -74,7 +92,7 @@ describe("Multisig with single signer", function () {
       expect(res.tx_calldata_len).to.equal(1n);
       expect(res.tx_calldata[0]).to.equal(5n);
     });
-
+    /* 
     it("transaction execute works", async function () {
       const payload = defaultPayload(targetContract.address, 6);
       await account.invoke(multisig, "submit_transaction", payload);
@@ -187,10 +205,10 @@ describe("Multisig with single signer", function () {
       } catch (err: any) {
         assertErrorMsg(err.message, "not signer");
       }
-    });
+    }); */
   });
 
-  describe("- confirmation - ", function () {
+  /*   describe("- confirmation - ", function () {
     it("non-signer can't confirm a transaction", async function () {
       const payload = defaultPayload(targetContract.address, 15);
       await account.invoke(multisig, "submit_transaction", payload);
@@ -391,10 +409,10 @@ describe("Multisig with single signer", function () {
         assertErrorMsg(err.message, "tx already executed");
       }
     });
-  });
+  }); */
 });
 
-describe("Multisig with multiple signers", function () {
+/* describe("Multisig with multiple signers", function () {
   this.timeout(300_000);
 
   let targetFactory: StarknetContractFactory;
@@ -521,7 +539,7 @@ describe("Multisig with multiple signers", function () {
       assertErrorMsg(err.message, "need more confirmations");
     }
   });
-});
+}); */
 
 const defaultPayload = (contractAddress: string, newValue: number) => {
   const setSelector = number.toBN(getSelectorFromName("set_balance"));
@@ -542,4 +560,30 @@ const assertErrorMsg = (full: string, expected: string) => {
     return;
   }
   expect.fail("No expected error found: " + expected);
+};
+
+const assertEvent = (
+  receipt: TransactionReceipt,
+  eventName: string,
+  eventData: IEventDataEntry[]
+) => {
+  const eventKey = getSelectorFromName(eventName);
+  const foundEvent = receipt.events.filter((e) =>
+    e.keys.some((a) => a == eventKey)
+  );
+  if (!foundEvent || foundEvent.length != 1 || foundEvent[0].keys.length != 1) {
+    expect.fail("No event " + eventName + " found");
+  }
+
+  expect(foundEvent[0].data.length).to.equal(eventData.length);
+  for (let i = 0; i < eventData.length; i++) {
+    if (eventData[i].isAddress) {
+      // Addresses in events are not padded to 32 bytes by default, for some reason
+      expect(ethers.utils.hexZeroPad(eventData[i].data, 32)).to.equal(
+        ethers.utils.hexZeroPad(foundEvent[0].data[i], 32)
+      );
+    } else {
+      expect(eventData[i].data).to.equal(foundEvent[0].data[i]);
+    }
+  }
 };
