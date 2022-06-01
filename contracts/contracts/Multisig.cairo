@@ -373,8 +373,8 @@ func confirm_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
 ):
     require_owner()
     require_tx_exists(tx_index=tx_index)
-    require_not_executed(tx_index=tx_index)
     require_tx_valid(tx_index=tx_index)
+    require_not_executed(tx_index=tx_index)
     # TODO: clarify if needed
     require_not_confirmed(tx_index=tx_index)
 
