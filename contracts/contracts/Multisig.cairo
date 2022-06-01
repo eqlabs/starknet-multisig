@@ -405,6 +405,32 @@ func confirm_transaction{
 end
 
 @external
+func revoke_confirmation{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(tx_index : felt):
+    require_owner()
+    require_tx_exists(tx_index=tx_index)
+    require_not_executed(tx_index=tx_index)
+    require_confirmed(tx_index=tx_index)
+
+    let (num_confirmations) = _transactions.read(
+        tx_index=tx_index, field=Transaction.num_confirmations
+    )
+    _transactions.write(
+        tx_index=tx_index,
+        field=Transaction.num_confirmations,
+        value=num_confirmations - 1,
+    )
+    let (caller) = get_caller_address()
+    _is_confirmed.write(tx_index=tx_index, owner=caller, value=FALSE)
+
+    RevokeConfirmation.emit(owner=caller, tx_index=tx_index)
+    return ()
+end
+
+@external
 func execute_transaction{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
