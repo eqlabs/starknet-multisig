@@ -1,6 +1,3 @@
-# A Cairo multisig, using the following reference implementation:
-# https://solidity-by-example.org/app/multi-sig-wallet/
-
 %lang starknet
 
 from starkware.cairo.common.alloc import alloc
@@ -9,7 +6,6 @@ from starkware.cairo.common.math import assert_le, assert_lt
 from starkware.starknet.common.syscalls import call_contract, get_caller_address
 
 from account.constants import FALSE, TRUE
-
 
 #
 # Events
@@ -405,32 +401,6 @@ func confirm_transaction{
     _is_confirmed.write(tx_index=tx_index, owner=caller, value=TRUE)
 
     ConfirmTransaction.emit(owner=caller, tx_index=tx_index)
-    return ()
-end
-
-@external
-func revoke_confirmation{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(tx_index : felt):
-    require_owner()
-    require_tx_exists(tx_index=tx_index)
-    require_not_executed(tx_index=tx_index)
-    require_confirmed(tx_index=tx_index)
-
-    let (num_confirmations) = _transactions.read(
-        tx_index=tx_index, field=Transaction.num_confirmations
-    )
-    _transactions.write(
-        tx_index=tx_index,
-        field=Transaction.num_confirmations,
-        value=num_confirmations - 1,
-    )
-    let (caller) = get_caller_address()
-    _is_confirmed.write(tx_index=tx_index, owner=caller, value=FALSE)
-
-    RevokeConfirmation.emit(owner=caller, tx_index=tx_index)
     return ()
 end
 
