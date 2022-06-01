@@ -12,19 +12,19 @@ from constants import FALSE, TRUE
 #
 
 @event
-func SubmitTransaction(owner : felt, tx_index : felt, to : felt):
+func SubmitTransaction(signer : felt, tx_index : felt, to : felt):
 end
 
 @event
-func ConfirmTransaction(owner : felt, tx_index : felt):
+func ConfirmTransaction(signer : felt, tx_index : felt):
 end
 
 @event
-func RevokeConfirmation(owner : felt, tx_index : felt):
+func RevokeConfirmation(signer : felt, tx_index : felt):
 end
 
 @event
-func ExecuteTransaction(owner : felt, tx_index : felt):
+func ExecuteTransaction(signer : felt, tx_index : felt):
 end
 
 #
@@ -44,15 +44,15 @@ func _confirmations_required() -> (res : felt):
 end
 
 @storage_var
-func _owners_len() -> (res : felt):
+func _signers_len() -> (res : felt):
 end
 
 @storage_var
-func _owners(index : felt) -> (res : felt):
+func _signers(index : felt) -> (res : felt):
 end
 
 @storage_var
-func _is_owner(address : felt) -> (res : felt):
+func _is_signer(address : felt) -> (res : felt):
 end
 
 @storage_var
@@ -69,23 +69,23 @@ func _transaction_calldata(tx_index : felt, calldata_index : felt) -> (res : fel
 end
 
 @storage_var
-func _is_confirmed(tx_index : felt, owner : felt) -> (res : felt):
+func _is_confirmed(tx_index : felt, signer : felt) -> (res : felt):
 end
 
 #
 # Conditions
 #
 
-# Revert if the calling account is not an owner
-func require_owner{
+# Revert if the calling account is not an signer
+func require_signer{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
     let (caller) = get_caller_address()
-    let (is_caller_owner) = is_owner(address=caller)
-    with_attr error_message("not owner"):
-        assert is_caller_owner = TRUE
+    let (is_caller_signer) = is_signer(address=caller)
+    with_attr error_message("not signer"):
+        assert is_caller_signer = TRUE
     end
     return ()
 end
@@ -123,7 +123,7 @@ func require_not_confirmed{
         range_check_ptr
     }(tx_index : felt):
     let (caller) = get_caller_address()
-    let (is_confirmed_for_caller) = is_confirmed(tx_index=tx_index, owner=caller)
+    let (is_confirmed_for_caller) = is_confirmed(tx_index=tx_index, signer=caller)
     with_attr error_message("tx already confirmed"):
         assert is_confirmed_for_caller = FALSE
     end
@@ -137,7 +137,7 @@ func require_confirmed{
         range_check_ptr
     }(tx_index : felt):
     let (caller) = get_caller_address()
-    let (is_confirmed_for_caller) = is_confirmed(tx_index=tx_index, owner=caller)
+    let (is_confirmed_for_caller) = is_confirmed(tx_index=tx_index, signer=caller)
     with_attr error_message("tx not confirmed"):
         assert is_confirmed_for_caller = TRUE
     end
@@ -150,65 +150,65 @@ end
 #
 
 @view
-func is_owner{
+func is_signer{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(address : felt) -> (res : felt):
-    let (res) = _is_owner.read(address=address)
+    let (res) = _is_signer.read(address=address)
     return (res)
 end
 
 @view
-func get_owners_len{
+func get_signers_len{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }() -> (owners_len : felt):
-    let (owners_len) = _owners_len.read()
-    return (owners_len=owners_len)
+    }() -> (signers_len : felt):
+    let (signers_len) = _signers_len.read()
+    return (signers_len=signers_len)
 end
 
 @view
-func _get_owners{
+func _get_signers{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(
-        owners_index : felt,
-        owners_len : felt,
-        owners : felt*,
+        signers_index : felt,
+        signers_len : felt,
+        signers : felt*,
     ):
-    if owners_index == owners_len:
+    if signers_index == signers_len:
         return ()
     end
 
-    let (owner) = _owners.read(index=owners_index)
-    assert owners[owners_index] = owner
+    let (signer) = _signers.read(index=signers_index)
+    assert signers[signers_index] = signer
 
-    _get_owners(owners_index=owners_index + 1, owners_len=owners_len, owners=owners)
+    _get_signers(signers_index=signers_index + 1, signers_len=signers_len, signers=signers)
     return ()
 end
 
 @view
-func get_owners{
+func get_signers{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (
-        owners_len : felt,
-        owners : felt*,
+        signers_len : felt,
+        signers : felt*,
     ):
     alloc_locals
-    let (owners) = alloc()
-    let (owners_len) = _owners_len.read()
-    if owners_len == 0:
-        return (owners_len=owners_len, owners=owners)
+    let (signers) = alloc()
+    let (signers_len) = _signers_len.read()
+    if signers_len == 0:
+        return (signers_len=signers_len, signers=signers)
     end
 
-    # Recursively add owners from storage to the owners array
-    _get_owners(owners_index=0, owners_len=owners_len, owners=owners)
-    return (owners_len=owners_len, owners=owners)
+    # Recursively add signers from storage to the signers array
+    _get_signers(signers_index=0, signers_len=signers_len, signers=signers)
+    return (signers_len=signers_len, signers=signers)
 end
 
 @view
@@ -236,8 +236,8 @@ func is_confirmed{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(tx_index : felt, owner : felt) -> (res : felt):
-    let (res) = _is_confirmed.read(tx_index=tx_index, owner=owner)
+    }(tx_index : felt, signer : felt) -> (res : felt):
+    let (res) = _is_confirmed.read(tx_index=tx_index, signer=signer)
     return (res)
 end
 
@@ -327,16 +327,16 @@ func constructor{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
     }(
-        owners_len : felt,
-        owners : felt*,
+        signers_len : felt,
+        signers : felt*,
         confirmations_required : felt,
     ):
     with_attr error_message("invalid number of required confirmations"):
-        assert_le(confirmations_required, owners_len)
+        assert_le(confirmations_required, signers_len)
     end
 
-    _owners_len.write(value=owners_len)
-    _set_owners(owners_index=0, owners_len=owners_len, owners=owners)
+    _signers_len.write(value=signers_len)
+    _set_signers(signers_index=0, signers_len=signers_len, signers=signers)
     _confirmations_required.write(value=confirmations_required)
     return ()
 end
@@ -353,7 +353,7 @@ func submit_transaction{
         calldata : felt*,
     ):
     alloc_locals
-    require_owner()
+    require_signer()
 
     let (tx_index) = _next_tx_index.read()
 
@@ -372,7 +372,7 @@ func submit_transaction{
 
     # Emit event & update tx count
     let (caller) = get_caller_address()
-    SubmitTransaction.emit(owner=caller, tx_index=tx_index, to=to)
+    SubmitTransaction.emit(signer=caller, tx_index=tx_index, to=to)
     _next_tx_index.write(value=tx_index + 1)
 
     return ()
@@ -384,7 +384,7 @@ func confirm_transaction{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(tx_index : felt):
-    require_owner()
+    require_signer()
     require_tx_exists(tx_index=tx_index)
     require_not_executed(tx_index=tx_index)
     require_not_confirmed(tx_index=tx_index)
@@ -398,9 +398,9 @@ func confirm_transaction{
         value=num_confirmations + 1,
     )
     let (caller) = get_caller_address()
-    _is_confirmed.write(tx_index=tx_index, owner=caller, value=TRUE)
+    _is_confirmed.write(tx_index=tx_index, signer=caller, value=TRUE)
 
-    ConfirmTransaction.emit(owner=caller, tx_index=tx_index)
+    ConfirmTransaction.emit(signer=caller, tx_index=tx_index)
     return ()
 end
 
@@ -410,7 +410,7 @@ func revoke_confirmation{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(tx_index : felt):
-    require_owner()
+    require_signer()
     require_tx_exists(tx_index=tx_index)
     require_not_executed(tx_index=tx_index)
     require_confirmed(tx_index=tx_index)
@@ -424,9 +424,9 @@ func revoke_confirmation{
         value=num_confirmations - 1,
     )
     let (caller) = get_caller_address()
-    _is_confirmed.write(tx_index=tx_index, owner=caller, value=FALSE)
+    _is_confirmed.write(tx_index=tx_index, signer=caller, value=FALSE)
 
-    RevokeConfirmation.emit(owner=caller, tx_index=tx_index)
+    RevokeConfirmation.emit(signer=caller, tx_index=tx_index)
     return ()
 end
 
@@ -439,7 +439,7 @@ func execute_transaction{
         response_len: felt,
         response: felt*,
     ):
-    require_owner()
+    require_signer()
     require_tx_exists(tx_index=tx_index)
     require_not_executed(tx_index=tx_index)
 
@@ -458,7 +458,7 @@ func execute_transaction{
         value=TRUE,
     )
     let (caller) = get_caller_address()
-    ExecuteTransaction.emit(owner=caller, tx_index=tx_index)
+    ExecuteTransaction.emit(signer=caller, tx_index=tx_index)
 
     # Actually execute it
     let response = call_contract(
@@ -474,25 +474,25 @@ end
 # Storage Helpers
 #
 
-func _set_owners{
+func _set_signers{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
     }(
-        owners_index : felt,
-        owners_len : felt,
-        owners : felt*,
+        signers_index : felt,
+        signers_len : felt,
+        signers : felt*,
     ):
-    if owners_index == owners_len:
+    if signers_index == signers_len:
         return ()
     end
 
      # Write the current iteration to storage
-    _owners.write(index=owners_index, value=[owners])
-    _is_owner.write(address=[owners], value=TRUE)
+    _signers.write(index=signers_index, value=[signers])
+    _is_signer.write(address=[signers], value=TRUE)
 
     # Recursively write the rest
-    _set_owners(owners_index=owners_index + 1, owners_len=owners_len, owners=owners + 1)
+    _set_signers(signers_index=signers_index + 1, signers_len=signers_len, signers=signers + 1)
     return ()
 end
 

@@ -10,7 +10,7 @@ import {
 import { number, stark } from "starknet";
 import { getSelectorFromName } from "starknet/dist/utils/hash";
 
-describe("Multisig with single owner", function () {
+describe("Multisig with single signer", function () {
   this.timeout(300_000);
 
   let contractFactory: StarknetContractFactory;
@@ -34,7 +34,7 @@ describe("Multisig with single owner", function () {
 
     let multisigFactory = await starknet.getContractFactory("Multisig");
     multisig = await multisigFactory.deploy({
-      owners: [number.toBN(accountAddress)],
+      signers: [number.toBN(accountAddress)],
       confirmations_required: 1,
     });
 
@@ -178,20 +178,20 @@ describe("Multisig with single owner", function () {
       }
     });
 
-    it("non-owner can't submit a transaction", async function () {
+    it("non-signer can't submit a transaction", async function () {
       const payload = defaultPayload(targetContract.address, 10);
 
       try {
         await nonOwner.invoke(multisig, "submit_transaction", payload);
         expect.fail("Should have failed");
       } catch (err: any) {
-        assertErrorMsg(err.message, "not owner");
+        assertErrorMsg(err.message, "not signer");
       }
     });
   });
 
   describe("- confirmation - ", function () {
-    it("non-owner can't confirm a transaction", async function () {
+    it("non-signer can't confirm a transaction", async function () {
       const payload = defaultPayload(targetContract.address, 15);
       await account.invoke(multisig, "submit_transaction", payload);
       let txIndex =
@@ -202,7 +202,7 @@ describe("Multisig with single owner", function () {
         });
         expect.fail("Should have failed");
       } catch (err: any) {
-        assertErrorMsg(err.message, "not owner");
+        assertErrorMsg(err.message, "not signer");
       }
     });
 
@@ -261,7 +261,7 @@ describe("Multisig with single owner", function () {
   });
 
   describe("- revocation -", function () {
-    it("non-owner can't revoke a confirmation", async function () {
+    it("non-signer can't revoke a confirmation", async function () {
       const payload = defaultPayload(targetContract.address, 10);
       await account.invoke(multisig, "submit_transaction", payload);
       let txIndex =
@@ -276,7 +276,7 @@ describe("Multisig with single owner", function () {
         });
         expect.fail("Should have failed");
       } catch (err: any) {
-        assertErrorMsg(err.message, "not owner");
+        assertErrorMsg(err.message, "not signer");
       }
     });
 
@@ -339,7 +339,7 @@ describe("Multisig with single owner", function () {
   });
 
   describe("- execution -", function () {
-    it("non-owner can't execute a transaction", async function () {
+    it("non-signer can't execute a transaction", async function () {
       const payload = defaultPayload(targetContract.address, 10);
       await account.invoke(multisig, "submit_transaction", payload);
       let txIndex =
@@ -354,7 +354,7 @@ describe("Multisig with single owner", function () {
         });
         expect.fail("Should have failed");
       } catch (err: any) {
-        assertErrorMsg(err.message, "not owner");
+        assertErrorMsg(err.message, "not signer");
       }
     });
 
@@ -394,7 +394,7 @@ describe("Multisig with single owner", function () {
   });
 });
 
-describe("Multisig with multiple owners", function () {
+describe("Multisig with multiple signers", function () {
   this.timeout(300_000);
 
   let targetFactory: StarknetContractFactory;
@@ -412,7 +412,7 @@ describe("Multisig with multiple owners", function () {
 
     let multisigFactory = await starknet.getContractFactory("Multisig");
     multisig = await multisigFactory.deploy({
-      owners: [
+      signers: [
         number.toBN(account1.starknetContract.address),
         number.toBN(account2.starknetContract.address),
         number.toBN(account3.starknetContract.address),
