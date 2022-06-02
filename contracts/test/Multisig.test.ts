@@ -63,26 +63,13 @@ describe("Multisig with single signer", function () {
         function_selector: selector,
         calldata: [5],
       };
-      const txHash = await account.invoke(
-        multisig,
-        "submit_transaction",
-        payload
-      );
-
-      const receipt = await starknet.getTransactionReceipt(txHash);
+      await account.invoke(multisig, "submit_transaction", payload);
 
       const txIndex =
         Number((await multisig.call("get_transactions_len")).res) - 1;
       const res = await multisig.call("get_transaction", {
         tx_index: txIndex,
       });
-
-      const eventData: IEventDataEntry[] = [
-        { data: accountAddress, isAddress: true },
-        { data: "0x" + txIndex },
-        { data: targetContract.address, isAddress: true },
-      ];
-      assertEvent(receipt, "SubmitTransaction", eventData);
 
       expect(res.tx.to.toString()).to.equal(target.toString());
       expect(res.tx.function_selector.toString()).to.equal(selector.toString());
@@ -92,7 +79,7 @@ describe("Multisig with single signer", function () {
       expect(res.tx_calldata_len).to.equal(1n);
       expect(res.tx_calldata[0]).to.equal(5n);
     });
-    /* 
+
     it("transaction execute works", async function () {
       const payload = defaultPayload(targetContract.address, 6);
       await account.invoke(multisig, "submit_transaction", payload);
@@ -205,10 +192,10 @@ describe("Multisig with single signer", function () {
       } catch (err: any) {
         assertErrorMsg(err.message, "not signer");
       }
-    }); */
+    });
   });
 
-  /*   describe("- confirmation - ", function () {
+  describe("- confirmation - ", function () {
     it("non-signer can't confirm a transaction", async function () {
       const payload = defaultPayload(targetContract.address, 15);
       await account.invoke(multisig, "submit_transaction", payload);
@@ -409,10 +396,73 @@ describe("Multisig with single signer", function () {
         assertErrorMsg(err.message, "tx already executed");
       }
     });
-  }); */
+  });
+
+  describe("- event emission - ", function () {
+    it("correct events are emitted for normal flow", async function () {
+      const payload = defaultPayload(targetContract.address, 6);
+      let txHash = await account.invoke(
+        multisig,
+        "submit_transaction",
+        payload
+      );
+      const receiptSubmit = await starknet.getTransactionReceipt(txHash);
+      const txIndex =
+        Number((await multisig.call("get_transactions_len")).res) - 1;
+
+      const eventDataSubmit: IEventDataEntry[] = [
+        { data: accountAddress, isAddress: true },
+        { data: ethers.utils.hexValue(txIndex) },
+        { data: targetContract.address, isAddress: true },
+      ];
+
+      txHash = await account.invoke(multisig, "confirm_transaction", {
+        tx_index: txIndex,
+      });
+      const receiptConfirm = await starknet.getTransactionReceipt(txHash);
+      const eventDataConfirm: IEventDataEntry[] = [
+        { data: accountAddress, isAddress: true },
+        { data: ethers.utils.hexValue(txIndex) },
+      ];
+
+      txHash = await account.invoke(multisig, "execute_transaction", {
+        tx_index: txIndex,
+      });
+      const receiptExecute = await starknet.getTransactionReceipt(txHash);
+      const eventDataExecute: IEventDataEntry[] = [
+        { data: accountAddress, isAddress: true },
+        { data: ethers.utils.hexValue(txIndex) },
+      ];
+
+      assertEvent(receiptSubmit, "SubmitTransaction", eventDataSubmit);
+      assertEvent(receiptConfirm, "ConfirmTransaction", eventDataConfirm);
+      assertEvent(receiptExecute, "ExecuteTransaction", eventDataExecute);
+    });
+    it("correct events are emitted for revoke", async function () {
+      const payload = defaultPayload(targetContract.address, 6);
+      await account.invoke(multisig, "submit_transaction", payload);
+      const txIndex =
+        Number((await multisig.call("get_transactions_len")).res) - 1;
+
+      await account.invoke(multisig, "confirm_transaction", {
+        tx_index: txIndex,
+      });
+      const txHash = await account.invoke(multisig, "revoke_confirmation", {
+        tx_index: txIndex,
+      });
+      const receipt = await starknet.getTransactionReceipt(txHash);
+
+      const eventData: IEventDataEntry[] = [
+        { data: accountAddress, isAddress: true },
+        { data: ethers.utils.hexValue(txIndex) },
+      ];
+
+      assertEvent(receipt, "RevokeConfirmation", eventData);
+    });
+  });
 });
 
-/* describe("Multisig with multiple signers", function () {
+describe("Multisig with multiple signers", function () {
   this.timeout(300_000);
 
   let targetFactory: StarknetContractFactory;
@@ -539,7 +589,7 @@ describe("Multisig with single signer", function () {
       assertErrorMsg(err.message, "need more confirmations");
     }
   });
-}); */
+});
 
 const defaultPayload = (contractAddress: string, newValue: number) => {
   const setSelector = number.toBN(getSelectorFromName("set_balance"));
