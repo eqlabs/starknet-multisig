@@ -1,12 +1,8 @@
 import Document, {
-  Html,
-  Head,
-  Main,
-  NextScript,
-  DocumentContext,
+  DocumentContext, Head, Html, Main,
+  NextScript
 } from "next/document";
-
-import { globalStyles, getCssText } from "../../stitches.config";
+import { getCssText, globalStyles } from "../../stitches.config";
 
 class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
