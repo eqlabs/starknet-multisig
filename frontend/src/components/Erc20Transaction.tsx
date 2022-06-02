@@ -14,8 +14,7 @@ const Erc20Transaction = ({multisigContract}: {multisigContract?: Contract}) => 
   
   const submit = async () => {
     const bigNumberizedParameters = [toBN(receiver), toBN(amount)];
-    const response = await multisigContract?.submit_transaction(targetAddress, targetFunctionSelector, bigNumberizedParameters);
-    console.log(response)
+    await multisigContract?.submit_transaction(targetAddress, targetFunctionSelector, bigNumberizedParameters);
   };
   
   /* TODO: Fetch token info

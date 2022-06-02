@@ -68,7 +68,6 @@ export const useMultisigContract = (
           while (currentTransactionIndex >= 0) {
             const { tx: transaction, tx_calldata: calldata } =
               await multisigContract.get_transaction(currentTransactionIndex);
-            console.log("ebin.");
             const parsedTransaction: MultisigTransaction = {
               txId: currentTransactionIndex,
               to: toHex(transaction.to),

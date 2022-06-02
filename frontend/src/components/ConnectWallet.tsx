@@ -1,28 +1,14 @@
 import { InjectedConnector, useStarknet } from "@starknet-react/core";
-import { useRouter } from "next/router";
-import { useCallback, useEffect } from "react";
-import { useSnapshot } from "valtio";
+import { useCallback } from "react";
 import Box from "~/components/Box";
 import Button from "~/components/Button";
 import { Symbol } from "~/components/Logos";
 import Paragraph from "~/components/Paragraph";
-import { state } from "~/state";
 
 export function ConnectWallet() {
-  const router = useRouter()
-  const { connect, account } = useStarknet()
-  const { walletAddress } = useSnapshot(state)
-  
-  useEffect(() => {
-    if (account && account !== walletAddress) {
-      console.log("EBINEINBIEN")
-      state.walletAddress = account
-      router.push("/create")
-    }
-  }, [account, router, walletAddress])
+  const { connect } = useStarknet()
 
   const connectings = useCallback(() => {
-    console.log("ebinclickings")
     connect(new InjectedConnector())
   }, [connect])
 
