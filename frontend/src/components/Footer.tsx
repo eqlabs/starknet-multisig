@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
     >
       <p>
         Please check{" "}
-        <a href="https://github.com/eqlabs/starknet-multisig" target="_blank">
+        <a href="https://github.com/eqlabs/starknet-multisig" target="_blank" rel="noreferrer">
           GitHub
         </a>{" "}
         for more information.

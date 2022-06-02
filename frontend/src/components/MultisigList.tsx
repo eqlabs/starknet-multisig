@@ -127,7 +127,7 @@ const MultisigList = () => {
     <>
       {multisigs?.map(contractAddress => (
         <Multisig key={`contractList-${contractAddress}`}>
-          <Link href={`/wallet/${contractAddress}`}><LinkWrapper><AddressPart left>{contractAddress}<TextFade left /></AddressPart><AddressPart middle>{ellipsis}</AddressPart><AddressPart right>{contractAddress}<TextFade right /></AddressPart></LinkWrapper></Link>
+          <Link href={`/wallet/${contractAddress}`} passHref><LinkWrapper><AddressPart left>{contractAddress}<TextFade left /></AddressPart><AddressPart middle>{ellipsis}</AddressPart><AddressPart right>{contractAddress}<TextFade right /></AddressPart></LinkWrapper></Link>
         </Multisig>
       ))}
     </>

@@ -37,7 +37,7 @@ export function NewMultisig() {
     if (!compiledMultisig) {
       getCompiledMultisig().then(setCompiledMultisig);
     }
-  }, []);
+  }, [compiledMultisig]);
 
   // Input state
   const [signerThreshold, setSignerThreshold] = useState<number>(1);
@@ -53,7 +53,7 @@ export function NewMultisig() {
     const emptyOwners = [...Array(totalSigners).keys()].map((item) => "");
     emptyOwners[0] = account ?? "";
     setSigners(emptyOwners);
-  }, []);
+  }, [account, totalSigners]);
 
   const onDeploy = async () => {
     const _deployMultisig = async () => {

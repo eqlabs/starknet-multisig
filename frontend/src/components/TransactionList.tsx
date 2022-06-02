@@ -9,7 +9,7 @@ function TransactionItem({ transaction }: { transaction: Transaction }) {
     "https://goerli.voyager.online/tx/" + transaction.transactionHash;
   return (
     <span>
-      <a href={link} target="_blank">
+      <a href={link} target="_blank" rel="noreferrer">
         {transaction.status}
       </a>
     </span>
