@@ -14,6 +14,17 @@ const Nav = styled("nav", {
   }
 })
 
+const NavDiv = styled("nav", {
+  display: "flex",
+  flexDirection: "row",
+  "> a": {
+    textDecoration: "none",
+    "&:hover": {
+      textDecoration: "underline"
+    }
+  }
+})
+
 const Separator = styled("div", {
   padding: "0 0.5rem",
   "&::before": {
@@ -47,9 +58,9 @@ const Breadcrumb= () => {
             text = "START"
           }
 
-          let returnable = <><Link href={href}>{text}</Link></>
+          let returnable = <Link href={href} key={href}>{text}</Link>
           if (index < path.length - 1) {
-            returnable = <><Link href={href}>{text}</Link><Separator /></>
+            returnable = <NavDiv key={href}><Link href={href}>{text}</Link><Separator/></NavDiv>
           }
           return returnable
         }
