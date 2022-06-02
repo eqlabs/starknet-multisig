@@ -1,39 +1,45 @@
-import { proxy, subscribe } from 'valtio';
+import { proxy, subscribe } from "valtio";
 
 export type State = {
-  walletAddress: false | string
-  multisigs: Array<string>
-}
+  walletAddress: false | string;
+  multisigs: Array<string>;
+};
 
-const storeKey = 'starsign-state'
+const storeKey = "starsign-state";
 
 const defaultState: State = {
   walletAddress: false,
-  multisigs: [] // TODO: Integrate transaction state to multisig info? Deployment transaction, its state etc
+  multisigs: [], // TODO: Integrate transaction state to multisig info? Deployment transaction, its state etc
 };
 
 const persistState = (state: State) => {
-  localStorage.setItem(storeKey, JSON.stringify(state));
-}
+  if (typeof window !== "undefined") {
+    localStorage.setItem(storeKey, JSON.stringify(state));
+  }
+};
 
-const getInitialState = () => {
-  let initialState = defaultState
+let initialState: State = defaultState;
+if (typeof window !== "undefined") {
   try {
     const storedState = localStorage.getItem(storeKey);
     if (storedState) {
-      initialState = JSON.parse(storedState)
+      initialState = JSON.parse(storedState);
     } else {
-      persistState(defaultState)
+      persistState(defaultState);
     }
   } catch (_e) {
-    console.warn('Encountered an error while fetching persisted state, defaulting.', _e)
-    initialState = defaultState
+    console.warn(
+      "Encountered an error while fetching persisted state, defaulting.",
+      _e
+    );
+    initialState = defaultState;
   }
-  return initialState
-};
+}
 
-export const state = proxy<State>(getInitialState())
+export const state = proxy<State>(initialState);
 
-subscribe(state, () => {
-  persistState(state)
-});
+if (typeof window !== "undefined") {
+  subscribe(state, () => {
+    persistState(state);
+  });
+}

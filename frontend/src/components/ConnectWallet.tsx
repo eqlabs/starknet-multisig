@@ -1,4 +1,5 @@
 import { InjectedConnector, useStarknet } from "@starknet-react/core";
+import { useRouter } from "next/router";
 import { useCallback } from "react";
 import Box from "~/components/Box";
 import Button from "~/components/Button";
@@ -6,11 +7,13 @@ import { Symbol } from "~/components/Logos";
 import Paragraph from "~/components/Paragraph";
 
 export function ConnectWallet() {
-  const { connect } = useStarknet()
+  const router = useRouter();
+  const { connect } = useStarknet();
 
-  const connectings = useCallback(() => {
-    connect(new InjectedConnector())
-  }, [connect])
+  const connectCallback = useCallback(() => {
+    connect(new InjectedConnector());
+    router.push("/create");
+  }, [connect, router]);
 
   return (
     <>
@@ -28,7 +31,7 @@ export function ConnectWallet() {
         Get started by connecting your wallet. This allows you to create new
         multisignature contracts or use existing contracts.
       </Paragraph>
-      <Button fullWidth onClick={connectings}>
+      <Button fullWidth onClick={connectCallback}>
         Connect wallet (Argent X)
       </Button>
     </>

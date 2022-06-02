@@ -5,9 +5,9 @@ import { useSnapshot } from "valtio";
 import { state } from "~/state";
 
 const WalletListener = () => {
-  const router = useRouter()
+  const router = useRouter();
   const { account, connect } = useStarknet();
-  const { walletAddress } = useSnapshot(state)
+  const { walletAddress } = useSnapshot(state);
 
   useEffect(() => {
     if (!account && !walletAddress) {
