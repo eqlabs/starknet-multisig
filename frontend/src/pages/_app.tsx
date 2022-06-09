@@ -6,23 +6,23 @@ import WalletListener from "~/components/WalletListener";
 import { darkTheme } from "../../stitches.config";
 
 const MyApp = ({ Component, pageProps }: AppProps) => (
-    <StarknetProvider>
-      <WalletListener />
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        enableSystem={false}
-        value={{
-          light: "light",
-          dark: darkTheme.className,
-        }}
-      >
-        <NextHead>
-          <title>Starsign — StarkNet Multisig</title>
-        </NextHead>
-        <Component {...pageProps} />
-      </ThemeProvider>
-    </StarknetProvider>
-  )
+  <StarknetProvider>
+    <WalletListener />
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem={false}
+      value={{
+        light: "light",
+        dark: darkTheme.className,
+      }}
+    >
+      <NextHead>
+        <title>Starsign — StarkNet Multisig</title>
+      </NextHead>
+      <Component {...pageProps} />
+    </ThemeProvider>
+  </StarknetProvider>
+)
 
 export default MyApp;

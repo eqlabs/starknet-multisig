@@ -20,7 +20,6 @@ const Multisigs = () => {
       <MultisigList />
     </>
   )}</>
-  
 }
 
 const Contract: NextPage = () => (
