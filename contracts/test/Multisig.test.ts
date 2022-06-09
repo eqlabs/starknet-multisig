@@ -348,14 +348,9 @@ describe("Multisig with single owner", function () {
         tx_index: txIndex,
       });
 
-      try {
-        await nonOwner.invoke(multisig, "execute_transaction", {
-          tx_index: txIndex,
-        });
-        expect.fail("Should have failed");
-      } catch (err: any) {
-        assertErrorMsg(err.message, "not owner");
-      }
+      await nonOwner.invoke(multisig, "execute_transaction", {
+        tx_index: txIndex,
+      });
     });
 
     it("can't execute a non-existing transaction", async function () {
@@ -522,6 +517,7 @@ describe("Multisig with multiple owners", function () {
     }
   });
 
+  // Tests below are interdependent and shall be run sequentially
   it("transaction sets new owners", async function () {
     txIndex++;
 
@@ -664,8 +660,6 @@ describe("Multisig with multiple owners", function () {
   });
 
   it("non recursive call fails", async function () {
-    txIndex++;
-
     try {
       const newOwners = [number.toBN(account2.starknetContract.address), number.toBN(account3.starknetContract.address)];
       await account1.invoke(multisig, "set_owners", { owners: newOwners });
@@ -675,6 +669,39 @@ describe("Multisig with multiple owners", function () {
       assertErrorMsg(err.message, "caller shall be multisig");
     }
   });
+
+  it("set 0 owners", async () => {
+    txIndex++;
+
+    const numOfOwners = 0;
+    const selector = getSelectorFromName('set_owners');
+    const payload = {
+      to: number.toBN(multisig.address),
+      function_selector: number.toBN(selector),
+      calldata: [numOfOwners]
+    }
+
+    await account2.invoke(multisig, 'submit_transaction', payload);
+    await account2.invoke(multisig, 'confirm_transaction', {
+      tx_index: txIndex
+    });
+    await account1.invoke(multisig, 'confirm_transaction', {
+      tx_index: txIndex
+    });
+
+    // Execution shall be allowed from any account
+    await account3.invoke(multisig, 'execute_transaction', {
+      tx_index: txIndex
+    });
+
+    // No one shall be able to submit new transactions anymore
+    try {
+      const payload = defaultPayload(targetContract.address, txIndex * 2);
+      await account2.invoke(multisig, 'submit_transaction', payload);
+    } catch (err: any) {
+      assertErrorMsg(err.message, "not owner");
+    }
+  })
 });
 
 const defaultPayload = (contractAddress: string, newValue: number) => {

@@ -207,30 +207,12 @@ func get_owners_len{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_chec
 end
 
 @view
-func _get_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    owners_index : felt, owners_len : felt, owners : felt*
-):
-    if owners_index == owners_len:
-        return ()
-    end
-
-    let (owner) = _owners.read(index=owners_index)
-    assert owners[owners_index] = owner
-
-    _get_owners(owners_index=owners_index + 1, owners_len=owners_len, owners=owners)
-    return ()
-end
-
-@view
 func get_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
     owners_len : felt, owners : felt*
 ):
     alloc_locals
     let (owners) = alloc()
     let (owners_len) = _owners_len.read()
-    if owners_len == 0:
-        return (owners_len=owners_len, owners=owners)
-    end
 
     # Recursively add owners from storage to the owners array
     _get_owners(owners_index=0, owners_len=owners_len, owners=owners)
@@ -338,11 +320,8 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
         assert_in_range(confirmations_required, lower_bound, owners_len + 1)
     end
 
-    require_unique_owners(owners_len, owners)
-
-    _confirmations_required.write(value=confirmations_required)
-    _owners_len.write(value=owners_len)
-    _set_owners(owners_index=0, owners_len=owners_len, owners=owners)
+    _set_owners_impl(owners_len, owners)
+    _set_confirmations_required_impl(confirmations_required)
 
     return ()
 end
@@ -384,7 +363,6 @@ func confirm_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     require_tx_exists(tx_index=tx_index)
     require_tx_valid(tx_index=tx_index)
     require_not_executed(tx_index=tx_index)
-    # TODO: clarify if needed
     require_not_confirmed(tx_index=tx_index)
 
     let (num_confirmations) = _transactions.read(
@@ -427,7 +405,6 @@ end
 func execute_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     tx_index : felt
 ) -> (response_len : felt, response : felt*):
-    require_owner()
     require_tx_exists(tx_index=tx_index)
     require_tx_valid(tx_index=tx_index)
     require_not_executed(tx_index=tx_index)
@@ -462,16 +439,8 @@ func set_confirmations_required{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*
     confirmations_required : felt
 ):
     require_multisig()
+    _set_confirmations_required_impl(confirmations_required)
 
-    const lower_bound = 1
-
-    let (owners_len) = _owners_len.read()
-    with_attr error_message("invalid number of required confirmations"):
-        assert_in_range(confirmations_required, lower_bound, owners_len + 1)
-    end
-
-    _confirmations_required.write(confirmations_required)
-    ConfirmationsSet.emit(confirmations_required)
     return ()
 end
 
@@ -483,14 +452,47 @@ end
 func set_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     owners_len : felt, owners : felt*
 ):
-    alloc_locals
-
     require_multisig()
+    _set_owners_impl(owners_len, owners)
 
-    with_attr error_message("invalid num of owners"):
-        assert_not_zero(owners_len)
+    return ()
+end
+
+# Set new owners and number of required confirmations.
+# Can be called only via recursively from
+# execute_transaction -> set_owners_and_confirmations_required
+@external
+func set_owners_and_confirmations_required{
+    syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
+}(owners_len : felt, owners : felt*, confirmations_required : felt):
+    set_owners(owners_len, owners)
+    set_confirmations_required(confirmations_required)
+
+    return ()
+end
+
+#
+# Storage Helpers
+#
+
+func _get_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    owners_index : felt, owners_len : felt, owners : felt*
+):
+    if owners_index == owners_len:
+        return ()
     end
 
+    let (owner) = _owners.read(index=owners_index)
+    assert owners[owners_index] = owner
+
+    _get_owners(owners_index=owners_index + 1, owners_len=owners_len, owners=owners)
+    return ()
+end
+
+func _set_owners_impl{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    owners_len : felt, owners : felt*
+):
+    alloc_locals
     require_unique_owners(owners_len, owners)
 
     # Clean previous owners
@@ -523,25 +525,9 @@ func set_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_pt
     # Recursively write the rest
     _set_owners(0, owners_len, owners)
     OwnersSet.emit(owners_len, owners)
-    return ()
-end
-
-# Set new owners and number of required confirmations.
-# Can be called only via recursively from
-# execute_transaction -> set_owners_and_confirmations_required
-@external
-func set_owners_and_confirmations_required{
-    syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
-}(owners_len : felt, owners : felt*, confirmations_required : felt):
-    set_owners(owners_len, owners)
-    set_confirmations_required(confirmations_required)
 
     return ()
 end
-
-#
-# Storage Helpers
-#
 
 func _set_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     owners_index : felt, owners_len : felt, owners : felt*
@@ -591,4 +577,20 @@ func _clean_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check
     _owners.write(owners_index, 0)
 
     return _clean_owners(owners_index + 1, owners_len)
+end
+
+func _set_confirmations_required_impl{
+    syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
+}(confirmations_required : felt):
+    const lower_bound = 1
+
+    let (owners_len) = _owners_len.read()
+    with_attr error_message("invalid number of required confirmations"):
+        assert_in_range(confirmations_required, lower_bound, owners_len + 1)
+    end
+
+    _confirmations_required.write(confirmations_required)
+    ConfirmationsSet.emit(confirmations_required)
+
+    return ()
 end
