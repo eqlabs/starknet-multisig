@@ -152,6 +152,17 @@ func require_confirmed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_c
     return ()
 end
 
+# Revert if owners not unique
+func require_unique_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    owners_len : felt, owners : felt*
+):
+    with_attr error_message("owners not unique"):
+        assert_unique_elements(owners_len, owners)
+    end
+
+    return ()
+end
+
 # Require tx_index to be greater then the last update of set of owners.
 # Since updating owners invalidates all pending transations
 func require_tx_valid{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(tx_index):
@@ -327,9 +338,7 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
         assert_in_range(confirmations_required, lower_bound, owners_len + 1)
     end
 
-    with_attr error_message("owners not unique"):
-        assert_unique_addresses(owners_len, owners)
-    end
+    require_unique_owners(owners_len, owners)
 
     _confirmations_required.write(value=confirmations_required)
     _owners_len.write(value=owners_len)
@@ -341,7 +350,7 @@ end
 @external
 func submit_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     to : felt, function_selector : felt, calldata_len : felt, calldata : felt*
-):
+) -> (tx_index : felt):
     alloc_locals
     require_owner()
 
@@ -364,7 +373,7 @@ func submit_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_
     SubmitTransaction.emit(owner=caller, tx_index=tx_index, to=to)
     _next_tx_index.write(value=tx_index + 1)
 
-    return ()
+    return (tx_index)
 end
 
 @external
@@ -482,9 +491,7 @@ func set_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_pt
         assert_not_zero(owners_len)
     end
 
-    with_attr error_message("owners has to be unique"):
-        assert_unique_addresses(owners_len, owners)
-    end
+    require_unique_owners(owners_len, owners)
 
     # Clean previous owners
     let (old_owners_len) = _owners_len.read()
