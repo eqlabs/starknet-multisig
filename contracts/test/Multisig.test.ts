@@ -519,8 +519,6 @@ describe("Multisig with multiple owners", function () {
 
   // Tests below are interdependent and shall be run sequentially
   it("transaction sets new owners", async function () {
-    txIndex++;
-
     const selector = getSelectorFromName('set_owners');
     const newOwners = [number.toBN(account2.starknetContract.address), number.toBN(account3.starknetContract.address)];
     const payload = {
@@ -530,6 +528,8 @@ describe("Multisig with multiple owners", function () {
     }
 
     await account1.invoke(multisig, "submit_transaction", payload);
+    const txIndex =
+      Number((await multisig.call("get_transactions_len")).res) - 1;
 
     await account1.invoke(multisig, "confirm_transaction", {
       tx_index: txIndex,
@@ -548,8 +548,6 @@ describe("Multisig with multiple owners", function () {
   });
 
   it("set single owner thus lowering required confirmations", async function () {
-    txIndex++;
-
     const selector = getSelectorFromName('set_owners');
     const newOwners = [number.toBN(account2.starknetContract.address)];
     const payload = {
@@ -559,6 +557,8 @@ describe("Multisig with multiple owners", function () {
     }
 
     await account2.invoke(multisig, "submit_transaction", payload);
+    const txIndex =
+      Number((await multisig.call("get_transactions_len")).res) - 1;
 
     await account2.invoke(multisig, "confirm_transaction", {
       tx_index: txIndex,
@@ -579,13 +579,11 @@ describe("Multisig with multiple owners", function () {
   it("invalidate previous transactions with set owners", async function () {
     const numTxToSpawn = 5;
     for (let i = 0; i < numTxToSpawn; i++) {
-      txIndex++;
       const payload = defaultPayload(targetContract.address, 101 + i);
       await account2.invoke(multisig, 'submit_transaction', payload);
     }
 
     // Executed set_owners invalidates previous transactions
-    const invalidatingTxIndex = ++txIndex;
     const selector = getSelectorFromName('set_owners_and_confirmations_required');
     const newOwners = [number.toBN(account2.starknetContract.address), number.toBN(account1.starknetContract.address)];
     const payload = {
@@ -598,6 +596,9 @@ describe("Multisig with multiple owners", function () {
     }
 
     await account2.invoke(multisig, "submit_transaction", payload);
+    const invalidatingTxIndex =
+      Number((await multisig.call("get_transactions_len")).res) - 1;
+
     await account2.invoke(multisig, "confirm_transaction", {
       tx_index: invalidatingTxIndex,
     });
@@ -628,8 +629,6 @@ describe("Multisig with multiple owners", function () {
   });
 
   it("set invalid number of confirmations", async function () {
-    txIndex++;
-
     const selector = getSelectorFromName('set_owners_and_confirmations_required');
     const newOwners = [number.toBN(account2.starknetContract.address), number.toBN(account3.starknetContract.address)];
     const payload = {
@@ -642,6 +641,9 @@ describe("Multisig with multiple owners", function () {
     }
 
     await account2.invoke(multisig, "submit_transaction", payload);
+    const txIndex =
+      Number((await multisig.call("get_transactions_len")).res) - 1;
+
     await account1.invoke(multisig, "confirm_transaction", {
       tx_index: txIndex,
     });
@@ -671,8 +673,6 @@ describe("Multisig with multiple owners", function () {
   });
 
   it("set 0 owners", async () => {
-    txIndex++;
-
     const numOfOwners = 0;
     const selector = getSelectorFromName('set_owners');
     const payload = {
@@ -682,6 +682,9 @@ describe("Multisig with multiple owners", function () {
     }
 
     await account2.invoke(multisig, 'submit_transaction', payload);
+    const txIndex =
+      Number((await multisig.call("get_transactions_len")).res) - 1;
+
     await account2.invoke(multisig, 'confirm_transaction', {
       tx_index: txIndex
     });
