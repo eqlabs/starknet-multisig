@@ -49,16 +49,18 @@ export function NewMultisig() {
     abi: (MultisigSource as any).abi as Abi,
   });
 
+  // Prefill the first field with currently logged in wallet address
   useEffect(() => {
-    const emptyOwners = [...Array(totalSigners).keys()].map((item) => "");
-    emptyOwners[0] = account ?? "";
-    setSigners(emptyOwners);
-  }, [account, totalSigners]);
+    const emptySigners = [...Array(totalSigners).keys()].map((item) => "");
+    emptySigners[0] = account ?? "";
+    setSigners(emptySigners);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onDeploy = async () => {
     const _deployMultisig = async () => {
-      const bnOwners = signers.slice(0, signers.length - 1).map((o) => number.toBN(o));
-      const calldata = [bnOwners.length, ...bnOwners, signerThreshold];
+      const bnSigners = signers.slice(0, signers.length - 1).map((o) => number.toBN(o));
+      const calldata = [bnSigners.length, ...bnSigners, signerThreshold];
       const deployment = await deployMultisig({
         constructorCalldata: calldata,
       });
@@ -73,15 +75,15 @@ export function NewMultisig() {
     setSignerThreshold(+value);
   };
 
-  const onOwnerChange = (value: string, index: number) => {
+  const onSignerChange = (value: string, index: number) => {
     // Put the new entry in copied version of signers[]
     let copy = [...signers];
     copy[index] = value;
 
-    const allFieldsFilled = copy.every((owner)=> owner !== "")
+    const allFieldsFilled = copy.every((signer) => signer !== "")
     let lastFilledIndex = 0
-    signers.forEach((owner, i) => {
-      if (owner !== "") {
+    signers.forEach((signer, i) => {
+      if (signer !== "") {
         lastFilledIndex = i
       }
     })
@@ -105,17 +107,19 @@ export function NewMultisig() {
         <Legend as="h2">Add Signers</Legend>
         <Paragraph css={{ color: "$textMuted" }}>
           Your contract will have one or more signers. We have prefilled the
-          first owner with your connected wallet details, but you are free to
-          change this to a different owner.
+          first signer with your connected wallet details, but you are free to
+          change this to a different signer.
         </Paragraph>
-        {signers.map((owner, i) => (
-          <Field key={i} inactive={signers.length > 2 && i === totalSigners.valueOf() && owner === ""}>
+
+        {/* Inputs */}
+        {signers.map((signer, i) => (
+          <Field key={i} inactive={signers.length > 2 && i === totalSigners.valueOf() && signer === ""}>
             <Label>Signer {i + 1} address:</Label>
             <Input
               type="text"
               autoComplete="off"
-              onChange={(e) => onOwnerChange(e.target.value, i)}
-              value={owner}
+              onChange={(e) => onSignerChange(e.target.value, i)}
+              value={signer}
             ></Input>
           </Field>
         ))}
