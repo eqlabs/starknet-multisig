@@ -203,9 +203,9 @@ end
 func require_valid_tx_index{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     tx_index : felt
 ):
-    let (current_tx_index) = _next_tx_index.read()
+    let (next_tx_index) = _next_tx_index.read()
     with_attr error_message("invalid tx index"):
-        assert tx_index = current_tx_index
+        assert tx_index = next_tx_index
     end
 
     return ()
