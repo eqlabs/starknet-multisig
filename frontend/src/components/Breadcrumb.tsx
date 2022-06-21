@@ -11,7 +11,8 @@ const Nav = styled("nav", {
     "&:hover": {
       textDecoration: "underline"
     }
-  }
+  },
+  length: 0
 })
 
 const NavDiv = styled("nav", {
@@ -22,14 +23,16 @@ const NavDiv = styled("nav", {
     "&:hover": {
       textDecoration: "underline"
     }
-  }
+  },
+  length: 0
 })
 
 const Separator = styled("div", {
   padding: "0 0.5rem",
   "&::before": {
     content: "/"
-  }
+  },
+  length: 0
 })
 
 const Breadcrumb= () => {
@@ -52,7 +55,7 @@ const Breadcrumb= () => {
           }).join("/")
           let text = link.toUpperCase()
 
-          if (link.substring(0, 2) === "0x" && link.length === 65) {
+          if (link.substring(0, 2) === "0x") {
             text = link.substring(0, 5).concat("…").concat(link.substring(link.length - 3, link.length)).toUpperCase()
           } else if (link === "") {
             text = "START"

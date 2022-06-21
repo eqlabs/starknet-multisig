@@ -4,7 +4,6 @@ import {
 } from "@starknet-react/core";
 import { styled } from '@stitches/react';
 import Link from "next/link";
-import React from "react";
 import { useMultisigContract } from "~/hooks/multisigContractHook";
 import ArbitraryTransaction from './ArbitraryTransaction';
 import Erc20Transaction from './Erc20Transaction';
@@ -21,6 +20,7 @@ const StyledTabs = styled(Tabs.List, {
   display: "flex",
   flexDirection: "row",
   height: "$14",
+  length: 0
 });
 
 const StyledTrigger = styled(Tabs.Trigger, {
@@ -40,10 +40,11 @@ const StyledTrigger = styled(Tabs.Trigger, {
     color: "$text",
     borderBottom: "4px solid $accent",
   },
+  length: 0
 });
 
 export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
-  const { account, connect } = useStarknet();
+  const { account } = useStarknet();
   
   const { contract: multisigContract, owners, threshold, transactions } = useMultisigContract(
     contractAddress

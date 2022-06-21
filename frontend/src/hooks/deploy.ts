@@ -62,7 +62,7 @@ export function useContractFactory({
       }
       return undefined;
     },
-    [factory]
+    [addTransaction, factory]
   );
 
   return { factory, contract, deploy };

@@ -55,7 +55,7 @@ export function NewMultisig() {
     emptySigners[0] = account ?? "";
     setSigners(emptySigners);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [account]);
 
   const onDeploy = async () => {
     const _deployMultisig = async () => {

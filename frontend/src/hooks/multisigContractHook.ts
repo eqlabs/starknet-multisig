@@ -1,7 +1,8 @@
-import { useContract } from "@starknet-react/core";
+import { useStarknet } from "@starknet-react/core";
 import { useEffect, useState } from "react";
 import { Abi, Contract } from "starknet";
-import { BigNumberish, toBN, toHex } from "starknet/dist/utils/number";
+import { sanitizeHex } from "starknet/dist/utils/encode";
+import { toBN, toHex } from "starknet/dist/utils/number";
 import { MultisigTransaction } from "~/types";
 import { mapTargetHashToText } from "~/utils";
 import Source from "../../public/Multisig.json";
@@ -16,38 +17,50 @@ export const useMultisigContract = (
   transactionCount: number;
   transactions: MultisigTransaction[];
 } => {
-  const { contract: multisigContract } = useContract({
-    abi: Source.abi as Abi,
-    address: address,
-  });
-
+  const { library: provider } = useStarknet();
   const [loading, setLoading] = useState<boolean>(true);
   const [owners, setOwners] = useState<string[]>([]);
   const [threshold, setThreshold] = useState<number>(0);
   const [transactionCount, setTransactionCount] = useState<number>(0);
   const [transactions, setTransactions] = useState<MultisigTransaction[]>([]);
+  const [contract, setContract] = useState<Contract | undefined>();
+
+  useEffect(() => {
+    try {
+      const multisigContract = new Contract(
+        Source.abi as Abi,
+        address,
+        provider
+      );
+      setContract(multisigContract);
+    } catch (_e) {
+      console.error(_e);
+    }
+  }, [address, provider]);
 
   useEffect(() => {
     const fetchInfo = async () => {
       setLoading(true);
 
-      const { owners } = (await multisigContract?.get_owners()) || {
+      const { owners: ownersResponse } = (await contract?.get_owners()) || {
         owners: [],
       };
+      const owners = ownersResponse.map(toHex).map(sanitizeHex);
       const { confirmations_required: threshold } =
-        (await multisigContract?.get_confirmations_required()) || {
+        (await contract?.get_confirmations_required()) || {
           confirmations_required: toBN(0),
         };
       const { res: transactionCount } =
-        (await multisigContract?.get_transactions_len()) || {
+        (await contract?.get_transactions_len()) || {
           transactions_len: toBN(0),
         };
-      setOwners(owners.map((owner: BigNumberish) => toHex(owner)));
+      setOwners(owners);
       setThreshold(threshold.toNumber());
       transactionCount && setTransactionCount(transactionCount.toNumber());
 
       setLoading(false);
     };
+
     fetchInfo();
 
     return () => {
@@ -55,19 +68,19 @@ export const useMultisigContract = (
       setThreshold(0);
       setTransactionCount(0);
     };
-  }, [multisigContract]);
+  }, [contract]);
 
   useEffect(() => {
     const fetchTransactions = async () => {
       setLoading(true);
       try {
-        if (multisigContract && transactionCount > 0) {
+        if (contract && transactionCount > 0) {
           let currentTransactionIndex = transactionCount - 1;
           let transactions: MultisigTransaction[] = [];
 
           while (currentTransactionIndex >= 0) {
             const { tx: transaction, tx_calldata: calldata } =
-              await multisigContract.get_transaction(currentTransactionIndex);
+              await contract.get_transaction(currentTransactionIndex);
             const parsedTransaction: MultisigTransaction = {
               txId: currentTransactionIndex,
               to: toHex(transaction.to),
@@ -87,6 +100,7 @@ export const useMultisigContract = (
           setTransactions(transactions);
         }
       } catch (_e) {
+        console.log(_e);
         setLoading(false);
       }
       setLoading(false);
@@ -94,10 +108,10 @@ export const useMultisigContract = (
 
     !loading && fetchTransactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [multisigContract, transactionCount]);
+  }, [contract, transactionCount]);
 
   return {
-    contract: multisigContract,
+    contract,
     loading,
     owners,
     threshold,
