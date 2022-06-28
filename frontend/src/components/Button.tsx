@@ -1,7 +1,7 @@
 import React from "react";
-import { keyframes, styled } from "../../stitches.config";
 import Box from "~/components/Box";
 import Spinner from "~/components/Spinner";
+import { keyframes, styled } from "../../stitches.config";
 
 const shine = keyframes({
   "0%": { transform: "translateX(-30px) scale(0.7)", opacity: 0 },
@@ -120,8 +120,7 @@ export const StyledButton = styled("button", {
           background: "$buttonActiveGradient",
         },
         "&:focus": {
-          boxShadow:
-            "inset 0 0 0 1px $colors$focusOutline, inset 0 0 0 2px $colors$focusOutline",
+          boxShadow: "inset 0 0 0 1px $colors$focusOutline, inset 0 0 0 2px $colors$focusOutline",
         },
       },
     },
@@ -174,6 +173,7 @@ export const StyledButton = styled("button", {
     size: "md",
     variant: "default",
   },
+  length: 0
 });
 
 const CustomButton: React.FC<

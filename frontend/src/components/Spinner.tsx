@@ -1,4 +1,4 @@
-import { styled, keyframes } from "../../stitches.config";
+import { keyframes, styled } from "../../stitches.config";
 
 const rotate = keyframes({
   "0%": { transform: "rotate(0deg)" },
@@ -11,10 +11,10 @@ const Spinner = styled("div", {
   height: "16px",
   borderRadius: "50%",
   border: "5px solid transparent",
-  background:
-    "linear-gradient(white, white), conic-gradient(from 0.15turn, white, #00EBD3)",
+  background: "linear-gradient(white, white), conic-gradient(from 0.15turn, white, #00EBD3)",
   backgroundOrigin: "border-box",
   backgroundClip: "content-box, border-box",
+  length: 0
 });
 
 export default Spinner;

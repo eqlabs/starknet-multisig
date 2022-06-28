@@ -18,20 +18,3 @@ export const mapTargetHashToText = (hash: string): string => {
   }
   return mapping;
 };
-
-export const padTo64Bits = (input: string): string => {
-  let diff = 0;
-  let returnable = input;
-  if (input.length < 64) {
-    diff = 64 - input.length;
-    const parts = [
-      input.substring(0, 2),
-      "",
-      input.substring(2, input.length - 1),
-    ];
-    parts[1] = [...Array(diff).keys()].map(() => "0").join();
-    returnable = parts.join();
-  }
-
-  return returnable;
-};

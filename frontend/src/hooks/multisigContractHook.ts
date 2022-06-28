@@ -17,7 +17,7 @@ export const useMultisigContract = (
   transactionCount: number;
   transactions: MultisigTransaction[];
 } => {
-  const { library: provider } = useStarknet();
+  const { account, library: provider } = useStarknet();
   const [loading, setLoading] = useState<boolean>(true);
   const [owners, setOwners] = useState<string[]>([]);
   const [threshold, setThreshold] = useState<number>(0);
@@ -26,17 +26,19 @@ export const useMultisigContract = (
   const [contract, setContract] = useState<Contract | undefined>();
 
   useEffect(() => {
-    try {
-      const multisigContract = new Contract(
-        Source.abi as Abi,
-        address,
-        provider
-      );
-      setContract(multisigContract);
-    } catch (_e) {
-      console.error(_e);
+    if (account) {
+      try {
+        const multisigContract = new Contract(
+          Source.abi as Abi,
+          address,
+          provider
+        );
+        setContract(multisigContract);
+      } catch (_e) {
+        console.error(_e);
+      }
     }
-  }, [address, provider]);
+  }, [account, address, provider]);
 
   useEffect(() => {
     const fetchInfo = async () => {
@@ -61,14 +63,14 @@ export const useMultisigContract = (
       setLoading(false);
     };
 
-    fetchInfo();
+    account && fetchInfo();
 
     return () => {
       setOwners([]);
       setThreshold(0);
       setTransactionCount(0);
     };
-  }, [contract]);
+  }, [account, contract]);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -106,7 +108,7 @@ export const useMultisigContract = (
       setLoading(false);
     };
 
-    !loading && fetchTransactions();
+    !loading && account && fetchTransactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contract, transactionCount]);
 
