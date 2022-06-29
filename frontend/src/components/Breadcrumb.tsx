@@ -12,7 +12,6 @@ const Nav = styled("nav", {
       textDecoration: "underline"
     }
   },
-  length: 0
 })
 
 const NavDiv = styled("nav", {
@@ -24,7 +23,6 @@ const NavDiv = styled("nav", {
       textDecoration: "underline"
     }
   },
-  length: 0
 })
 
 const Separator = styled("div", {
@@ -32,7 +30,6 @@ const Separator = styled("div", {
   "&::before": {
     content: "/"
   },
-  length: 0
 })
 
 const Breadcrumb= () => {

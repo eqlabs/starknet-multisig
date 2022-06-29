@@ -12,7 +12,6 @@ const Transaction = styled("li", {
   flexDirection: "column",
   background: "$inputBg",
   borderRadius: "$sm",
-  length: 0
 })
 
 const TransactionInfo = styled("div", {
@@ -21,7 +20,6 @@ const TransactionInfo = styled("div", {
   position: "relative",
   justifyContent: "space-between",
   alignItems: "center",
-  length: 0
 })
 
 const MultisigTransactionList = ({multisigContract, threshold, transactions}: {multisigContract?: Contract, threshold: number, transactions: MultisigTransaction[]}) => (<ul style={{ display: "flex", flexDirection: "column", position: "relative", alignItems: "stretch", margin: "0", padding: "0"}}>

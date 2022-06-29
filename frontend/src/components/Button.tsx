@@ -173,7 +173,6 @@ export const StyledButton = styled("button", {
     size: "md",
     variant: "default",
   },
-  length: 0
 });
 
 const CustomButton: React.FC<

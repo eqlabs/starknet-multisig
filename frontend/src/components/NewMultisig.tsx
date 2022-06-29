@@ -2,7 +2,7 @@ import {
   useStarknet
 } from "@starknet-react/core";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Abi,
   CompiledContract, json, number
