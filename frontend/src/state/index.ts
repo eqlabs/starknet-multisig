@@ -1,15 +1,20 @@
 import { proxy, subscribe } from "valtio";
 
+export type MultisigInfo = {
+  address: string;
+  transactionHash?: string;
+};
+
 export type State = {
   walletAddress: false | string;
-  multisigs: Array<string>;
+  multisigs: Array<MultisigInfo>;
 };
 
 const storeKey = "starsign-state";
 
 const defaultState: State = {
   walletAddress: false,
-  multisigs: [], // TODO: Integrate transaction state to multisig info? Deployment transaction, its state etc
+  multisigs: [],
 };
 
 const persistState = (state: State) => {

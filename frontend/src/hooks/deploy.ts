@@ -1,7 +1,4 @@
-import {
-  useStarknet,
-  useStarknetTransactionManager,
-} from "@starknet-react/core";
+import { useStarknet } from "@starknet-react/core";
 import { useCallback, useEffect, useState } from "react";
 import {
   Abi,
@@ -12,6 +9,7 @@ import {
   RawCalldata,
 } from "starknet";
 import { BigNumberish } from "starknet/dist/utils/number";
+import { state } from "~/state";
 
 interface UseContractFactoryArgs {
   compiledContract?: CompiledContract;
@@ -37,7 +35,6 @@ export function useContractFactory({
   abi,
 }: UseContractFactoryArgs): UseContractFactory {
   const { library } = useStarknet();
-  const { addTransaction } = useStarknetTransactionManager();
   const [factory, setFactory] = useState<ContractFactory | undefined>();
   const [contract, setContract] = useState<Contract | undefined>();
 
@@ -53,16 +50,16 @@ export function useContractFactory({
     async ({ constructorCalldata, addressSalt }: DeployArgs) => {
       if (factory) {
         const contract = await factory.deploy(constructorCalldata, addressSalt);
-        addTransaction({
-          status: "TRANSACTION_RECEIVED",
-          transactionHash: contract.deployTransactionHash ?? "",
+        state.multisigs.push({
+          address: contract.address,
+          transactionHash: contract.deployTransactionHash,
         });
         setContract(contract);
         return contract;
       }
       return undefined;
     },
-    [addTransaction, factory]
+    [factory]
   );
 
   return { factory, contract, deploy };

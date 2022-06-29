@@ -11,13 +11,14 @@ const Multisig = styled("div", {
   flexDirection: "row",
   justifyContent: "space-evenly",
   maxWidth: "100%",
+  background: "$background",
   variants: {
     inactive: {
       true: {
         opacity: "0.5",
       }
     }
-  }
+  },
 });
 
 export const AddressPart = styled("span", {
@@ -75,7 +76,7 @@ export const AddressPart = styled("span", {
         }
       }
     }
-  }
+  },
 })
 
 const TextFade = styled("div", {
@@ -104,7 +105,7 @@ const TextFade = styled("div", {
         background: "linear-gradient(to right, $background 0%, transparent 100%);"
       }
     }
-  }
+  },
 })
 
 const LinkWrapper = styled("div", {
@@ -116,7 +117,7 @@ const LinkWrapper = styled("div", {
   cursor: "pointer",
   "&:hover > span": {
     textDecoration: "underline"
-  }
+  },
 })
 
 const ellipsis = "…"
@@ -125,9 +126,9 @@ const MultisigList = () => {
   const { multisigs } = useSnapshot(state)
   return (
     <>
-      {multisigs?.map(contractAddress => (
-        <Multisig key={`contractList-${contractAddress}`}>
-          <Link href={`/wallet/${contractAddress}`} passHref><LinkWrapper><AddressPart left>{contractAddress}<TextFade left /></AddressPart><AddressPart middle>{ellipsis}</AddressPart><AddressPart right>{contractAddress}<TextFade right /></AddressPart></LinkWrapper></Link>
+      {multisigs?.map(contract => (
+        <Multisig key={`contractList-${contract.address}`}>
+          <Link href={`/wallet/${contract.address}`} passHref><LinkWrapper><AddressPart left>{contract.address}<TextFade left /></AddressPart><AddressPart middle>{ellipsis}</AddressPart><AddressPart right>{contract.address}<TextFade right /></AddressPart></LinkWrapper></Link>
         </Multisig>
       ))}
     </>

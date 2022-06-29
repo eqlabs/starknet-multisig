@@ -14,3 +14,12 @@ export type MultisigTransaction = {
   executed: boolean;
   num_confirmations: number;
 };
+
+export enum TransactionState {
+  NOT_RECEIVED = "NOT_RECEIVED",
+  RECEIVED = "RECEIVED",
+  PENDING = "PENDING",
+  REJECTED = "REJECTED",
+  ACCEPTED_ON_L2 = "ACCEPTED_ON_L2",
+  ACCEPTED_ON_L1 = "ACCEPTED_ON_L1",
+}
