@@ -28,7 +28,7 @@ func assert_unique_elements{range_check_ptr}(data_len : felt, data : felt*):
         index=0, data_len=data_len, data=data
     )
 
-    # Squashe the dictionary and verify consistency with respect to the default value
+    # Squash the dictionary and verify consistency with respect to the default value
     # https://www.cairo-lang.org/docs/reference/common_library.html#common-library-default-dict
     default_dict_finalize(my_dict_start, my_dict_end, data_len)
 
