@@ -11845,12 +11845,12 @@
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 6,
-                                        "end_line": 41,
+                                        "end_col": 64,
+                                        "end_line": 39,
                                         "input_file": {
                                             "filename": "/Users/edwin/Documents/work/ShardLabs/starknet-multisig/contracts/contracts/util.cairo"
                                         },
-                                        "start_col": 54,
+                                        "start_col": 5,
                                         "start_line": 39
                                     },
                                     "While trying to retrieve the implicit argument 'range_check_ptr' in:"
@@ -11879,13 +11879,13 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 22,
-                                "end_line": 40,
+                                "end_col": 40,
+                                "end_line": 39,
                                 "input_file": {
                                     "filename": "/Users/edwin/Documents/work/ShardLabs/starknet-multisig/contracts/contracts/util.cairo"
                                 },
-                                "start_col": 9,
-                                "start_line": 40
+                                "start_col": 27,
+                                "start_line": 39
                             },
                             "While expanding the reference 'my_dict_start' in:"
                         ],
@@ -11908,13 +11908,13 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 35,
-                                "end_line": 40,
+                                "end_col": 53,
+                                "end_line": 39,
                                 "input_file": {
                                     "filename": "/Users/edwin/Documents/work/ShardLabs/starknet-multisig/contracts/contracts/util.cairo"
                                 },
-                                "start_col": 24,
-                                "start_line": 40
+                                "start_col": 42,
+                                "start_line": 39
                             },
                             "While expanding the reference 'my_dict_end' in:"
                         ],
@@ -11937,13 +11937,13 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 45,
-                                "end_line": 40,
+                                "end_col": 63,
+                                "end_line": 39,
                                 "input_file": {
                                     "filename": "/Users/edwin/Documents/work/ShardLabs/starknet-multisig/contracts/contracts/util.cairo"
                                 },
-                                "start_col": 37,
-                                "start_line": 40
+                                "start_col": 55,
+                                "start_line": 39
                             },
                             "While expanding the reference 'data_len' in:"
                         ],
@@ -11959,12 +11959,12 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 6,
-                        "end_line": 41,
+                        "end_col": 64,
+                        "end_line": 39,
                         "input_file": {
                             "filename": "/Users/edwin/Documents/work/ShardLabs/starknet-multisig/contracts/contracts/util.cairo"
                         },
-                        "start_col": 54,
+                        "start_col": 5,
                         "start_line": 39
                     }
                 },
@@ -11983,8 +11983,8 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 6,
-                                "end_line": 41,
+                                "end_col": 64,
+                                "end_line": 39,
                                 "input_file": {
                                     "filename": "/Users/edwin/Documents/work/ShardLabs/starknet-multisig/contracts/contracts/util.cairo"
                                 },
@@ -11998,12 +11998,12 @@
                                         "parent_location": [
                                             {
                                                 "end_col": 14,
-                                                "end_line": 43,
+                                                "end_line": 41,
                                                 "input_file": {
                                                     "filename": "/Users/edwin/Documents/work/ShardLabs/starknet-multisig/contracts/contracts/util.cairo"
                                                 },
                                                 "start_col": 5,
-                                                "start_line": 43
+                                                "start_line": 41
                                             },
                                             "While trying to retrieve the implicit argument 'range_check_ptr' in:"
                                         ],
@@ -12012,7 +12012,7 @@
                                     },
                                     "While expanding the reference 'range_check_ptr' in:"
                                 ],
-                                "start_col": 54,
+                                "start_col": 5,
                                 "start_line": 39
                             },
                             "While trying to update the implicit return value 'range_check_ptr' in:"
@@ -12030,12 +12030,12 @@
                     "hints": [],
                     "inst": {
                         "end_col": 14,
-                        "end_line": 43,
+                        "end_line": 41,
                         "input_file": {
                             "filename": "/Users/edwin/Documents/work/ShardLabs/starknet-multisig/contracts/contracts/util.cairo"
                         },
                         "start_col": 5,
-                        "start_line": 43
+                        "start_line": 41
                     }
                 },
                 "506": {

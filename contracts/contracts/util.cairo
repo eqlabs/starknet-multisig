@@ -1,14 +1,6 @@
-from starkware.cairo.common.math import assert_not_zero
 from starkware.cairo.common.default_dict import default_dict_new, default_dict_finalize
 from starkware.cairo.common.dict import dict_update
 from starkware.cairo.common.dict_access import DictAccess
-
-func almost_equal(a, b) -> (res : felt):
-    if (a - b) * (a - b - 1) * (a - b + 1) == 0:
-        return (res=1)
-    end
-    return (res=0)
-end
 
 func assert_unique_elements_impl{range_check_ptr, dict_ptr : DictAccess*}(
     index : felt, data_len : felt, data : felt*
@@ -36,9 +28,9 @@ func assert_unique_elements{range_check_ptr}(data_len : felt, data : felt*):
         index=0, data_len=data_len, data=data
     )
 
-    let (finalized_dict_start, finalized_dict_end) = default_dict_finalize(
-        my_dict_start, my_dict_end, data_len
-    )
+    # Squashe the dictionary and verify consistency with respect to the default value
+    # https://www.cairo-lang.org/docs/reference/common_library.html#common-library-default-dict
+    default_dict_finalize(my_dict_start, my_dict_end, data_len)
 
     return ()
 end

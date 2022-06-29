@@ -316,7 +316,7 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
 ):
     const lower_bound = 1
 
-    with_attr error_message("invalid number of required confirmations"):
+    with_attr error_message("range conditions unsatisfied"):
         assert_in_range(confirmations_required, lower_bound, owners_len + 1)
     end
 
@@ -439,6 +439,14 @@ func set_confirmations_required{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*
     confirmations_required : felt
 ):
     require_multisig()
+
+    const lower_bound = 1
+
+    let (owners_len) = _owners_len.read()
+    with_attr error_message("invalid number of required confirmations"):
+        assert_in_range(confirmations_required, lower_bound, owners_len + 1)
+    end
+
     _set_confirmations_required_impl(confirmations_required)
 
     return ()
@@ -582,13 +590,6 @@ end
 func _set_confirmations_required_impl{
     syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
 }(confirmations_required : felt):
-    const lower_bound = 1
-
-    let (owners_len) = _owners_len.read()
-    with_attr error_message("invalid number of required confirmations"):
-        assert_in_range(confirmations_required, lower_bound, owners_len + 1)
-    end
-
     _confirmations_required.write(confirmations_required)
     ConfirmationsSet.emit(confirmations_required)
 
