@@ -1,24 +1,35 @@
 import { useStarknet } from "@starknet-react/core";
 import { useEffect, useState } from "react";
-import { Abi, Contract } from "starknet";
+import { Abi, Contract, validateAndParseAddress } from "starknet";
 import { sanitizeHex } from "starknet/dist/utils/encode";
 import { toBN, toHex } from "starknet/dist/utils/number";
-import { MultisigTransaction } from "~/types";
+import { useSnapshot } from "valtio";
+import { state } from "~/state";
+import { MultisigTransaction, TransactionState } from "~/types";
 import { mapTargetHashToText } from "~/utils";
 import Source from "../../public/Multisig.json";
+import { useTransactionStatus } from "./transactionStatus";
+
+const pendingStates = [
+  TransactionState.NOT_RECEIVED,
+  TransactionState.PENDING,
+  TransactionState.REJECTED,
+];
 
 export const useMultisigContract = (
   address: string
 ): {
   contract: Contract | undefined;
-  loading: boolean;
+  status: TransactionState;
   owners: string[];
   threshold: number;
   transactionCount: number;
   transactions: MultisigTransaction[];
 } => {
-  const { account, library: provider } = useStarknet();
-  const [loading, setLoading] = useState<boolean>(true);
+  const { library: provider } = useStarknet();
+  const [status, send] = useTransactionStatus();
+  const { multisigs } = useSnapshot(state);
+
   const [owners, setOwners] = useState<string[]>([]);
   const [threshold, setThreshold] = useState<number>(0);
   const [transactionCount, setTransactionCount] = useState<number>(0);
@@ -26,55 +37,82 @@ export const useMultisigContract = (
   const [contract, setContract] = useState<Contract | undefined>();
 
   useEffect(() => {
-    if (account) {
-      try {
-        const multisigContract = new Contract(
-          Source.abi as Abi,
-          address,
-          provider
-        );
-        setContract(multisigContract);
-      } catch (_e) {
-        console.error(_e);
-      }
+    try {
+      const validatedAddress = validateAndParseAddress(address);
+      const multisigContract = new Contract(
+        Source.abi as Abi,
+        validatedAddress,
+        provider
+      );
+      setContract(multisigContract);
+    } catch (_e) {
+      console.error(_e);
     }
-  }, [account, address, provider]);
+  }, [address, provider]);
 
   useEffect(() => {
     const fetchInfo = async () => {
-      setLoading(true);
+      // Search for multisig in local cache with transactionHash included
+      const matchMultisigCache = multisigs.find(
+        (multisig) =>
+          multisig.address === contract?.address && multisig.transactionHash
+      );
 
-      const { owners: ownersResponse } = (await contract?.get_owners()) || {
-        owners: [],
-      };
-      const owners = ownersResponse.map(toHex).map(sanitizeHex);
-      const { confirmations_required: threshold } =
-        (await contract?.get_confirmations_required()) || {
-          confirmations_required: toBN(0),
-        };
-      const { res: transactionCount } =
-        (await contract?.get_transactions_len()) || {
-          transactions_len: toBN(0),
-        };
-      setOwners(owners);
-      setThreshold(threshold.toNumber());
-      transactionCount && setTransactionCount(transactionCount.toNumber());
+      // If match found, use more advanced state transitions
+      if (matchMultisigCache) {
+        const receipt = await provider.getTransactionReceipt({
+          txHash: matchMultisigCache.transactionHash,
+        });
+        if (
+          (receipt.status as TransactionState) !==
+          (status.value as TransactionState)
+        ) {
+          if (
+            (receipt.status as TransactionState) !== TransactionState.REJECTED
+          ) {
+            send("ADVANCE");
+          } else {
+            send("REJECT");
+          }
+        }
+      } else {
+        // If match not found, just see if contract is deployed
+        const deployed = await contract?.deployed();
+        deployed && send("DEPLOYED");
+      }
 
-      setLoading(false);
+      // If contract is deployed, fetch more info
+      if (pendingStates.includes(status.value as TransactionState)) {
+        const { owners: ownersResponse } = (await contract?.get_owners()) || {
+          owners: [],
+        };
+        const owners = ownersResponse.map(toHex).map(sanitizeHex);
+        const { confirmations_required: threshold } =
+          (await contract?.get_confirmations_required()) || {
+            confirmations_required: toBN(0),
+          };
+        const { res: transactionCount } =
+          (await contract?.get_transactions_len()) || {
+            transactions_len: toBN(0),
+          };
+
+        setOwners(owners);
+        setThreshold(threshold.toNumber());
+        transactionCount && setTransactionCount(transactionCount.toNumber());
+      }
     };
 
-    account && fetchInfo();
+    contract && fetchInfo();
 
     return () => {
       setOwners([]);
       setThreshold(0);
       setTransactionCount(0);
     };
-  }, [account, contract]);
+  }, [contract, multisigs, provider, send, status.value]);
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      setLoading(true);
       try {
         if (contract && transactionCount > 0) {
           let currentTransactionIndex = transactionCount - 1;
@@ -101,20 +139,20 @@ export const useMultisigContract = (
 
           setTransactions(transactions);
         }
-      } catch (_e) {
-        console.log(_e);
-        setLoading(false);
+      } catch (error) {
+        console.error(error);
       }
-      setLoading(false);
     };
 
-    !loading && account && fetchTransactions();
+    // Fetch transactions of this multisig if the contract is deployed
+    pendingStates.includes(status.value as TransactionState) &&
+      fetchTransactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contract, transactionCount]);
 
   return {
     contract,
-    loading,
+    status: status.value as TransactionState,
     owners,
     threshold,
     transactionCount,

@@ -1,6 +1,8 @@
 import { AnimatePresence } from "framer-motion";
 import type { GetServerSideProps, NextPage } from "next";
-import { useEffect } from "react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { validateAndParseAddress } from "starknet";
 import BorderedContainer from "~/components/BorderedContainer";
 import Box from "~/components/Box";
 import { ExistingMultisig } from "~/components/ExistingMultisig";
@@ -11,11 +13,25 @@ import { state } from "~/state";
 import { SSRProps } from "~/types";
 
 const Contract: NextPage<SSRProps> = ({ contractAddress }) => {
+  const router = useRouter();
+  const [validatedAddress, setValidatedAddress] = useState<string>();
+
   useEffect(() => {
-    if (!state.multisigs.includes(contractAddress)) {
-      state.multisigs.push(contractAddress)
+    try {
+      const address = validateAndParseAddress(contractAddress);
+      if (address) {
+        setValidatedAddress(address);
+        if (!state.multisigs.find(multisig => multisig.address === contractAddress)) {
+          state.multisigs.push({ address: contractAddress });
+        }
+      } else {
+        router.push("/wallet");
+      }
+    } catch (e) {
+      console.error("Not a valid address, redirecting back to /wallet");
+      router.push("/wallet");
     }
-  }, [contractAddress])
+  }, [contractAddress, router])
 
   return (
     <Box
@@ -49,7 +65,7 @@ const Contract: NextPage<SSRProps> = ({ contractAddress }) => {
             }}
           >
             <ModeToggle />
-            <ExistingMultisig contractAddress={contractAddress} />
+            <ExistingMultisig contractAddress={validatedAddress} />
           </BorderedContainer>
         </AnimatePresence>
       </Box>
