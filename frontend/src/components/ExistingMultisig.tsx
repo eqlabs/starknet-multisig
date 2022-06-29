@@ -20,7 +20,6 @@ const StyledTabs = styled(Tabs.List, {
   display: "flex",
   flexDirection: "row",
   height: "$14",
-  length: 0
 });
 
 const StyledTrigger = styled(Tabs.Trigger, {
@@ -40,7 +39,6 @@ const StyledTrigger = styled(Tabs.Trigger, {
     color: "$text",
     borderBottom: "4px solid $accent",
   },
-  length: 0
 });
 
 export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {

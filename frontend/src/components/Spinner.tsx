@@ -14,7 +14,6 @@ const Spinner = styled("div", {
   background: "linear-gradient(white, white), conic-gradient(from 0.15turn, white, #00EBD3)",
   backgroundOrigin: "border-box",
   backgroundClip: "content-box, border-box",
-  length: 0
 });
 
 export default Spinner;
