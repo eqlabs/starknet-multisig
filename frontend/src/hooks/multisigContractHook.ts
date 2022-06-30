@@ -5,22 +5,20 @@ import { sanitizeHex } from "starknet/dist/utils/encode";
 import { toBN, toHex } from "starknet/dist/utils/number";
 import { useSnapshot } from "valtio";
 import { state } from "~/state";
-import { MultisigTransaction, TransactionState } from "~/types";
+import {
+  MultisigTransaction,
+  pendingStatuses,
+  TransactionStatus,
+} from "~/types";
 import { mapTargetHashToText } from "~/utils";
 import Source from "../../public/Multisig.json";
 import { useTransactionStatus } from "./transactionStatus";
-
-const pendingStates = [
-  TransactionState.NOT_RECEIVED,
-  TransactionState.PENDING,
-  TransactionState.REJECTED,
-];
 
 export const useMultisigContract = (
   address: string
 ): {
   contract: Contract | undefined;
-  status: TransactionState;
+  status: TransactionStatus;
   owners: string[];
   threshold: number;
   transactionCount: number;
@@ -36,17 +34,23 @@ export const useMultisigContract = (
   const [transactions, setTransactions] = useState<MultisigTransaction[]>([]);
   const [contract, setContract] = useState<Contract | undefined>();
 
+  const [latestStatus, setLatestStatus] = useState<
+    TransactionStatus | undefined
+  >();
+
   useEffect(() => {
-    try {
-      const validatedAddress = validateAndParseAddress(address);
-      const multisigContract = new Contract(
-        Source.abi as Abi,
-        validatedAddress,
-        provider
-      );
-      setContract(multisigContract);
-    } catch (_e) {
-      console.error(_e);
+    if (address) {
+      try {
+        const validatedAddress = validateAndParseAddress(address);
+        const multisigContract = new Contract(
+          Source.abi as Abi,
+          validatedAddress,
+          provider
+        );
+        setContract(multisigContract);
+      } catch (_e) {
+        console.error(_e);
+      }
     }
   }, [address, provider]);
 
@@ -60,16 +64,15 @@ export const useMultisigContract = (
 
       // If match found, use more advanced state transitions
       if (matchMultisigCache) {
-        const receipt = await provider.getTransactionReceipt({
-          txHash: matchMultisigCache.transactionHash,
-        });
-        if (
-          (receipt.status as TransactionState) !==
-          (status.value as TransactionState)
-        ) {
-          if (
-            (receipt.status as TransactionState) !== TransactionState.REJECTED
-          ) {
+        if (!latestStatus) {
+          const receipt = await provider.getTransaction(
+            matchMultisigCache.transactionHash
+          );
+          setLatestStatus(receipt.status as TransactionStatus);
+        }
+
+        if (latestStatus !== (status.value as TransactionStatus)) {
+          if (latestStatus !== TransactionStatus.REJECTED) {
             send("ADVANCE");
           } else {
             send("REJECT");
@@ -82,7 +85,7 @@ export const useMultisigContract = (
       }
 
       // If contract is deployed, fetch more info
-      if (pendingStates.includes(status.value as TransactionState)) {
+      if (pendingStatuses.includes(status.value as TransactionStatus)) {
         const { owners: ownersResponse } = (await contract?.get_owners()) || {
           owners: [],
         };
@@ -109,7 +112,7 @@ export const useMultisigContract = (
       setThreshold(0);
       setTransactionCount(0);
     };
-  }, [contract, multisigs, provider, send, status.value]);
+  }, [contract, latestStatus, multisigs, provider, send, status.value]);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -145,14 +148,14 @@ export const useMultisigContract = (
     };
 
     // Fetch transactions of this multisig if the contract is deployed
-    pendingStates.includes(status.value as TransactionState) &&
+    pendingStatuses.includes(status.value as TransactionStatus) &&
       fetchTransactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contract, transactionCount]);
 
   return {
     contract,
-    status: status.value as TransactionState,
+    status: status.value as TransactionStatus,
     owners,
     threshold,
     transactionCount,

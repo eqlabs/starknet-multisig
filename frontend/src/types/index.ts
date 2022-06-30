@@ -15,7 +15,7 @@ export type MultisigTransaction = {
   num_confirmations: number;
 };
 
-export enum TransactionState {
+export enum TransactionStatus {
   NOT_RECEIVED = "NOT_RECEIVED",
   RECEIVED = "RECEIVED",
   PENDING = "PENDING",
@@ -23,3 +23,9 @@ export enum TransactionState {
   ACCEPTED_ON_L2 = "ACCEPTED_ON_L2",
   ACCEPTED_ON_L1 = "ACCEPTED_ON_L1",
 }
+
+export const pendingStatuses = [
+  TransactionStatus.NOT_RECEIVED,
+  TransactionStatus.PENDING,
+  TransactionStatus.REJECTED,
+];

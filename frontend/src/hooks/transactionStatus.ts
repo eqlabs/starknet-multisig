@@ -1,47 +1,47 @@
 import { useMachine } from "@xstate/react";
 import { createMachine } from "xstate";
-import { TransactionState } from "~/types";
+import { TransactionStatus } from "~/types";
 
 const transactionStateMachine = createMachine({
   id: "transactionStatus",
   schema: {
-    context: {} as { value: TransactionState },
+    context: {} as { value: TransactionStatus },
     events: {} as
       | { type: "ADVANCE" }
       | { type: "REJECT" }
       | { type: "DEPLOYED" },
   },
-  initial: TransactionState.NOT_RECEIVED,
+  initial: TransactionStatus.NOT_RECEIVED,
   states: {
-    [TransactionState.NOT_RECEIVED]: {
+    [TransactionStatus.NOT_RECEIVED]: {
       on: {
-        ADVANCE: TransactionState.RECEIVED,
-        REJECT: TransactionState.REJECTED,
-        DEPLOYED: TransactionState.ACCEPTED_ON_L2,
+        ADVANCE: TransactionStatus.RECEIVED,
+        REJECT: TransactionStatus.REJECTED,
+        DEPLOYED: TransactionStatus.ACCEPTED_ON_L2,
       },
     },
-    [TransactionState.RECEIVED]: {
+    [TransactionStatus.RECEIVED]: {
       on: {
-        ADVANCE: TransactionState.PENDING,
-        REJECT: TransactionState.REJECTED,
+        ADVANCE: TransactionStatus.PENDING,
+        REJECT: TransactionStatus.REJECTED,
       },
     },
-    [TransactionState.PENDING]: {
+    [TransactionStatus.PENDING]: {
       on: {
-        ADVANCE: TransactionState.ACCEPTED_ON_L2,
-        REJECT: TransactionState.REJECTED,
+        ADVANCE: TransactionStatus.ACCEPTED_ON_L2,
+        REJECT: TransactionStatus.REJECTED,
       },
     },
-    [TransactionState.ACCEPTED_ON_L2]: {
+    [TransactionStatus.ACCEPTED_ON_L2]: {
       on: {
-        ADVANCE: TransactionState.ACCEPTED_ON_L1,
-        REJECT: TransactionState.REJECTED,
+        ADVANCE: TransactionStatus.ACCEPTED_ON_L1,
+        REJECT: TransactionStatus.REJECTED,
       },
     },
-    [TransactionState.ACCEPTED_ON_L1]: {},
-    [TransactionState.REJECTED]: {
+    [TransactionStatus.ACCEPTED_ON_L1]: {},
+    [TransactionStatus.REJECTED]: {
       on: {
-        ADVANCE: TransactionState.NOT_RECEIVED,
+        ADVANCE: TransactionStatus.NOT_RECEIVED,
       },
     },
   },

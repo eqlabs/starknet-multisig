@@ -5,10 +5,12 @@ import {
 import { styled } from '@stitches/react';
 import Link from "next/link";
 import { useMultisigContract } from "~/hooks/multisigContractHook";
+import { pendingStatuses } from '~/types';
 import ArbitraryTransaction from './ArbitraryTransaction';
 import Erc20Transaction from './Erc20Transaction';
 import { Legend } from "./Forms";
 import MultisigTransactionList from './MultisigTransactionList';
+import Spinner from './Spinner';
 
 interface MultisigProps {
   contractAddress: string
@@ -43,8 +45,7 @@ const StyledTrigger = styled(Tabs.Trigger, {
 
 export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
   const { account } = useStarknet();
-  
-  const { contract: multisigContract, owners, threshold, transactions } = useMultisigContract(
+  const { contract: multisigContract, status, owners, threshold, transactions } = useMultisigContract(
     contractAddress
   );
 
@@ -54,6 +55,8 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
   return (
     <>
       <Legend as="h2"><Link href={multisigLink}>Multisig Contract</Link></Legend>
+
+      {!pendingStatuses.includes(status) ? (<>
       <div>{account && owners.includes(account) ? "You are an owner of this wallet." : "You cannot sign transactions in this wallet."}</div>
       <div>Required signers: {threshold + "/" + owners.length}</div>
 
@@ -80,6 +83,7 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
           <ArbitraryTransaction multisigContract={multisigContract} />
         </Tabs.Content>
       </Tabs.Root>
+      </>) : <Spinner />}
     </>
   );
 }
