@@ -4,7 +4,7 @@ import { Abi, Contract, validateAndParseAddress } from "starknet";
 import { sanitizeHex } from "starknet/dist/utils/encode";
 import { toBN, toHex } from "starknet/dist/utils/number";
 import { useSnapshot } from "valtio";
-import { state } from "~/state";
+import { MultisigInfo, state } from "~/state";
 import {
   MultisigTransaction,
   pendingStatuses,
@@ -56,56 +56,63 @@ export const useMultisigContract = (
 
   useEffect(() => {
     const fetchInfo = async () => {
-      // Search for multisig in local cache with transactionHash included
-      const matchMultisigCache = multisigs.find(
-        (multisig) =>
-          multisig.address === contract?.address && multisig.transactionHash
-      );
+      try {
+        // Search for multisig in local cache with transactionHash included
+        const matchMultisigCache = multisigs.find(
+          (multisig: MultisigInfo) =>
+            multisig.address === contract?.address && multisig.transactionHash
+        );
 
-      // If match found, use more advanced state transitions
-      if (matchMultisigCache) {
-        if (!latestStatus) {
-          const receipt = await provider.getTransaction(
-            matchMultisigCache.transactionHash
-          );
-          setLatestStatus(receipt.status as TransactionStatus);
-        }
-
-        if (latestStatus !== (status.value as TransactionStatus)) {
-          if (latestStatus !== TransactionStatus.REJECTED) {
-            send("ADVANCE");
-          } else {
-            send("REJECT");
+        // If match found, use more advanced state transitions
+        if (matchMultisigCache) {
+          if (!latestStatus) {
+            const status = await provider.getTransactionStatus(
+              matchMultisigCache.transactionHash
+            );
+            console.log(status.tx_failure_reason);
+            setLatestStatus(status.tx_status as TransactionStatus);
           }
+
+          if (latestStatus !== (status.value as TransactionStatus)) {
+            if (latestStatus !== TransactionStatus.REJECTED) {
+              send("ADVANCE");
+            } else {
+              send("REJECT");
+            }
+          }
+        } else {
+          // If match not found, just see if contract is deployed
+          const deployed = await contract?.deployed();
+          deployed && send("DEPLOYED");
         }
-      } else {
-        // If match not found, just see if contract is deployed
-        const deployed = await contract?.deployed();
-        deployed && send("DEPLOYED");
-      }
 
-      // If contract is deployed, fetch more info
-      if (pendingStatuses.includes(status.value as TransactionStatus)) {
-        const { owners: ownersResponse } = (await contract?.get_owners()) || {
-          owners: [],
-        };
-        const owners = ownersResponse.map(toHex).map(sanitizeHex);
-        const { confirmations_required: threshold } =
-          (await contract?.get_confirmations_required()) || {
-            confirmations_required: toBN(0),
+        // If contract is deployed, fetch more info
+        if (pendingStatuses.includes(status.value as TransactionStatus)) {
+          const { owners: ownersResponse } = (await contract?.get_owners()) || {
+            owners: [],
           };
-        const { res: transactionCount } =
-          (await contract?.get_transactions_len()) || {
-            transactions_len: toBN(0),
-          };
+          const owners = ownersResponse.map(toHex).map(sanitizeHex);
+          const { confirmations_required: threshold } =
+            (await contract?.get_confirmations_required()) || {
+              confirmations_required: toBN(0),
+            };
+          const { res: transactionCount } =
+            (await contract?.get_transactions_len()) || {
+              transactions_len: toBN(0),
+            };
 
-        setOwners(owners);
-        setThreshold(threshold.toNumber());
-        transactionCount && setTransactionCount(transactionCount.toNumber());
+          console.log(owners);
+
+          setOwners(owners.map(validateAndParseAddress));
+          setThreshold(threshold.toNumber());
+          transactionCount && setTransactionCount(transactionCount.toNumber());
+        }
+      } catch (e) {
+        console.log("huppista", e);
       }
     };
-
-    contract && fetchInfo();
+    console.log(contract);
+    contract !== undefined && fetchInfo();
 
     return () => {
       setOwners([]);
