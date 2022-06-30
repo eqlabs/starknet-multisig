@@ -65,7 +65,7 @@ const Contract: NextPage<SSRProps> = ({ contractAddress }) => {
             }}
           >
             <ModeToggle />
-            <ExistingMultisig contractAddress={validatedAddress} />
+            {validatedAddress && <ExistingMultisig contractAddress={validatedAddress} />}
           </BorderedContainer>
         </AnimatePresence>
       </Box>
