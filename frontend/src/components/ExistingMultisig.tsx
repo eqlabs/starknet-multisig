@@ -83,7 +83,10 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
           <ArbitraryTransaction multisigContract={multisigContract} />
         </Tabs.Content>
       </Tabs.Root>
-      </>) : <Spinner />}
+      </>) : <>
+        <Spinner />
+        <Legend as="h3">Contract status: {status}</Legend>
+      </>}
     </>
   );
 }
