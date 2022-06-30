@@ -58,33 +58,34 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
       <Legend as="h2"><Link href={multisigLink}>Multisig Contract</Link></Legend>
 
       {!pendingStatuses.includes(status) ? (<>
-      <div>{account && owners.includes(validateAndParseAddress(account)) ? "You are an owner of this wallet." : "You cannot sign transactions in this wallet."}</div>
-      <div>Required signers: {threshold + "/" + owners.length}</div>
+        <div>{account && owners.includes(validateAndParseAddress(account)) ? "You are an owner of this wallet." : "You cannot sign transactions in this wallet."}</div>
+        <div>Required signers: {threshold + "/" + owners.length}</div>
 
-      {transactions.length > 0 && (
-        <>
-          <hr></hr>
-          <Legend as="h2">Pending Transactions</Legend>
-          <MultisigTransactionList multisigContract={multisigContract} transactions={transactions} threshold={threshold} />
-        </>
-      )}
+        {transactions.length > 0 && (
+          <>
+            <hr></hr>
+            <Legend as="h2">Pending Transactions</Legend>
+            <MultisigTransactionList multisigContract={multisigContract} transactions={transactions} threshold={threshold} />
+          </>
+        )}
 
-      <hr></hr>
-      <Legend as="h2">New Transaction</Legend>
-      <Tabs.Root defaultValue="tab1" orientation="vertical">
-        <StyledTabs aria-label="tabs example">
-          <StyledTrigger value="tab1">ERC-20 Transfer</StyledTrigger>
-          <StyledTrigger value="tab2">Arbitrary Transaction</StyledTrigger>
-        </StyledTabs>
-        
-        <Tabs.Content value="tab1">
-          <Erc20Transaction multisigContract={multisigContract} />
-        </Tabs.Content>
-        <Tabs.Content value="tab2">
-          <ArbitraryTransaction multisigContract={multisigContract} />
-        </Tabs.Content>
-      </Tabs.Root>
-      </>) : <>
+        <hr></hr>
+        <Legend as="h2">New Transaction</Legend>
+        <Tabs.Root defaultValue="tab1" orientation="vertical">
+          <StyledTabs aria-label="tabs example">
+            <StyledTrigger value="tab1">ERC-20 Transfer</StyledTrigger>
+            <StyledTrigger value="tab2">Arbitrary Transaction</StyledTrigger>
+          </StyledTabs>
+          
+          <Tabs.Content value="tab1">
+            <Erc20Transaction multisigContract={multisigContract} />
+          </Tabs.Content>
+          <Tabs.Content value="tab2">
+            <ArbitraryTransaction multisigContract={multisigContract} />
+          </Tabs.Content>
+        </Tabs.Root>
+      </>
+      ) : <>
         <Spinner />
         <Legend as="h3">Contract status: {status}</Legend>
       </>}
