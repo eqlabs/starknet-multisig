@@ -4,6 +4,7 @@ import {
 } from "@starknet-react/core";
 import { styled } from '@stitches/react';
 import Link from "next/link";
+import { validateAndParseAddress } from 'starknet';
 import { useMultisigContract } from "~/hooks/multisigContractHook";
 import { pendingStatuses } from '~/types';
 import ArbitraryTransaction from './ArbitraryTransaction';
@@ -57,7 +58,7 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
       <Legend as="h2"><Link href={multisigLink}>Multisig Contract</Link></Legend>
 
       {!pendingStatuses.includes(status) ? (<>
-      <div>{account && owners.includes(account) ? "You are an owner of this wallet." : "You cannot sign transactions in this wallet."}</div>
+      <div>{account && owners.includes(validateAndParseAddress(account)) ? "You are an owner of this wallet." : "You cannot sign transactions in this wallet."}</div>
       <div>Required signers: {threshold + "/" + owners.length}</div>
 
       {transactions.length > 0 && (
