@@ -55,8 +55,11 @@ export const useMultisigContract = (
   }, [address, provider]);
 
   useEffect(() => {
+    // TODO: separate the multisig cache & transaction status to a different useEffect
     const fetchInfo = async () => {
       try {
+        let tx_status, deployed;
+
         // Search for multisig in local cache with transactionHash included
         const matchMultisigCache = multisigs.find(
           (multisig: MultisigInfo) =>
@@ -64,30 +67,18 @@ export const useMultisigContract = (
         );
 
         // If match found, use more advanced state transitions
-        if (matchMultisigCache) {
-          if (!latestStatus) {
-            const status = await provider.getTransactionStatus(
-              matchMultisigCache.transactionHash
-            );
-            console.log(status.tx_failure_reason);
-            setLatestStatus(status.tx_status as TransactionStatus);
-          }
-
-          if (latestStatus !== (status.value as TransactionStatus)) {
-            if (latestStatus !== TransactionStatus.REJECTED) {
-              send("ADVANCE");
-            } else {
-              send("REJECT");
-            }
-          }
+        if (matchMultisigCache && !latestStatus) {
+          const response = await provider.getTransactionStatus(
+            matchMultisigCache.transactionHash
+          );
+          tx_status = response.tx_status as TransactionStatus;
         } else {
           // If match not found, just see if contract is deployed
-          const deployed = await contract?.deployed();
-          deployed && send("DEPLOYED");
+          deployed = await contract?.deployed();
         }
 
         // If contract is deployed, fetch more info
-        if (pendingStatuses.includes(status.value as TransactionStatus)) {
+        if (!pendingStatuses.includes(latestStatus as TransactionStatus)) {
           const { owners: ownersResponse } = (await contract?.get_owners()) || {
             owners: [],
           };
@@ -101,17 +92,27 @@ export const useMultisigContract = (
               transactions_len: toBN(0),
             };
 
-          console.log(owners);
-
           setOwners(owners.map(validateAndParseAddress));
           setThreshold(threshold.toNumber());
           transactionCount && setTransactionCount(transactionCount.toNumber());
         }
+
+        // Advance the state machine
+        if (tx_status !== (status.value as TransactionStatus)) {
+          setLatestStatus(tx_status);
+          if (tx_status !== TransactionStatus.REJECTED) {
+            send("ADVANCE");
+          } else if (deployed) {
+            send("DEPLOYED");
+          } else {
+            send("REJECT");
+          }
+        }
       } catch (e) {
-        console.log("huppista", e);
+        console.error(e);
       }
     };
-    console.log(contract);
+
     contract !== undefined && fetchInfo();
 
     return () => {
@@ -155,7 +156,7 @@ export const useMultisigContract = (
     };
 
     // Fetch transactions of this multisig if the contract is deployed
-    pendingStatuses.includes(status.value as TransactionStatus) &&
+    !pendingStatuses.includes(status.value as TransactionStatus) &&
       fetchTransactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contract, transactionCount]);
