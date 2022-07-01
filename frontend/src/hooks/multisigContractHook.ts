@@ -55,30 +55,47 @@ export const useMultisigContract = (
   }, [address, provider]);
 
   useEffect(() => {
-    // TODO: separate the multisig cache & transaction status to a different useEffect
+    const getContractStatus = async () => {
+      let tx_status, deployed;
+
+      // Search for multisig in local cache with transactionHash included
+      const matchMultisigCache = multisigs.find(
+        (multisig: MultisigInfo) =>
+          multisig.address === contract?.address && multisig.transactionHash
+      );
+
+      // If match found, use more advanced state transitions
+      if (matchMultisigCache && !latestStatus) {
+        const response = await provider.getTransactionStatus(
+          matchMultisigCache.transactionHash
+        );
+        tx_status = response.tx_status as TransactionStatus;
+      } else {
+        // If match not found, just see if contract is deployed
+        deployed = await contract?.deployed();
+      }
+
+      // Advance the state machine
+      if (tx_status !== (status.value as TransactionStatus)) {
+        setLatestStatus(tx_status);
+        if (tx_status !== TransactionStatus.REJECTED) {
+          send("ADVANCE");
+        } else if (deployed) {
+          send("DEPLOYED");
+        } else {
+          send("REJECT");
+        }
+      }
+    };
+
+    contract && getContractStatus();
+  }, [contract, latestStatus, multisigs, provider, send, status.value]);
+
+  useEffect(() => {
     const fetchInfo = async () => {
       try {
-        let tx_status, deployed;
-
-        // Search for multisig in local cache with transactionHash included
-        const matchMultisigCache = multisigs.find(
-          (multisig: MultisigInfo) =>
-            multisig.address === contract?.address && multisig.transactionHash
-        );
-
-        // If match found, use more advanced state transitions
-        if (matchMultisigCache && !latestStatus) {
-          const response = await provider.getTransactionStatus(
-            matchMultisigCache.transactionHash
-          );
-          tx_status = response.tx_status as TransactionStatus;
-        } else {
-          // If match not found, just see if contract is deployed
-          deployed = await contract?.deployed();
-        }
-
         // If contract is deployed, fetch more info
-        if (!pendingStatuses.includes(latestStatus as TransactionStatus)) {
+        if (!pendingStatuses.includes(status.value as TransactionStatus)) {
           const { owners: ownersResponse } = (await contract?.get_owners()) || {
             owners: [],
           };
@@ -95,18 +112,6 @@ export const useMultisigContract = (
           setOwners(owners.map(validateAndParseAddress));
           setThreshold(threshold.toNumber());
           transactionCount && setTransactionCount(transactionCount.toNumber());
-        }
-
-        // Advance the state machine
-        if (tx_status !== (status.value as TransactionStatus)) {
-          setLatestStatus(tx_status);
-          if (tx_status !== TransactionStatus.REJECTED) {
-            send("ADVANCE");
-          } else if (deployed) {
-            send("DEPLOYED");
-          } else {
-            send("REJECT");
-          }
         }
       } catch (e) {
         console.error(e);
