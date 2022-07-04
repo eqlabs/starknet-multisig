@@ -626,10 +626,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.1.tgz#782fa5da44c4f38ae9fd38e9184b54e451936118"
   integrity sha512-BUyKJGdDWqvWC5GEhyOiUrGNi9iJUr4CU0O2WxJL6QJhHeeA/NVBalH+FeK0r/x/W0rPymXt5s78TDS7d6lCwg==
 
-"@starknet-react/core@^0.6.2":
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-0.6.2.tgz#673b9f56f140946568195e15ddbf500204808d14"
-  integrity sha512-lipjKXhxtotueoFHd73q4EG/9KqaqER2h6+IpXHVf9KAlpluPZWEqPNJsw+NjaUOyljTtgGsKH+BSm1NHeGPMA==
+"@starknet-react/core@^0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-0.12.0.tgz#f5a40455832d8519a5ef489a291173286107e492"
+  integrity sha512-wiXYhAX6kH44hp/1kl7KrX5dpFYmNgKBnzsQI4yKe4QOsdLaQ64rzOaKt0MtBHA8XITgKXPZDBso/Lvl052/2A==
   dependencies:
     immutable "^4.0.0"
 
