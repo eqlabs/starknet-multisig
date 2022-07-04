@@ -1,4 +1,4 @@
-import { InjectedConnector, useStarknet } from "@starknet-react/core";
+import { getInstalledInjectedConnectors, useStarknet } from "@starknet-react/core";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useSnapshot } from "valtio";
@@ -7,17 +7,22 @@ import { state } from "~/state";
 const WalletListener = () => {
   const router = useRouter();
   const { account, connect } = useStarknet();
-  const { walletAddress } = useSnapshot(state);
+  const { walletInfo } = useSnapshot(state);
 
   useEffect(() => {
-    if (!account && !walletAddress) {
+    if (!account && !walletInfo) {
       router.asPath !== "/" && router.push("/")
-    } else if (!walletAddress && account) {
-      state.walletAddress = account
-    } else if (walletAddress && !account) {
-      connect(new InjectedConnector())
+    } else if (walletInfo && !walletInfo.address && account) {
+      state.walletInfo = { ...walletInfo, address: account }
+    } else if (walletInfo && walletInfo.id && !account) {
+      const connector = getInstalledInjectedConnectors().find(connector => connector.id() === walletInfo.id)
+      if (connector) {
+        connect(connector)
+      } else {
+        router.asPath !== "/" && router.push("/")
+      }
     }
-  }, [account, connect, router, walletAddress])
+  }, [account, connect, router, walletInfo])
   
   return <></>
 }

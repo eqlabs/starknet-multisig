@@ -5,15 +5,20 @@ export type MultisigInfo = {
   transactionHash?: string;
 };
 
+export type WalletInfo = {
+  id?: string;
+  address?: string;
+};
+
 export type State = {
-  walletAddress: false | string;
+  walletInfo: false | WalletInfo;
   multisigs: Array<MultisigInfo>;
 };
 
 const storeKey = "starsign-state";
 
 const defaultState: State = {
-  walletAddress: false,
+  walletInfo: false,
   multisigs: [],
 };
 
