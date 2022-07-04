@@ -2,13 +2,14 @@ import Box from "~/components/Box";
 import { Horizontal as HorizontalLogo } from "~/components/Logos";
 import ThemeChanger from "~/components/ThemeChanger";
 import Breadcrumb from "./Breadcrumb";
+import { DisconnectWallet } from "./DisconnectWallet";
 
 const Header: React.FC = () => {
   return (
     <Box
       css={{
         display: "flex",
-        alignItems: "middle",
+        alignItems: "center",
         justifyContent: "space-between",
         padding: "$6 0",
       }}
@@ -19,6 +20,7 @@ const Header: React.FC = () => {
         </div>
         <Breadcrumb />
       </Box>
+      <DisconnectWallet />
       <ThemeChanger />
     </Box>
   );

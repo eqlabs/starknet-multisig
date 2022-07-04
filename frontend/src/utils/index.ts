@@ -1,3 +1,5 @@
+import { InjectedConnector } from "@starknet-react/core";
+
 export const shortStringFeltToStr = (felt: bigint): string => {
   const newStrB = Buffer.from(felt.toString(16), "hex");
   return newStrB.toString();
@@ -17,4 +19,22 @@ export const mapTargetHashToText = (hash: string): string => {
     mapping = map[hash];
   }
   return mapping;
+};
+
+export const mapWalletIdToText = (wallet: InjectedConnector): string => {
+  let walletName = "";
+  switch (wallet.id()) {
+    case "argent-x": {
+      walletName = "Argent X";
+      break;
+    }
+    case "braavos": {
+      walletName = "Braavos";
+      break;
+    }
+    default: {
+      walletName = wallet.name();
+    }
+  }
+  return walletName;
 };
