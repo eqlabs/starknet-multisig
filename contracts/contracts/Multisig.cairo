@@ -314,14 +314,8 @@ end
 func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     owners_len : felt, owners : felt*, confirmations_required : felt
 ):
-    const lower_bound = 1
-
-    with_attr error_message("range conditions unsatisfied"):
-        assert_in_range(confirmations_required, lower_bound, owners_len + 1)
-    end
-
-    _set_owners_impl(owners_len, owners)
-    _set_confirmations_required_impl(confirmations_required)
+    _validate_and_set_confirmations_required(confirmations_required, owners_len)
+    _set_owners(owners_len, owners)
 
     return ()
 end
@@ -440,14 +434,8 @@ func set_confirmations_required{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*
 ):
     require_multisig()
 
-    const lower_bound = 1
-
     let (owners_len) = _owners_len.read()
-    with_attr error_message("invalid number of required confirmations"):
-        assert_in_range(confirmations_required, lower_bound, owners_len + 1)
-    end
-
-    _set_confirmations_required_impl(confirmations_required)
+    _validate_and_set_confirmations_required(confirmations_required, owners_len)
 
     return ()
 end
@@ -461,7 +449,7 @@ func set_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_pt
     owners_len : felt, owners : felt*
 ):
     require_multisig()
-    _set_owners_impl(owners_len, owners)
+    _set_owners(owners_len, owners)
 
     return ()
 end
@@ -497,7 +485,7 @@ func _get_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     return ()
 end
 
-func _set_owners_impl{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func _set_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     owners_len : felt, owners : felt*
 ):
     alloc_locals
@@ -505,9 +493,10 @@ func _set_owners_impl{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_ch
 
     # Clean previous owners
     let (old_owners_len) = _owners_len.read()
-    _clean_owners(0, old_owners_len)
+    _clean_owners_range(0, old_owners_len)
 
     let (local confirmations_required) = _confirmations_required.read()
+    # checks if owners_len < confirmations_required
     let (lt) = is_le(owners_len, confirmations_required - 1)
     if lt == TRUE:
         # Lower number of confirmation
@@ -531,13 +520,13 @@ func _set_owners_impl{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_ch
 
     _owners_len.write(owners_len)
     # Recursively write the rest
-    _set_owners(0, owners_len, owners)
+    _set_owners_range(0, owners_len, owners)
     OwnersSet.emit(owners_len, owners)
 
     return ()
 end
 
-func _set_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func _set_owners_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     owners_index : felt, owners_len : felt, owners : felt*
 ):
     if owners_index == owners_len:
@@ -549,7 +538,7 @@ func _set_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     _is_owner.write(address=[owners], value=TRUE)
 
     # Recursively write the rest
-    _set_owners(owners_index=owners_index + 1, owners_len=owners_len, owners=owners + 1)
+    _set_owners_range(owners_index=owners_index + 1, owners_len=owners_len, owners=owners + 1)
     return ()
 end
 
@@ -573,7 +562,7 @@ func _set_transaction_calldata{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
     return ()
 end
 
-func _clean_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func _clean_owners_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     owners_index : felt, owners_len : felt
 ):
     if owners_index == owners_len:
@@ -584,12 +573,27 @@ func _clean_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check
     _is_owner.write(owner_address, FALSE)
     _owners.write(owners_index, 0)
 
-    return _clean_owners(owners_index + 1, owners_len)
+    return _clean_owners_range(owners_index + 1, owners_len)
 end
 
-func _set_confirmations_required_impl{
+func _validate_and_set_confirmations_required{
     syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
-}(confirmations_required : felt):
+}(confirmations_required : felt, owners_len : felt):
+    const lower_bound = 1
+
+    # will throw if owners_len is 0 and if confirmations_required
+    # is not in range [1, owners_len]
+    with_attr error_message("invalid parameters"):
+        assert_in_range(confirmations_required, lower_bound, owners_len + 1)
+    end
+
+    _set_confirmations_required(confirmations_required)
+    return ()
+end
+
+func _set_confirmations_required{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    confirmations_required : felt
+):
     _confirmations_required.write(confirmations_required)
     ConfirmationsSet.emit(confirmations_required)
 

@@ -680,7 +680,39 @@ describe("Multisig with multiple owners", function () {
       });
       expect.fail("Should have failed");
     } catch (err: any) {
-      assertErrorMsg(err.message, "invalid number of required confirmations");
+      assertErrorMsg(err.message, "invalid parameters");
+    }
+  });
+
+  it("deploy multisig with invalid confirmations number fails", async function () {
+    const multisigFactory = await starknet.getContractFactory("Multisig");
+
+    try {
+      await multisigFactory.deploy({
+        owners: [
+          number.toBN(account1.starknetContract.address),
+          number.toBN(account2.starknetContract.address),
+          number.toBN(account3.starknetContract.address),
+        ],
+        confirmations_required: 4,
+      });
+      expect.fail("Should have failed");
+    } catch (err: any) {
+      assertErrorMsg(err.message, "invalid parameters");
+    }
+  });
+
+  it("deploy multisig with empty owners fails", async function () {
+    const multisigFactory = await starknet.getContractFactory("Multisig");
+
+    try {
+      await multisigFactory.deploy({
+        owners: [],
+        confirmations_required: 4,
+      });
+      expect.fail("Should have failed");
+    } catch (err: any) {
+      assertErrorMsg(err.message, "invalid parameters");
     }
   });
 
