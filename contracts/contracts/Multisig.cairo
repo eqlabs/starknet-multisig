@@ -448,8 +448,17 @@ end
 func set_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     owners_len : felt, owners : felt*
 ):
+    alloc_locals
     require_multisig()
+
     _set_owners(owners_len, owners)
+
+    let (local confirmations_required) = _confirmations_required.read()
+    let (lt) = is_le(owners_len, confirmations_required - 1)  # owners_len < confirmations_required
+    if lt == TRUE:
+        _set_confirmations_required(owners_len)
+        return ()
+    end
 
     return ()
 end
@@ -461,8 +470,10 @@ end
 func set_owners_and_confirmations_required{
     syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
 }(owners_len : felt, owners : felt*, confirmations_required : felt):
-    set_owners(owners_len, owners)
-    set_confirmations_required(confirmations_required)
+    require_multisig()
+
+    _validate_and_set_confirmations_required(confirmations_required, owners_len)
+    _set_owners(owners_len, owners)
 
     return ()
 end
@@ -494,26 +505,6 @@ func _set_owners{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     # Clean previous owners
     let (old_owners_len) = _owners_len.read()
     _clean_owners_range(0, old_owners_len)
-
-    let (local confirmations_required) = _confirmations_required.read()
-    # checks if owners_len < confirmations_required
-    let (lt) = is_le(owners_len, confirmations_required - 1)
-    if lt == TRUE:
-        # Lower number of confirmation
-        _confirmations_required.write(owners_len)
-        ConfirmationsSet.emit(owners_len)
-
-        tempvar syscall_ptr = syscall_ptr
-        tempvar pedersen_ptr : HashBuiltin* = pedersen_ptr
-        tempvar range_check_ptr = range_check_ptr
-    else:
-        tempvar syscall_ptr = syscall_ptr
-        tempvar pedersen_ptr : HashBuiltin* = pedersen_ptr
-        tempvar range_check_ptr = range_check_ptr
-    end
-    tempvar syscall_ptr = syscall_ptr
-    tempvar pedersen_ptr : HashBuiltin* = pedersen_ptr
-    tempvar range_check_ptr = range_check_ptr
 
     let (tx_valid_since) = _next_tx_index.read()
     _tx_valid_since.write(tx_valid_since)
