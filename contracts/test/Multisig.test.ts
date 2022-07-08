@@ -726,7 +726,7 @@ describe("Multisig with multiple owners", function () {
 
       expect.fail("Should have failed");
     } catch (err: any) {
-      assertErrorMsg(err.message, "caller shall be multisig");
+      assertErrorMsg(err.message, "access restricted to multisig");
     }
   });
 

@@ -179,8 +179,22 @@ func require_multisig{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_ch
     let (caller) = get_caller_address()
     let (contract_address) = get_contract_address()
 
-    with_attr error_message("caller shall be multisig"):
+    with_attr error_message("access restricted to multisig"):
         assert caller = contract_address
+    end
+
+    return ()
+end
+
+func require_valid_confirmations_required{
+    syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
+}(confirmations_required : felt, owners_len : felt):
+    const lower_bound = 1
+
+    # will throw if owners_len is 0 and if confirmations_required
+    # is not in range [1, owners_len]
+    with_attr error_message("invalid parameters"):
+        assert_in_range(confirmations_required, lower_bound, owners_len + 1)
     end
 
     return ()
@@ -314,8 +328,10 @@ end
 func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     owners_len : felt, owners : felt*, confirmations_required : felt
 ):
-    _validate_and_set_confirmations_required(confirmations_required, owners_len)
+    require_valid_confirmations_required(confirmations_required, owners_len)
+
     _set_owners(owners_len, owners)
+    _set_confirmations_required(confirmations_required)
 
     return ()
 end
@@ -435,7 +451,9 @@ func set_confirmations_required{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*
     require_multisig()
 
     let (owners_len) = _owners_len.read()
-    _validate_and_set_confirmations_required(confirmations_required, owners_len)
+    require_valid_confirmations_required(confirmations_required, owners_len)
+
+    _set_confirmations_required(confirmations_required)
 
     return ()
 end
@@ -471,9 +489,10 @@ func set_owners_and_confirmations_required{
     syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
 }(owners_len : felt, owners : felt*, confirmations_required : felt):
     require_multisig()
+    require_valid_confirmations_required(confirmations_required, owners_len)
 
-    _validate_and_set_confirmations_required(confirmations_required, owners_len)
     _set_owners(owners_len, owners)
+    _set_confirmations_required(confirmations_required)
 
     return ()
 end
@@ -565,21 +584,6 @@ func _clean_owners_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     _owners.write(owners_index, 0)
 
     return _clean_owners_range(owners_index + 1, owners_len)
-end
-
-func _validate_and_set_confirmations_required{
-    syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
-}(confirmations_required : felt, owners_len : felt):
-    const lower_bound = 1
-
-    # will throw if owners_len is 0 and if confirmations_required
-    # is not in range [1, owners_len]
-    with_attr error_message("invalid parameters"):
-        assert_in_range(confirmations_required, lower_bound, owners_len + 1)
-    end
-
-    _set_confirmations_required(confirmations_required)
-    return ()
 end
 
 func _set_confirmations_required{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
