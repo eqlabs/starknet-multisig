@@ -1,4 +1,5 @@
 import { InjectedConnector } from "@starknet-react/core";
+import { ComparisonRange, TransactionStatus } from "~/types";
 
 export const shortStringFeltToStr = (felt: bigint): string => {
   const newStrB = Buffer.from(felt.toString(16), "hex");
@@ -37,4 +38,22 @@ export const mapWalletIdToText = (wallet: InjectedConnector): string => {
     }
   }
   return walletName;
+};
+
+export const compareStatuses = (
+  a: TransactionStatus,
+  b: TransactionStatus
+): ComparisonRange => {
+  let result: ComparisonRange = 0;
+
+  const indexOfA = Object.keys(TransactionStatus).findIndex((key) => key === a);
+  const indexOfB = Object.keys(TransactionStatus).findIndex((key) => key === b);
+
+  if (indexOfA > indexOfB) {
+    result = 1;
+  } else if (indexOfA < indexOfB) {
+    result = -1;
+  }
+
+  return result;
 };
