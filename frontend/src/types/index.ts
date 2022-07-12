@@ -26,6 +26,9 @@ export enum TransactionStatus {
 
 export const pendingStatuses = [
   TransactionStatus.NOT_RECEIVED,
+  TransactionStatus.RECEIVED,
   TransactionStatus.PENDING,
   TransactionStatus.REJECTED,
 ];
+
+export type ComparisonRange = -1 | 0 | 1;

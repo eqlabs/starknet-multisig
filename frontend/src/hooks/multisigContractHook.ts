@@ -1,5 +1,5 @@
 import { useStarknet } from "@starknet-react/core";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Abi, Contract, validateAndParseAddress } from "starknet";
 import { sanitizeHex } from "starknet/dist/utils/encode";
 import { toBN, toHex } from "starknet/dist/utils/number";
@@ -10,7 +10,7 @@ import {
   pendingStatuses,
   TransactionStatus,
 } from "~/types";
-import { mapTargetHashToText } from "~/utils";
+import { compareStatuses, mapTargetHashToText } from "~/utils";
 import Source from "../../public/Multisig.json";
 import { useTransactionStatus } from "./transactionStatus";
 
@@ -38,6 +38,8 @@ export const useMultisigContract = (
     TransactionStatus | undefined
   >();
 
+  const validatedAddress = validateAndParseAddress(address);
+
   useEffect(() => {
     if (address) {
       try {
@@ -54,42 +56,72 @@ export const useMultisigContract = (
     }
   }, [address, provider]);
 
-  useEffect(() => {
-    const getContractStatus = async () => {
-      let tx_status, deployed;
-
-      // Search for multisig in local cache with transactionHash included
-      const matchMultisigCache = multisigs.find(
+  // Search for multisig in local cache with transactionHash included
+  const getMultisigFromCache = useCallback(
+    () =>
+      multisigs.find(
         (multisig: MultisigInfo) =>
-          multisig.address === contract?.address && multisig.transactionHash
-      );
+          multisig.address === validatedAddress && multisig.transactionHash
+      ),
+    [multisigs, validatedAddress]
+  );
 
-      // If match found, use more advanced state transitions
-      if (matchMultisigCache && !latestStatus) {
+  useEffect(() => {
+    const getLatestStatus = async () => {
+      let tx_status;
+      const cachedMultisig = getMultisigFromCache();
+
+      if (cachedMultisig) {
         const response = await provider.getTransactionStatus(
-          matchMultisigCache.transactionHash
+          cachedMultisig.transactionHash
         );
         tx_status = response.tx_status as TransactionStatus;
-      } else {
+      }
+
+      tx_status !== undefined && setLatestStatus(tx_status);
+    };
+
+    getLatestStatus();
+    const heartbeat = setInterval(getLatestStatus, 5000);
+
+    return () => {
+      clearInterval(heartbeat);
+    };
+  }, [getMultisigFromCache, provider]);
+
+  useEffect(() => {
+    const getContractStatus = async () => {
+      let deployed;
+
+      // If match found, use more advanced state transitions
+      if (!latestStatus) {
         // If match not found, just see if contract is deployed
         deployed = await contract?.deployed();
       }
 
-      // Advance the state machine
-      if (tx_status !== (status.value as TransactionStatus)) {
-        setLatestStatus(tx_status);
-        if (tx_status !== TransactionStatus.REJECTED) {
-          send("ADVANCE");
-        } else if (deployed) {
-          send("DEPLOYED");
-        } else {
-          send("REJECT");
-        }
+      if (
+        latestStatus &&
+        compareStatuses(latestStatus, status.value as TransactionStatus) > 0
+      ) {
+        send("ADVANCE");
+      } else if (deployed) {
+        send("DEPLOYED");
+      } else if (latestStatus === TransactionStatus.REJECTED) {
+        send("REJECT");
       }
     };
 
     contract && getContractStatus();
-  }, [contract, latestStatus, multisigs, provider, send, status.value]);
+  }, [
+    address,
+    contract,
+    getMultisigFromCache,
+    latestStatus,
+    multisigs,
+    provider,
+    send,
+    status.value,
+  ]);
 
   useEffect(() => {
     const fetchInfo = async () => {

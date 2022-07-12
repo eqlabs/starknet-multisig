@@ -44,6 +44,8 @@ export function NewMultisig() {
   const [totalSigners, setTotalSigners] = useState<number>(2);
   const [signers, setSigners] = useState<string[]>([]);
 
+  const [deploying, setDeploying] = useState<boolean>(false);
+
   const { deploy: deployMultisig } = useContractFactory({
     compiledContract: compiledMultisig,
     abi: (MultisigSource as any).abi as Abi,
@@ -59,6 +61,7 @@ export function NewMultisig() {
 
   const onDeploy = async () => {
     const _deployMultisig = async () => {
+      setDeploying(true);
       const bnSigners = signers.slice(0, signers.length - 1).map((o) => number.toBN(o));
       const calldata = [bnSigners.length, ...bnSigners, signerThreshold];
       const deployment = await deployMultisig({
@@ -66,6 +69,8 @@ export function NewMultisig() {
       });
       if (deployment) {
         router.push(`/wallet/${deployment.address}`)
+      } else {
+        setDeploying(false);
       }
     };
     await _deployMultisig();
@@ -103,6 +108,7 @@ export function NewMultisig() {
     <div>
       <ModeToggle />
 
+      {!deploying ? 
       <Fieldset>
         <Legend as="h2">Add Signers</Legend>
         <Paragraph css={{ color: "$textMuted" }}>
@@ -160,6 +166,7 @@ export function NewMultisig() {
           Deploy multisig contract
         </Button>
       </Fieldset>
+      : <div>Deploying...</div>}
     </div>
   );
 }

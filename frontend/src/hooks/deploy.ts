@@ -7,6 +7,7 @@ import {
   ContractFactory,
   Provider,
   RawCalldata,
+  validateAndParseAddress,
 } from "starknet";
 import { BigNumberish } from "starknet/dist/utils/number";
 import { state } from "~/state";
@@ -51,7 +52,7 @@ export function useContractFactory({
       if (factory) {
         const contract = await factory.deploy(constructorCalldata, addressSalt);
         state.multisigs.push({
-          address: contract.address,
+          address: validateAndParseAddress(contract.address),
           transactionHash: contract.deployTransactionHash,
         });
         setContract(contract);
