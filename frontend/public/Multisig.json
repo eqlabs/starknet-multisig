@@ -596,7 +596,7 @@
                 },
                 "name": "error_message",
                 "start_pc": 1107,
-                "value": "caller shall be multisig"
+                "value": "access restricted to multisig"
             },
             {
                 "accessible_scopes": [
@@ -64370,7 +64370,7 @@
                 "type": "alias"
             },
             "__main__.FALSE": {
-                "destination": "constants.FALSE",
+                "destination": "starkware.cairo.common.bool.FALSE",
                 "type": "alias"
             },
             "__main__.HashBuiltin": {
@@ -64628,7 +64628,7 @@
                 "type": "alias"
             },
             "__main__.TRUE": {
-                "destination": "constants.TRUE",
+                "destination": "starkware.cairo.common.bool.TRUE",
                 "type": "alias"
             },
             "__main__.Transaction": {
@@ -68600,14 +68600,6 @@
                 "destination": "starkware.cairo.common.memcpy.memcpy",
                 "type": "alias"
             },
-            "constants.FALSE": {
-                "type": "const",
-                "value": 0
-            },
-            "constants.TRUE": {
-                "type": "const",
-                "value": 1
-            },
             "starkware.cairo.common.alloc.alloc": {
                 "decorators": [],
                 "pc": 0,
@@ -68632,6 +68624,14 @@
             "starkware.cairo.common.alloc.alloc.SIZEOF_LOCALS": {
                 "type": "const",
                 "value": 0
+            },
+            "starkware.cairo.common.bool.FALSE": {
+                "type": "const",
+                "value": 0
+            },
+            "starkware.cairo.common.bool.TRUE": {
+                "type": "const",
+                "value": 1
             },
             "starkware.cairo.common.cairo_builtins.BitwiseBuiltin": {
                 "full_name": "starkware.cairo.common.cairo_builtins.BitwiseBuiltin",

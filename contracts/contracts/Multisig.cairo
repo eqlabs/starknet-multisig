@@ -11,7 +11,7 @@ from starkware.starknet.common.syscalls import (
 )
 from starkware.cairo.common.bool import TRUE, FALSE
 
-from util import assert_unique_addresses
+from util import assert_unique_elements
 
 #
 # Events
