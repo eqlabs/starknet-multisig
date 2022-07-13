@@ -200,6 +200,17 @@ func require_valid_confirmations_required{
     return ()
 end
 
+func require_valid_tx_index{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    tx_index : felt
+):
+    let (next_tx_index) = _next_tx_index.read()
+    with_attr error_message("invalid tx index"):
+        assert tx_index = next_tx_index
+    end
+
+    return ()
+end
+
 #
 # Getters
 #
@@ -338,12 +349,11 @@ end
 
 @external
 func submit_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    to : felt, function_selector : felt, calldata_len : felt, calldata : felt*
-) -> (tx_index : felt):
+    to : felt, function_selector : felt, calldata_len : felt, calldata : felt*, tx_index : felt
+):
     alloc_locals
     require_owner()
-
-    let (tx_index) = _next_tx_index.read()
+    require_valid_tx_index(tx_index)
 
     # Store the tx descriptor
     _transactions.write(tx_index=tx_index, field=Transaction.to, value=to)
@@ -362,7 +372,7 @@ func submit_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_
     SubmitTransaction.emit(owner=caller, tx_index=tx_index, to=to)
     _next_tx_index.write(value=tx_index + 1)
 
-    return (tx_index)
+    return ()
 end
 
 @external
