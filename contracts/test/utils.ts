@@ -3,14 +3,20 @@ import { number } from "starknet";
 import { getSelectorFromName } from "starknet/dist/utils/hash";
 import { BigNumber, utils } from "ethers";
 
-export const defaultPayload = (contractAddress: string, newValue: number) => {
+export const defaultPayload = (
+  contractAddress: string,
+  newValue: number,
+  txIndex: number
+) => {
   const setSelector = number.toBN(getSelectorFromName("set_balance"));
   const target = number.toBN(contractAddress);
   const setPayload = {
     to: target,
     function_selector: setSelector,
     calldata: [newValue],
+    tx_index: txIndex,
   };
+
   return setPayload;
 };
 
