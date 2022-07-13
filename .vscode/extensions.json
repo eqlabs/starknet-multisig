@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "starkware.cairo",
+    "ericglau.cairo-ls",
+    "dbaeumer.vscode-eslint"
+  ]
+}
