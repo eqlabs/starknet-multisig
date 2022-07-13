@@ -1,14 +1,13 @@
 import { expect } from "chai";
-import { assert } from "console";
-import { BigNumber } from "ethers";
 import { starknet } from "hardhat";
 import {
   StarknetContract,
   StarknetContractFactory,
   Account,
 } from "hardhat/types/runtime";
-import { number, stark } from "starknet";
+import { number } from "starknet";
 import { getSelectorFromName } from "starknet/dist/utils/hash";
+import { defaultPayload, assertErrorMsg } from "./utils";
 
 describe("Multisig with single owner", function () {
   this.timeout(300_000);
@@ -348,14 +347,9 @@ describe("Multisig with single owner", function () {
         tx_index: txIndex,
       });
 
-      try {
-        await nonOwner.invoke(multisig, "execute_transaction", {
-          tx_index: txIndex,
-        });
-        expect.fail("Should have failed");
-      } catch (err: any) {
-        assertErrorMsg(err.message, "not owner");
-      }
+      await nonOwner.invoke(multisig, "execute_transaction", {
+        tx_index: txIndex,
+      });
     });
 
     it("can't execute a non-existing transaction", async function () {
@@ -521,25 +515,252 @@ describe("Multisig with multiple owners", function () {
       assertErrorMsg(err.message, "need more confirmations");
     }
   });
+
+  // Tests below are interdependent and shall be run sequentially
+  it("transaction sets new owners", async function () {
+    const selector = getSelectorFromName("set_owners");
+    const newOwners = [
+      number.toBN(account2.starknetContract.address),
+      number.toBN(account3.starknetContract.address),
+    ];
+    const payload = {
+      to: number.toBN(multisig.address),
+      function_selector: number.toBN(selector),
+      calldata: [newOwners.length, ...newOwners],
+    };
+
+    await account1.invoke(multisig, "submit_transaction", payload);
+    const txIndex =
+      Number((await multisig.call("get_transactions_len")).res) - 1;
+
+    await account1.invoke(multisig, "confirm_transaction", {
+      tx_index: txIndex,
+    });
+    await account3.invoke(multisig, "confirm_transaction", {
+      tx_index: txIndex,
+    });
+
+    await account1.invoke(multisig, "execute_transaction", {
+      tx_index: txIndex,
+    });
+
+    const res = await account2.call(multisig, "get_owners");
+    expect(res.owners_len).to.equal(2n);
+    expect(res.owners.map((address: any) => address.toString())).to.eql(
+      newOwners.map((address) => address.toString())
+    );
+  });
+
+  it("set single owner thus lowering required confirmations", async function () {
+    const selector = getSelectorFromName("set_owners");
+    const newOwners = [number.toBN(account2.starknetContract.address)];
+    const payload = {
+      to: number.toBN(multisig.address),
+      function_selector: number.toBN(selector),
+      calldata: [newOwners.length, ...newOwners],
+    };
+
+    await account2.invoke(multisig, "submit_transaction", payload);
+    const txIndex =
+      Number((await multisig.call("get_transactions_len")).res) - 1;
+
+    await account2.invoke(multisig, "confirm_transaction", {
+      tx_index: txIndex,
+    });
+    await account3.invoke(multisig, "confirm_transaction", {
+      tx_index: txIndex,
+    });
+
+    await account2.invoke(multisig, "execute_transaction", {
+      tx_index: txIndex,
+    });
+
+    const res = await account2.call(multisig, "get_owners");
+    expect(res.owners_len).to.equal(1n);
+    expect(res.owners.map((address: any) => address.toString())).to.eql(
+      newOwners.map((address) => address.toString())
+    );
+  });
+
+  it("invalidate previous transactions with set owners", async function () {
+    const numTxToSpawn = 5;
+    for (let i = 0; i < numTxToSpawn; i++) {
+      const payload = defaultPayload(targetContract.address, 101 + i);
+      await account2.invoke(multisig, "submit_transaction", payload);
+    }
+
+    // Executed set_owners invalidates previous transactions
+    const selector = getSelectorFromName(
+      "set_owners_and_confirmations_required"
+    );
+    const newOwners = [
+      number.toBN(account2.starknetContract.address),
+      number.toBN(account1.starknetContract.address),
+    ];
+    const payload = {
+      to: number.toBN(multisig.address),
+      function_selector: number.toBN(selector),
+      calldata: [
+        newOwners.length,
+        ...newOwners, // owners
+        2, // confirmations_required
+      ],
+    };
+
+    await account2.invoke(multisig, "submit_transaction", payload);
+    const invalidatingTxIndex =
+      Number((await multisig.call("get_transactions_len")).res) - 1;
+
+    await account2.invoke(multisig, "confirm_transaction", {
+      tx_index: invalidatingTxIndex,
+    });
+    await account2.invoke(multisig, "execute_transaction", {
+      tx_index: invalidatingTxIndex,
+    });
+
+    // try to confirm invalid transaction
+    try {
+      await account1.invoke(multisig, "confirm_transaction", {
+        tx_index: invalidatingTxIndex - Math.round(numTxToSpawn / 2),
+      });
+      expect.fail("Should have failed");
+    } catch (err: any) {
+      assertErrorMsg(
+        err.message,
+        "tx invalidated: config changed after submission"
+      );
+    }
+
+    {
+      const res = await account1.call(multisig, "get_confirmations_required");
+      expect(res.confirmations_required).to.equal(2n);
+    }
+
+    {
+      const res = await account1.call(multisig, "get_owners");
+      expect(res.owners_len).to.equal(2n);
+      expect(res.owners.map((address: any) => address.toString())).to.eql(
+        newOwners.map((address) => address.toString())
+      );
+    }
+  });
+
+  it("set invalid number of confirmations", async function () {
+    const selector = getSelectorFromName(
+      "set_owners_and_confirmations_required"
+    );
+    const newOwners = [
+      number.toBN(account2.starknetContract.address),
+      number.toBN(account3.starknetContract.address),
+    ];
+    const payload = {
+      to: number.toBN(multisig.address),
+      function_selector: number.toBN(selector),
+      calldata: [
+        newOwners.length,
+        ...newOwners, // new owners
+        3, // confirmations required
+      ],
+    };
+
+    await account2.invoke(multisig, "submit_transaction", payload);
+    const txIndex =
+      Number((await multisig.call("get_transactions_len")).res) - 1;
+
+    await account1.invoke(multisig, "confirm_transaction", {
+      tx_index: txIndex,
+    });
+    await account2.invoke(multisig, "confirm_transaction", {
+      tx_index: txIndex,
+    });
+
+    try {
+      await account2.invoke(multisig, "execute_transaction", {
+        tx_index: txIndex,
+      });
+      expect.fail("Should have failed");
+    } catch (err: any) {
+      assertErrorMsg(err.message, "invalid parameters");
+    }
+  });
+
+  it("deploy multisig with invalid confirmations number fails", async function () {
+    const multisigFactory = await starknet.getContractFactory("Multisig");
+
+    try {
+      await multisigFactory.deploy({
+        owners: [
+          number.toBN(account1.starknetContract.address),
+          number.toBN(account2.starknetContract.address),
+          number.toBN(account3.starknetContract.address),
+        ],
+        confirmations_required: 4,
+      });
+      expect.fail("Should have failed");
+    } catch (err: any) {
+      assertErrorMsg(err.message, "invalid parameters");
+    }
+  });
+
+  it("deploy multisig with empty owners fails", async function () {
+    const multisigFactory = await starknet.getContractFactory("Multisig");
+
+    try {
+      await multisigFactory.deploy({
+        owners: [],
+        confirmations_required: 4,
+      });
+      expect.fail("Should have failed");
+    } catch (err: any) {
+      assertErrorMsg(err.message, "invalid parameters");
+    }
+  });
+
+  it("non recursive call fails", async function () {
+    try {
+      const newOwners = [
+        number.toBN(account2.starknetContract.address),
+        number.toBN(account3.starknetContract.address),
+      ];
+      await account1.invoke(multisig, "set_owners", { owners: newOwners });
+
+      expect.fail("Should have failed");
+    } catch (err: any) {
+      assertErrorMsg(err.message, "access restricted to multisig");
+    }
+  });
+
+  it("set 0 owners", async () => {
+    const numOfOwners = 0;
+    const selector = getSelectorFromName("set_owners");
+    const payload = {
+      to: number.toBN(multisig.address),
+      function_selector: number.toBN(selector),
+      calldata: [numOfOwners],
+    };
+
+    await account2.invoke(multisig, "submit_transaction", payload);
+    const txIndex =
+      Number((await multisig.call("get_transactions_len")).res) - 1;
+
+    await account2.invoke(multisig, "confirm_transaction", {
+      tx_index: txIndex,
+    });
+    await account1.invoke(multisig, "confirm_transaction", {
+      tx_index: txIndex,
+    });
+
+    // Execution shall be allowed from any account
+    await account3.invoke(multisig, "execute_transaction", {
+      tx_index: txIndex,
+    });
+
+    // No one shall be able to submit new transactions anymore
+    try {
+      const payload = defaultPayload(targetContract.address, txIndex * 2);
+      await account2.invoke(multisig, "submit_transaction", payload);
+    } catch (err: any) {
+      assertErrorMsg(err.message, "not owner");
+    }
+  });
 });
-
-const defaultPayload = (contractAddress: string, newValue: number) => {
-  const setSelector = number.toBN(getSelectorFromName("set_balance"));
-  const target = number.toBN(contractAddress);
-  const setPayload = {
-    to: target,
-    function_selector: setSelector,
-    calldata: [newValue],
-  };
-  return setPayload;
-};
-
-const assertErrorMsg = (full: string, expected: string) => {
-  expect(full).to.deep.contain("Transaction rejected. Error message:");
-  const match = /Error message: (.+?)\n/.exec(full);
-  if (match && match.length > 1) {
-    expect(match[1]).to.equal(expected);
-    return;
-  }
-  expect.fail("No expected error found: " + expected);
-};
