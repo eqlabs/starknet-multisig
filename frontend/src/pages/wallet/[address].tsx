@@ -21,8 +21,8 @@ const Contract: NextPage<SSRProps> = ({ contractAddress }) => {
       const address = validateAndParseAddress(contractAddress);
       if (address) {
         setValidatedAddress(address);
-        if (!state.multisigs.find(multisig => multisig.address === contractAddress)) {
-          state.multisigs.push({ address: contractAddress });
+        if (!state.multisigs.find(multisig => multisig.address === address)) {
+          state.multisigs.push({ address: address });
         }
       } else {
         router.push("/wallet");
