@@ -355,6 +355,36 @@ describe("Multisig with single owner", function () {
       });
     });
 
+    it("executing a failing transaction fails", async function () {
+      const selector = number.toBN(getSelectorFromName("revertFunc"));
+      const target = number.toBN(targetContract.address);
+      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+      const payload = {
+        to: target,
+        function_selector: selector,
+        calldata: [],
+        tx_index: txIndex,
+      };
+      await account.invoke(multisig, "submit_transaction", payload);
+      await account.invoke(multisig, "confirm_transaction", {
+        tx_index: txIndex,
+      });
+
+      try {
+        await account.invoke(multisig, "execute_transaction", {
+          tx_index: txIndex,
+        });
+        expect.fail("Should have failed");
+      } catch (err: any) {
+        // Couldn't find anything precise in the error message to detect unspecified revert. These two are the best I could come up with
+        // This is checked so that we know there's a problem in the "call_contract" part
+        expect(err.message.includes("call_contract")).to.true;
+        // I guess this is included in all error messages, but at least this checks that it's an execution error
+        expect(err.message.includes("Got an exception while executing a hint"))
+          .to.true;
+      }
+    });
+
     it("can't execute a non-existing transaction", async function () {
       try {
         await account.invoke(multisig, "execute_transaction", {
