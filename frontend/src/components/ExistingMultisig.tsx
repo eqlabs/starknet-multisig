@@ -50,8 +50,6 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
     contractAddress
   );
 
-  console.log(status);
-
   const multisigLink =
     "https://goerli.voyager.online/contract/" + contractAddress;
 
