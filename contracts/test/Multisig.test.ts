@@ -74,6 +74,34 @@ describe("Multisig with single owner", function () {
       expect(res.tx_calldata[0]).to.equal(5n);
     });
 
+    it("fails for too big transaction nonce", async function () {
+      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+
+      const payload = defaultPayload(targetContract.address, 6, txIndex);
+      payload.tx_index = txIndex + 5;
+
+      try {
+        await account.invoke(multisig, "submit_transaction", payload);
+        expect.fail("Should have failed");
+      } catch (err: any) {
+        assertErrorMsg(err.message, "invalid tx index");
+      }
+    });
+
+    it("fails for too small transaction nonce", async function () {
+      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+
+      const payload = defaultPayload(targetContract.address, 6, txIndex);
+      payload.tx_index = txIndex - 5;
+
+      try {
+        await account.invoke(multisig, "submit_transaction", payload);
+        expect.fail("Should have failed");
+      } catch (err: any) {
+        assertErrorMsg(err.message, "invalid tx index");
+      }
+    });
+
     it("transaction execute works", async function () {
       const txIndex = Number((await multisig.call("get_transactions_len")).res);
 
