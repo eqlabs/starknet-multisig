@@ -91,12 +91,16 @@ export const useMultisigContract = (
 
   useEffect(() => {
     const getContractStatus = async () => {
-      let deployed;
-
       // If match found, use more advanced state transitions
       if (!latestStatus) {
-        // If match not found, just see if contract is deployed
-        deployed = await contract?.deployed();
+        try {
+          // If match not found, just see if contract is deployed
+          const { res: transactionCount } =
+            await contract?.get_transactions_len();
+          transactionCount && send("DEPLOYED");
+        } catch (_e) {
+          console.error(_e);
+        }
       }
 
       if (
@@ -104,8 +108,6 @@ export const useMultisigContract = (
         compareStatuses(latestStatus, status.value as TransactionStatus) > 0
       ) {
         send("ADVANCE");
-      } else if (deployed) {
-        send("DEPLOYED");
       } else if (latestStatus === TransactionStatus.REJECTED) {
         send("REJECT");
       }
@@ -127,7 +129,10 @@ export const useMultisigContract = (
     const fetchInfo = async () => {
       try {
         // If contract is deployed, fetch more info
-        if (!pendingStatuses.includes(status.value as TransactionStatus)) {
+        if (
+          status.value &&
+          !pendingStatuses.includes(status.value as TransactionStatus)
+        ) {
           const { owners: ownersResponse } = (await contract?.get_owners()) || {
             owners: [],
           };
@@ -193,7 +198,8 @@ export const useMultisigContract = (
     };
 
     // Fetch transactions of this multisig if the contract is deployed
-    !pendingStatuses.includes(status.value as TransactionStatus) &&
+    status.value &&
+      !pendingStatuses.includes(status.value as TransactionStatus) &&
       fetchTransactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contract, transactionCount]);
