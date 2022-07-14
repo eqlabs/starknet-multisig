@@ -3,6 +3,5 @@
   "editor.formatOnSaveTimeout": 1500,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
-  },
-  "cairo.cairoFormatPath": "/home/laurip/src/eqlabs/starknet-multisig/contracts/.venv/bin/cairo-format"
+  }
 }
