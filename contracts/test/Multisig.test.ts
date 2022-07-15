@@ -81,6 +81,34 @@ describe("Multisig with single owner", function () {
       expect(res.tx_calldata[0]).to.equal(5n);
     });
 
+    it("fails for too big transaction nonce", async function () {
+      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+
+      const payload = defaultPayload(targetContract.address, 6, txIndex);
+      payload.tx_index = txIndex + 5;
+
+      try {
+        await account.invoke(multisig, "submit_transaction", payload);
+        expect.fail("Should have failed");
+      } catch (err: any) {
+        assertErrorMsg(err.message, "invalid tx index");
+      }
+    });
+
+    it("fails for too small transaction nonce", async function () {
+      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+
+      const payload = defaultPayload(targetContract.address, 6, txIndex);
+      payload.tx_index = txIndex - 5;
+
+      try {
+        await account.invoke(multisig, "submit_transaction", payload);
+        expect.fail("Should have failed");
+      } catch (err: any) {
+        assertErrorMsg(err.message, "invalid tx index");
+      }
+    });
+
     it("transaction execute works", async function () {
       const txIndex = Number((await multisig.call("get_transactions_len")).res);
 
@@ -124,6 +152,56 @@ describe("Multisig with single owner", function () {
 
       const bal = await targetContract.call("get_balance");
       expect(bal.res).to.equal(BigInt(8));
+    });
+
+    it("transactions can be confirmed and executed in any order", async function () {
+      let txIndex = Number((await multisig.call("get_transactions_len")).res);
+      let payload = defaultPayload(targetContract.address, 17, txIndex);
+      await account.invoke(multisig, "submit_transaction", payload);
+      const txIndex1 =
+        Number((await multisig.call("get_transactions_len")).res) - 1;
+
+      payload = defaultPayload(targetContract.address, 18, txIndex + 1);
+      await account.invoke(multisig, "submit_transaction", payload);
+      const txIndex2 =
+        Number((await multisig.call("get_transactions_len")).res) - 1;
+
+      payload = defaultPayload(targetContract.address, 19, txIndex + 2);
+      await account.invoke(multisig, "submit_transaction", payload);
+      const txIndex3 =
+        Number((await multisig.call("get_transactions_len")).res) - 1;
+
+      // confirm in any order (skip one)
+      await account.invoke(multisig, "confirm_transaction", {
+        tx_index: txIndex3,
+      });
+      await account.invoke(multisig, "confirm_transaction", {
+        tx_index: txIndex1,
+      });
+
+      await account.invoke(multisig, "execute_transaction", {
+        tx_index: txIndex3,
+      });
+      const bal3 = await targetContract.call("get_balance");
+
+      // confirm also the one unconfirmed
+      await account.invoke(multisig, "confirm_transaction", {
+        tx_index: txIndex2,
+      });
+
+      await account.invoke(multisig, "execute_transaction", {
+        tx_index: txIndex1,
+      });
+      const bal1 = await targetContract.call("get_balance");
+
+      await account.invoke(multisig, "execute_transaction", {
+        tx_index: txIndex2,
+      });
+      const bal2 = await targetContract.call("get_balance");
+
+      expect(bal1.res).to.equal(BigInt(17));
+      expect(bal2.res).to.equal(BigInt(18));
+      expect(bal3.res).to.equal(BigInt(19));
     });
 
     it("transaction with complex arguments work", async function () {
@@ -196,6 +274,57 @@ describe("Multisig with single owner", function () {
         expect.fail("Should have failed");
       } catch (err: any) {
         assertErrorMsg(err.message, "not owner");
+      }
+    });
+
+    it("executing a failing transaction fails", async function () {
+      const selector = number.toBN(getSelectorFromName("revertFunc"));
+      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+      const target = number.toBN(targetContract.address);
+      const payload = {
+        to: target,
+        function_selector: selector,
+        calldata: [],
+        tx_index: txIndex,
+      };
+      await account.invoke(multisig, "submit_transaction", payload);
+
+      await account.invoke(multisig, "confirm_transaction", {
+        tx_index: txIndex,
+      });
+
+      try {
+        await account.invoke(multisig, "execute_transaction", {
+          tx_index: txIndex,
+        });
+        expect.fail("Should have failed");
+      } catch (err: any) {
+        assertGenericRevert(err.message);
+      }
+    });
+
+    it("executing a transaction to a non-existing function fails", async function () {
+      const selector = number.toBN(getSelectorFromName("nonExisting"));
+      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+      const target = number.toBN(targetContract.address);
+      const payload = {
+        to: target,
+        function_selector: selector,
+        calldata: [],
+        tx_index: txIndex,
+      };
+      await account.invoke(multisig, "submit_transaction", payload);
+      await account.invoke(multisig, "confirm_transaction", {
+        tx_index: txIndex,
+      });
+
+      try {
+        await account.invoke(multisig, "execute_transaction", {
+          tx_index: txIndex,
+        });
+        expect.fail("Should have failed");
+      } catch (err: any) {
+        assertGenericRevert(err.message);
       }
     });
   });
@@ -360,6 +489,36 @@ describe("Multisig with single owner", function () {
       await nonOwner.invoke(multisig, "execute_transaction", {
         tx_index: txIndex,
       });
+    });
+
+    it("executing a failing transaction fails", async function () {
+      const selector = number.toBN(getSelectorFromName("revertFunc"));
+      const target = number.toBN(targetContract.address);
+      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+      const payload = {
+        to: target,
+        function_selector: selector,
+        calldata: [],
+        tx_index: txIndex,
+      };
+      await account.invoke(multisig, "submit_transaction", payload);
+      await account.invoke(multisig, "confirm_transaction", {
+        tx_index: txIndex,
+      });
+
+      try {
+        await account.invoke(multisig, "execute_transaction", {
+          tx_index: txIndex,
+        });
+        expect.fail("Should have failed");
+      } catch (err: any) {
+        // Couldn't find anything precise in the error message to detect unspecified revert. These two are the best I could come up with
+        // This is checked so that we know there's a problem in the "call_contract" part
+        expect(err.message.includes("call_contract")).to.true;
+        // I guess this is included in all error messages, but at least this checks that it's an execution error
+        expect(err.message.includes("Got an exception while executing a hint"))
+          .to.true;
+      }
     });
 
     it("can't execute a non-existing transaction", async function () {
@@ -898,4 +1057,13 @@ const assertEvent = (
       expect(eventData[i].data).to.equal(foundEvent[0].data[i]);
     }
   }
+};
+
+// Checks that there is a generic revert. A generic revert is something which doesn't have an error message coming from code - for example the called function doesn't exist
+const assertGenericRevert = (error: string) => {
+  // Couldn't find anything precise in the error message to detect generic revert. These two are the best I could come up with
+  // This is checked so that we know there's a problem in the "call_contract" part
+  expect(error).to.deep.contain("call_contract");
+  // I guess this is included in all error messages, but at least this checks that it's an execution error
+  expect(error).to.deep.contain("Transaction rejected. Error message:");
 };

@@ -27,21 +27,29 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     return ()
 end
 
-# Increases the balance by the given amount.
-@external
-func increase_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    amount1 : felt
-):
-    let (res) = balance.read()
-    balance.write(res + amount1)
-    return ()
-end
-
 @external
 func set_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     _balance : felt
 ):
     balance.write(_balance)
+    return ()
+end
+
+@external
+func complex_inputs{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    a_len : felt, a : felt*, b_len, b : Something*
+) -> ():
+    alloc_locals
+    let (sum) = sum_array(a_len, a)
+    let (sum2) = sum_array_structure(b_len, b)
+    let total = sum + sum2.first + sum2.second
+    arraysum.write(total)
+    return ()
+end
+
+@external
+func revertFunc():
+    assert 0 = 1
     return ()
 end
 
@@ -62,18 +70,6 @@ func getArraySum{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     let (sum) = arraysum.read()
 
     return (sum)
-end
-
-@external
-func complex_inputs{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    a_len : felt, a : felt*, b_len, b : Something*
-) -> ():
-    alloc_locals
-    let (sum) = sum_array(a_len, a)
-    let (sum2) = sum_array_structure(b_len, b)
-    let total = sum + sum2.first + sum2.second
-    arraysum.write(total)
-    return ()
 end
 
 @view
