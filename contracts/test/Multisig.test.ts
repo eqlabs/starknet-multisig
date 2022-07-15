@@ -1,13 +1,20 @@
 import { expect } from "chai";
+import { ethers } from "ethers";
 import { starknet } from "hardhat";
 import {
   StarknetContract,
   StarknetContractFactory,
   Account,
+  TransactionReceipt,
 } from "hardhat/types/runtime";
 import { number } from "starknet";
 import { getSelectorFromName } from "starknet/dist/utils/hash";
 import { defaultPayload, assertErrorMsg } from "./utils";
+
+interface IEventDataEntry {
+  data: any;
+  isAddress?: boolean;
+}
 
 const dumpFile = "test/unittest-dump.dmp";
 
@@ -79,6 +86,34 @@ describe("Multisig with single owner", function () {
       expect(res.tx.num_confirmations).to.equal(0n);
       expect(res.tx_calldata_len).to.equal(1n);
       expect(res.tx_calldata[0]).to.equal(5n);
+    });
+
+    it("fails for too big transaction nonce", async function () {
+      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+
+      const payload = defaultPayload(targetContract.address, 6, txIndex);
+      payload.tx_index = txIndex + 5;
+
+      try {
+        await account.invoke(multisig, "submit_transaction", payload);
+        expect.fail("Should have failed");
+      } catch (err: any) {
+        assertErrorMsg(err.message, "invalid tx index");
+      }
+    });
+
+    it("fails for too small transaction nonce", async function () {
+      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+
+      const payload = defaultPayload(targetContract.address, 6, txIndex);
+      payload.tx_index = txIndex - 5;
+
+      try {
+        await account.invoke(multisig, "submit_transaction", payload);
+        expect.fail("Should have failed");
+      } catch (err: any) {
+        assertErrorMsg(err.message, "invalid tx index");
+      }
     });
 
     it("transaction execute works", async function () {
@@ -510,6 +545,92 @@ describe("Multisig with single owner", function () {
       }
     });
   });
+
+  describe("- event emission - ", function () {
+    it("correct events are emitted for normal flow", async function () {
+      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+
+      const payload = defaultPayload(targetContract.address, 6, txIndex);
+      let txHash = await account.invoke(
+        multisig,
+        "submit_transaction",
+        payload
+      );
+      const receiptSubmit = await starknet.getTransactionReceipt(txHash);
+
+      const eventDataSubmit: IEventDataEntry[] = [
+        { data: accountAddress, isAddress: true },
+        { data: ethers.utils.hexValue(txIndex) },
+        { data: targetContract.address, isAddress: true },
+      ];
+
+      txHash = await account.invoke(multisig, "confirm_transaction", {
+        tx_index: txIndex,
+      });
+      const receiptConfirm = await starknet.getTransactionReceipt(txHash);
+      const eventDataConfirm: IEventDataEntry[] = [
+        { data: accountAddress, isAddress: true },
+        { data: ethers.utils.hexValue(txIndex) },
+      ];
+
+      txHash = await account.invoke(multisig, "execute_transaction", {
+        tx_index: txIndex,
+      });
+      const receiptExecute = await starknet.getTransactionReceipt(txHash);
+      const eventDataExecute: IEventDataEntry[] = [
+        { data: accountAddress, isAddress: true },
+        { data: ethers.utils.hexValue(txIndex) },
+      ];
+
+      assertEvent(receiptSubmit, "SubmitTransaction", eventDataSubmit);
+      assertEvent(receiptConfirm, "ConfirmTransaction", eventDataConfirm);
+      assertEvent(receiptExecute, "ExecuteTransaction", eventDataExecute);
+    });
+
+    it("correct events are emitted for revoke", async function () {
+      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+      const payload = defaultPayload(targetContract.address, 6, txIndex);
+      await account.invoke(multisig, "submit_transaction", payload);
+
+      await account.invoke(multisig, "confirm_transaction", {
+        tx_index: txIndex,
+      });
+      const txHash = await account.invoke(multisig, "revoke_confirmation", {
+        tx_index: txIndex,
+      });
+      const receipt = await starknet.getTransactionReceipt(txHash);
+
+      const eventData: IEventDataEntry[] = [
+        { data: accountAddress, isAddress: true },
+        { data: ethers.utils.hexValue(txIndex) },
+      ];
+
+      assertEvent(receipt, "RevokeConfirmation", eventData);
+    });
+
+    it("correct events are emitted for revoke", async function () {
+      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+      const payload = defaultPayload(targetContract.address, 6, txIndex);
+      await account.invoke(multisig, "submit_transaction", payload);
+
+      await account.invoke(multisig, "confirm_transaction", {
+        tx_index: txIndex,
+      });
+      const txHash = await account.invoke(multisig, "revoke_confirmation", {
+        tx_index: txIndex,
+      });
+      const receipt = await starknet.getTransactionReceipt(txHash);
+
+      const eventData: IEventDataEntry[] = [
+        { data: accountAddress, isAddress: true },
+        { data: ethers.utils.hexValue(txIndex) },
+      ];
+
+      assertEvent(receipt, "RevokeConfirmation", eventData);
+    });
+
+    // TODO: add tests for owner changes
+  });
 });
 
 describe("Multisig with multiple owners", function () {
@@ -896,6 +1017,32 @@ describe("Multisig with multiple owners", function () {
     }
   });
 });
+
+const assertEvent = (
+  receipt: TransactionReceipt,
+  eventName: string,
+  eventData: IEventDataEntry[]
+) => {
+  const eventKey = getSelectorFromName(eventName);
+  const foundEvent = receipt.events.filter((e) =>
+    e.keys.some((a) => a == eventKey)
+  );
+  if (!foundEvent || foundEvent.length != 1 || foundEvent[0].keys.length != 1) {
+    expect.fail("No event " + eventName + " found");
+  }
+
+  expect(foundEvent[0].data.length).to.equal(eventData.length);
+  for (let i = 0; i < eventData.length; i++) {
+    if (eventData[i].isAddress) {
+      // Addresses in events are not padded to 32 bytes by default, for some reason
+      expect(ethers.utils.hexZeroPad(eventData[i].data, 32)).to.equal(
+        ethers.utils.hexZeroPad(foundEvent[0].data[i], 32)
+      );
+    } else {
+      expect(eventData[i].data).to.equal(foundEvent[0].data[i]);
+    }
+  }
+};
 
 // Checks that there is a generic revert. A generic revert is something which doesn't have an error message coming from code - for example the called function doesn't exist
 const assertGenericRevert = (error: string) => {
