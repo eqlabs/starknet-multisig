@@ -28,7 +28,6 @@ describe("Multisig with single owner", function () {
   before(async function () {
     account = await starknet.deployAccount("OpenZeppelin");
     nonOwner = await starknet.deployAccount("OpenZeppelin");
-    // account = await starknet.deployAccount("OpenZeppelin", { salt: (salt++).toString() });
 
     accountAddress = account.starknetContract.address;
     privateKey = account.privateKey;
@@ -713,7 +712,7 @@ describe("Multisig with multiple owners", function () {
     );
   });
 
-  // FIXME
+  // FIXME: has weird dependencies to other tests and breaks with idempotency
   xit("invalidate previous transactions with set owners", async function () {
     const numTxToSpawn = 5;
     for (let i = 0; i < numTxToSpawn; i++) {
