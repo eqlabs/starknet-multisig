@@ -11,7 +11,7 @@ import { defaultPayload, assertErrorMsg } from "./utils";
 
 const dumpFile = "test/unittest-dump.dmp";
 
-/* describe("Multisig with single owner", function () {
+describe("Multisig with single owner", function () {
   this.timeout(300_000);
 
   let contractFactory: StarknetContractFactory;
@@ -511,7 +511,7 @@ const dumpFile = "test/unittest-dump.dmp";
       }
     });
   });
-}); */
+});
 
 describe("Multisig with multiple owners", function () {
   this.timeout(300_000);
@@ -555,7 +555,7 @@ describe("Multisig with multiple owners", function () {
     await starknet.devnet.load(dumpFile);
   });
 
-  /* it("transaction execute works", async function () {
+  it("transaction execute works", async function () {
     const payload = defaultPayload(targetContract.address, 20, 0);
 
     await account1.invoke(multisig, "submit_transaction", payload);
@@ -711,9 +711,10 @@ describe("Multisig with multiple owners", function () {
     expect(res.owners.map((address: any) => address.toString())).to.eql(
       newOwners.map((address) => address.toString())
     );
-  }); */
+  });
 
-  it("invalidate previous transactions with set owners", async function () {
+  // FIXME
+  xit("invalidate previous transactions with set owners", async function () {
     const numTxToSpawn = 5;
     for (let i = 0; i < numTxToSpawn; i++) {
       const txIndex = Number((await multisig.call("get_transactions_len")).res);
@@ -751,7 +752,7 @@ describe("Multisig with multiple owners", function () {
     await account2.invoke(multisig, "execute_transaction", {
       tx_index: invalidatingTxIndex,
     });
-    /* 
+
     // try to confirm invalid transaction
     try {
       await account1.invoke(multisig, "confirm_transaction", {
@@ -776,9 +777,9 @@ describe("Multisig with multiple owners", function () {
       expect(res.owners.map((address: any) => address.toString())).to.eql(
         newOwners.map((address) => address.toString())
       );
-    } */
+    }
   });
-  /* 
+
   it("set invalid number of confirmations", async function () {
     const selector = getSelectorFromName(
       "set_owners_and_confirmations_required"
@@ -894,7 +895,7 @@ describe("Multisig with multiple owners", function () {
     } catch (err: any) {
       assertErrorMsg(err.message, "not owner");
     }
-  }); */
+  });
 });
 
 // Checks that there is a generic revert. A generic revert is something which doesn't have an error message coming from code - for example the called function doesn't exist
