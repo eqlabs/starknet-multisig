@@ -437,6 +437,7 @@ describe("Multisig with single owner", function () {
       assertEvent(receiptConfirm, "ConfirmTransaction", eventDataConfirm);
       assertEvent(receiptExecute, "ExecuteTransaction", eventDataExecute);
     });
+
     it("correct events are emitted for revoke", async function () {
       const txIndex = Number((await multisig.call("get_transactions_len")).res);
       const payload = defaultPayload(targetContract.address, 6, txIndex);
@@ -457,6 +458,29 @@ describe("Multisig with single owner", function () {
 
       assertEvent(receipt, "RevokeConfirmation", eventData);
     });
+
+    it("correct events are emitted for revoke", async function () {
+      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+      const payload = defaultPayload(targetContract.address, 6, txIndex);
+      await account.invoke(multisig, "submit_transaction", payload);
+
+      await account.invoke(multisig, "confirm_transaction", {
+        tx_index: txIndex,
+      });
+      const txHash = await account.invoke(multisig, "revoke_confirmation", {
+        tx_index: txIndex,
+      });
+      const receipt = await starknet.getTransactionReceipt(txHash);
+
+      const eventData: IEventDataEntry[] = [
+        { data: accountAddress, isAddress: true },
+        { data: ethers.utils.hexValue(txIndex) },
+      ];
+
+      assertEvent(receipt, "RevokeConfirmation", eventData);
+    });
+
+    // TODO: add tests for owner changes
   });
 });
 
