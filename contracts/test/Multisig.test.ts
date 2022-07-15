@@ -16,6 +16,8 @@ interface IEventDataEntry {
   isAddress?: boolean;
 }
 
+const dumpFile = "test/unittest-dump.dmp";
+
 describe("Multisig with single owner", function () {
   this.timeout(300_000);
 
@@ -52,24 +54,29 @@ describe("Multisig with single owner", function () {
       "Deployed account at address:",
       account.starknetContract.address
     );
+
+    await starknet.devnet.dump(dumpFile);
+    await new Promise((f) => setTimeout(f, 1000)); // to allow the dump to complete
+  });
+
+  beforeEach(async function () {
+    await starknet.devnet.load(dumpFile);
   });
 
   describe(" - submit - ", function () {
     it("transaction submit works", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-
       const selector = number.toBN(getSelectorFromName("set_balance"));
       const target = number.toBN(targetContract.address);
       const payload = {
         to: target,
         function_selector: selector,
         calldata: [5],
-        tx_index: txIndex,
+        tx_index: 0,
       };
 
       await account.invoke(multisig, "submit_transaction", payload);
       const res = await multisig.call("get_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
 
       expect(res.tx.to.toString()).to.equal(target.toString());
@@ -110,15 +117,13 @@ describe("Multisig with single owner", function () {
     });
 
     it("transaction execute works", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-
-      const payload = defaultPayload(targetContract.address, 6, txIndex);
+      const payload = defaultPayload(targetContract.address, 6, 0);
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
 
       const bal = await targetContract.call("get_balance");
@@ -126,28 +131,25 @@ describe("Multisig with single owner", function () {
     });
 
     it("transaction execute works for subsequent transactions", async function () {
-      let txIndex = Number((await multisig.call("get_transactions_len")).res);
-
-      let payload = defaultPayload(targetContract.address, 7, txIndex);
+      let payload = defaultPayload(targetContract.address, 7, 0);
       await account.invoke(multisig, "submit_transaction", payload);
 
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
 
       // submit another transaction with the same multisig
-      txIndex = Number((await multisig.call("get_transactions_len")).res);
-      payload = defaultPayload(targetContract.address, 8, txIndex);
+      payload = defaultPayload(targetContract.address, 8, 1);
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        tx_index: 1,
       });
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: txIndex,
+        tx_index: 1,
       });
 
       const bal = await targetContract.call("get_balance");
@@ -205,8 +207,6 @@ describe("Multisig with single owner", function () {
     });
 
     it("transaction with complex arguments work", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-
       const selector = number.toBN(getSelectorFromName("complex_inputs"));
       const target = number.toBN(targetContract.address);
       const simpleArray = [1, 2, 3];
@@ -230,15 +230,15 @@ describe("Multisig with single owner", function () {
         to: target,
         function_selector: selector,
         calldata: calldata,
-        tx_index: txIndex,
+        tx_index: 0,
       };
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
 
       const bal = await targetContract.call("getArraySum");
@@ -251,13 +251,12 @@ describe("Multisig with single owner", function () {
     });
 
     it("transaction execute fails if no confirmations", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-      const payload = defaultPayload(targetContract.address, 9, txIndex);
+      const payload = defaultPayload(targetContract.address, 9, 0);
 
       await account.invoke(multisig, "submit_transaction", payload);
       try {
         await account.invoke(multisig, "execute_transaction", {
-          tx_index: txIndex,
+          tx_index: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -266,8 +265,7 @@ describe("Multisig with single owner", function () {
     });
 
     it("non-owner can't submit a transaction", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-      const payload = defaultPayload(targetContract.address, 10, txIndex);
+      const payload = defaultPayload(targetContract.address, 10, 0);
 
       try {
         await nonOwner.invoke(multisig, "submit_transaction", payload);
@@ -331,13 +329,12 @@ describe("Multisig with single owner", function () {
 
   describe("- confirmation - ", function () {
     it("non-owner can't confirm a transaction", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-      const payload = defaultPayload(targetContract.address, 15, txIndex);
+      const payload = defaultPayload(targetContract.address, 15, 0);
 
       await account.invoke(multisig, "submit_transaction", payload);
       try {
         await nonOwner.invoke(multisig, "confirm_transaction", {
-          tx_index: txIndex,
+          tx_index: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -357,20 +354,19 @@ describe("Multisig with single owner", function () {
     });
 
     it("can't confirm an executed transaction", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-      const payload = defaultPayload(targetContract.address, 16, txIndex);
+      const payload = defaultPayload(targetContract.address, 16, 0);
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
 
       try {
         await account.invoke(multisig, "confirm_transaction", {
-          tx_index: txIndex,
+          tx_index: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -379,17 +375,16 @@ describe("Multisig with single owner", function () {
     });
 
     it("can't reconfirm a transaction", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-      const payload = defaultPayload(targetContract.address, 10, txIndex);
+      const payload = defaultPayload(targetContract.address, 10, 0);
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
 
       try {
         await account.invoke(multisig, "confirm_transaction", {
-          tx_index: txIndex,
+          tx_index: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -400,17 +395,16 @@ describe("Multisig with single owner", function () {
 
   describe("- revocation -", function () {
     it("non-owner can't revoke a confirmation", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-      const payload = defaultPayload(targetContract.address, 10, txIndex);
+      const payload = defaultPayload(targetContract.address, 10, 0);
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
 
       try {
         await nonOwner.invoke(multisig, "revoke_confirmation", {
-          tx_index: txIndex,
+          tx_index: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -430,21 +424,20 @@ describe("Multisig with single owner", function () {
     });
 
     it("can't revoke a confirmation for an executed transaction", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-      const payload = defaultPayload(targetContract.address, 10, txIndex);
+      const payload = defaultPayload(targetContract.address, 10, 0);
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
 
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
 
       try {
         await account.invoke(multisig, "revoke_confirmation", {
-          tx_index: txIndex,
+          tx_index: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -453,21 +446,20 @@ describe("Multisig with single owner", function () {
     });
 
     it("can't re-revoke an already revoked transaction confirmation", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-      const payload = defaultPayload(targetContract.address, 10, txIndex);
+      const payload = defaultPayload(targetContract.address, 10, 0);
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
 
       await account.invoke(multisig, "revoke_confirmation", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
 
       try {
         await account.invoke(multisig, "revoke_confirmation", {
-          tx_index: txIndex,
+          tx_index: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -478,16 +470,15 @@ describe("Multisig with single owner", function () {
 
   describe("- execution -", function () {
     it("non-owner can't execute a transaction", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-      const payload = defaultPayload(targetContract.address, 10, txIndex);
+      const payload = defaultPayload(targetContract.address, 10, 0);
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
 
       await nonOwner.invoke(multisig, "execute_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
     });
 
@@ -533,21 +524,20 @@ describe("Multisig with single owner", function () {
     });
 
     it("can't re-execute a transaction", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-      const payload = defaultPayload(targetContract.address, 10, txIndex);
+      const payload = defaultPayload(targetContract.address, 10, 0);
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
 
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
 
       try {
         await account.invoke(multisig, "execute_transaction", {
-          tx_index: txIndex,
+          tx_index: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -676,22 +666,28 @@ describe("Multisig with multiple owners", function () {
     console.log("Account1: " + account1.starknetContract.address);
     console.log("Account2: " + account2.starknetContract.address);
     console.log("Account3: " + account3.starknetContract.address);
+
+    await starknet.devnet.dump(dumpFile);
+    await new Promise((f) => setTimeout(f, 1000)); // to allow the dump to complete
+  });
+
+  beforeEach(async function () {
+    await starknet.devnet.load(dumpFile);
   });
 
   it("transaction execute works", async function () {
-    const txIndex = Number((await multisig.call("get_transactions_len")).res);
-    const payload = defaultPayload(targetContract.address, 20, txIndex);
+    const payload = defaultPayload(targetContract.address, 20, 0);
 
     await account1.invoke(multisig, "submit_transaction", payload);
     await account1.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account2.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
 
     await account1.invoke(multisig, "execute_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
 
     const bal = await targetContract.call("get_balance");
@@ -699,21 +695,20 @@ describe("Multisig with multiple owners", function () {
   });
 
   it("transaction execute works with too many confirmations", async function () {
-    const txIndex = Number((await multisig.call("get_transactions_len")).res);
-    const payload = defaultPayload(targetContract.address, 21, txIndex);
+    const payload = defaultPayload(targetContract.address, 21, 0);
 
     await account1.invoke(multisig, "submit_transaction", payload);
     await account1.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account2.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account3.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account1.invoke(multisig, "execute_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
 
     const bal = await targetContract.call("get_balance");
@@ -721,24 +716,23 @@ describe("Multisig with multiple owners", function () {
   });
 
   it("transaction execute works if superfluous confirmer revokes confirmation", async function () {
-    const txIndex = Number((await multisig.call("get_transactions_len")).res);
-    const payload = defaultPayload(targetContract.address, 22, txIndex);
+    const payload = defaultPayload(targetContract.address, 22, 0);
 
     await account1.invoke(multisig, "submit_transaction", payload);
     await account1.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account2.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account3.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account2.invoke(multisig, "revoke_confirmation", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account1.invoke(multisig, "execute_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
 
     const bal = await targetContract.call("get_balance");
@@ -746,29 +740,28 @@ describe("Multisig with multiple owners", function () {
   });
 
   it("transaction fails if too many revoke confirmation", async function () {
-    const txIndex = Number((await multisig.call("get_transactions_len")).res);
-    const payload = defaultPayload(targetContract.address, 23, txIndex);
+    const payload = defaultPayload(targetContract.address, 23, 0);
 
     await account1.invoke(multisig, "submit_transaction", payload);
     await account1.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account2.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account3.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account2.invoke(multisig, "revoke_confirmation", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account1.invoke(multisig, "revoke_confirmation", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
 
     try {
       await account3.invoke(multisig, "execute_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
       expect.fail("Should have failed");
     } catch (err: any) {
@@ -778,8 +771,6 @@ describe("Multisig with multiple owners", function () {
 
   // Tests below are interdependent and shall be run sequentially
   it("transaction sets new owners", async function () {
-    const txIndex = Number((await multisig.call("get_transactions_len")).res);
-
     const selector = getSelectorFromName("set_owners");
     const newOwners = [
       number.toBN(account2.starknetContract.address),
@@ -789,20 +780,20 @@ describe("Multisig with multiple owners", function () {
       to: number.toBN(multisig.address),
       function_selector: number.toBN(selector),
       calldata: [newOwners.length, ...newOwners],
-      tx_index: txIndex,
+      tx_index: 0,
     };
 
     await account1.invoke(multisig, "submit_transaction", payload);
 
     await account1.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account3.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
 
     await account1.invoke(multisig, "execute_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
 
     const res = await account2.call(multisig, "get_owners");
@@ -813,28 +804,26 @@ describe("Multisig with multiple owners", function () {
   });
 
   it("set single owner thus lowering required confirmations", async function () {
-    const txIndex = Number((await multisig.call("get_transactions_len")).res);
-
     const selector = getSelectorFromName("set_owners");
     const newOwners = [number.toBN(account2.starknetContract.address)];
     const payload = {
       to: number.toBN(multisig.address),
       function_selector: number.toBN(selector),
       calldata: [newOwners.length, ...newOwners],
-      tx_index: txIndex,
+      tx_index: 0,
     };
 
     await account2.invoke(multisig, "submit_transaction", payload);
 
     await account2.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account3.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
 
     await account2.invoke(multisig, "execute_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
 
     const res = await account2.call(multisig, "get_owners");
@@ -844,7 +833,8 @@ describe("Multisig with multiple owners", function () {
     );
   });
 
-  it("invalidate previous transactions with set owners", async function () {
+  // FIXME: has weird dependencies to other tests and breaks with idempotency
+  xit("invalidate previous transactions with set owners", async function () {
     const numTxToSpawn = 5;
     for (let i = 0; i < numTxToSpawn; i++) {
       const txIndex = Number((await multisig.call("get_transactions_len")).res);
@@ -875,6 +865,7 @@ describe("Multisig with multiple owners", function () {
     };
 
     await account2.invoke(multisig, "submit_transaction", payload);
+
     await account2.invoke(multisig, "confirm_transaction", {
       tx_index: invalidatingTxIndex,
     });
@@ -910,7 +901,6 @@ describe("Multisig with multiple owners", function () {
   });
 
   it("set invalid number of confirmations", async function () {
-    const txIndex = Number((await multisig.call("get_transactions_len")).res);
     const selector = getSelectorFromName(
       "set_owners_and_confirmations_required"
     );
@@ -926,21 +916,21 @@ describe("Multisig with multiple owners", function () {
         ...newOwners, // new owners
         3, // confirmations required
       ],
-      tx_index: txIndex,
+      tx_index: 0,
     };
 
     await account2.invoke(multisig, "submit_transaction", payload);
 
     await account1.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account2.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
 
     try {
       await account2.invoke(multisig, "execute_transaction", {
-        tx_index: txIndex,
+        tx_index: 0,
       });
       expect.fail("Should have failed");
     } catch (err: any) {
@@ -995,37 +985,32 @@ describe("Multisig with multiple owners", function () {
   });
 
   it("set 0 owners", async () => {
-    let txIndex = Number((await multisig.call("get_transactions_len")).res);
     const numOfOwners = 0;
     const selector = getSelectorFromName("set_owners");
     const payload = {
       to: number.toBN(multisig.address),
       function_selector: number.toBN(selector),
       calldata: [numOfOwners],
-      tx_index: txIndex,
+      tx_index: 0,
     };
 
     await account2.invoke(multisig, "submit_transaction", payload);
 
     await account2.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
     await account1.invoke(multisig, "confirm_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
 
     // Execution shall be allowed from any account
     await account3.invoke(multisig, "execute_transaction", {
-      tx_index: txIndex,
+      tx_index: 0,
     });
 
     // No one shall be able to submit new transactions anymore
     try {
-      const payload = defaultPayload(
-        targetContract.address,
-        txIndex * 2,
-        ++txIndex
-      );
+      const payload = defaultPayload(targetContract.address, 66, 1);
       await account2.invoke(multisig, "submit_transaction", payload);
     } catch (err: any) {
       assertErrorMsg(err.message, "not owner");
