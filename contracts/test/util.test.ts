@@ -69,7 +69,7 @@ describe("Test utilities", () => {
         });
         expect.fail("Should have failed");
       } catch (err: any) {
-        assertErrorMsg(err.message, "owners not unique");
+        assertErrorMsg(err.message, "signers not unique");
       }
     });
 
@@ -80,7 +80,7 @@ describe("Test utilities", () => {
         });
         expect.fail("Should have failed");
       } catch (err: any) {
-        assertErrorMsg(err.message, "owners not unique");
+        assertErrorMsg(err.message, "signers not unique");
       }
     });
 
@@ -92,7 +92,7 @@ describe("Test utilities", () => {
         });
         expect.fail("Should have failed");
       } catch (err: any) {
-        assertErrorMsg(err.message, "owners not unique");
+        assertErrorMsg(err.message, "signers not unique");
       }
     });
   });

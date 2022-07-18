@@ -18,7 +18,7 @@ interface IEventDataEntry {
 
 const dumpFile = "test/unittest-dump.dmp";
 
-describe("Multisig with single owner", function () {
+describe("Multisig with single signer", function () {
   this.timeout(300_000);
 
   let contractFactory: StarknetContractFactory;
@@ -42,7 +42,7 @@ describe("Multisig with single owner", function () {
 
     let multisigFactory = await starknet.getContractFactory("Multisig");
     multisig = await multisigFactory.deploy({
-      owners: [number.toBN(accountAddress)],
+      signers: [number.toBN(accountAddress)],
       confirmations_required: 1,
     });
 
@@ -264,14 +264,14 @@ describe("Multisig with single owner", function () {
       }
     });
 
-    it("non-owner can't submit a transaction", async function () {
+    it("non-signer can't submit a transaction", async function () {
       const payload = defaultPayload(targetContract.address, 10, 0);
 
       try {
         await nonOwner.invoke(multisig, "submit_transaction", payload);
         expect.fail("Should have failed");
       } catch (err: any) {
-        assertErrorMsg(err.message, "not owner");
+        assertErrorMsg(err.message, "not signer");
       }
     });
 
@@ -328,7 +328,7 @@ describe("Multisig with single owner", function () {
   });
 
   describe("- confirmation - ", function () {
-    it("non-owner can't confirm a transaction", async function () {
+    it("non-signer can't confirm a transaction", async function () {
       const payload = defaultPayload(targetContract.address, 15, 0);
 
       await account.invoke(multisig, "submit_transaction", payload);
@@ -338,7 +338,7 @@ describe("Multisig with single owner", function () {
         });
         expect.fail("Should have failed");
       } catch (err: any) {
-        assertErrorMsg(err.message, "not owner");
+        assertErrorMsg(err.message, "not signer");
       }
     });
 
@@ -394,7 +394,7 @@ describe("Multisig with single owner", function () {
   });
 
   describe("- revocation -", function () {
-    it("non-owner can't revoke a confirmation", async function () {
+    it("non-signer can't revoke a confirmation", async function () {
       const payload = defaultPayload(targetContract.address, 10, 0);
 
       await account.invoke(multisig, "submit_transaction", payload);
@@ -408,7 +408,7 @@ describe("Multisig with single owner", function () {
         });
         expect.fail("Should have failed");
       } catch (err: any) {
-        assertErrorMsg(err.message, "not owner");
+        assertErrorMsg(err.message, "not signer");
       }
     });
 
@@ -469,7 +469,7 @@ describe("Multisig with single owner", function () {
   });
 
   describe("- execution -", function () {
-    it("non-owner can't execute a transaction", async function () {
+    it("non-signer can't execute a transaction", async function () {
       const payload = defaultPayload(targetContract.address, 10, 0);
 
       await account.invoke(multisig, "submit_transaction", payload);
@@ -629,11 +629,11 @@ describe("Multisig with single owner", function () {
       assertEvent(receipt, "RevokeConfirmation", eventData);
     });
 
-    // TODO: add tests for owner changes
+    // TODO: add tests for signer changes
   });
 });
 
-describe("Multisig with multiple owners", function () {
+describe("Multisig with multiple signers", function () {
   this.timeout(300_000);
 
   let targetFactory: StarknetContractFactory;
@@ -651,7 +651,7 @@ describe("Multisig with multiple owners", function () {
 
     let multisigFactory = await starknet.getContractFactory("Multisig");
     multisig = await multisigFactory.deploy({
-      owners: [
+      signers: [
         number.toBN(account1.starknetContract.address),
         number.toBN(account2.starknetContract.address),
         number.toBN(account3.starknetContract.address),
@@ -770,8 +770,8 @@ describe("Multisig with multiple owners", function () {
   });
 
   // Tests below are interdependent and shall be run sequentially
-  it("transaction sets new owners", async function () {
-    const selector = getSelectorFromName("set_owners");
+  it("transaction sets new signers", async function () {
+    const selector = getSelectorFromName("set_signers");
     const newOwners = [
       number.toBN(account2.starknetContract.address),
       number.toBN(account3.starknetContract.address),
@@ -796,15 +796,15 @@ describe("Multisig with multiple owners", function () {
       tx_index: 0,
     });
 
-    const res = await account2.call(multisig, "get_owners");
-    expect(res.owners_len).to.equal(2n);
-    expect(res.owners.map((address: any) => address.toString())).to.eql(
+    const res = await account2.call(multisig, "get_signers");
+    expect(res.signers_len).to.equal(2n);
+    expect(res.signers.map((address: any) => address.toString())).to.eql(
       newOwners.map((address) => address.toString())
     );
   });
 
-  it("set single owner thus lowering required confirmations", async function () {
-    const selector = getSelectorFromName("set_owners");
+  it("set single signer thus lowering required confirmations", async function () {
+    const selector = getSelectorFromName("set_signers");
     const newOwners = [number.toBN(account2.starknetContract.address)];
     const payload = {
       to: number.toBN(multisig.address),
@@ -826,15 +826,15 @@ describe("Multisig with multiple owners", function () {
       tx_index: 0,
     });
 
-    const res = await account2.call(multisig, "get_owners");
-    expect(res.owners_len).to.equal(1n);
-    expect(res.owners.map((address: any) => address.toString())).to.eql(
+    const res = await account2.call(multisig, "get_signers");
+    expect(res.signers_len).to.equal(1n);
+    expect(res.signers.map((address: any) => address.toString())).to.eql(
       newOwners.map((address) => address.toString())
     );
   });
 
   // FIXME: has weird dependencies to other tests and breaks with idempotency
-  xit("invalidate previous transactions with set owners", async function () {
+  xit("invalidate previous transactions with set signers", async function () {
     const numTxToSpawn = 5;
     for (let i = 0; i < numTxToSpawn; i++) {
       const txIndex = Number((await multisig.call("get_transactions_len")).res);
@@ -842,12 +842,12 @@ describe("Multisig with multiple owners", function () {
       await account2.invoke(multisig, "submit_transaction", payload);
     }
 
-    // Executed set_owners invalidates previous transactions
+    // Executed set_signers invalidates previous transactions
     const invalidatingTxIndex = Number(
       (await multisig.call("get_transactions_len")).res
     );
     const selector = getSelectorFromName(
-      "set_owners_and_confirmations_required"
+      "set_signers_and_confirmations_required"
     );
     const newOwners = [
       number.toBN(account2.starknetContract.address),
@@ -858,7 +858,7 @@ describe("Multisig with multiple owners", function () {
       function_selector: number.toBN(selector),
       calldata: [
         newOwners.length,
-        ...newOwners, // owners
+        ...newOwners, // signers
         2, // confirmations_required
       ],
       tx_index: invalidatingTxIndex,
@@ -892,9 +892,9 @@ describe("Multisig with multiple owners", function () {
     }
 
     {
-      const res = await account1.call(multisig, "get_owners");
-      expect(res.owners_len).to.equal(2n);
-      expect(res.owners.map((address: any) => address.toString())).to.eql(
+      const res = await account1.call(multisig, "get_signers");
+      expect(res.signers_len).to.equal(2n);
+      expect(res.signers.map((address: any) => address.toString())).to.eql(
         newOwners.map((address) => address.toString())
       );
     }
@@ -902,7 +902,7 @@ describe("Multisig with multiple owners", function () {
 
   it("set invalid number of confirmations", async function () {
     const selector = getSelectorFromName(
-      "set_owners_and_confirmations_required"
+      "set_signers_and_confirmations_required"
     );
     const newOwners = [
       number.toBN(account2.starknetContract.address),
@@ -913,7 +913,7 @@ describe("Multisig with multiple owners", function () {
       function_selector: number.toBN(selector),
       calldata: [
         newOwners.length,
-        ...newOwners, // new owners
+        ...newOwners, // new signers
         3, // confirmations required
       ],
       tx_index: 0,
@@ -943,7 +943,7 @@ describe("Multisig with multiple owners", function () {
 
     try {
       await multisigFactory.deploy({
-        owners: [
+        signers: [
           number.toBN(account1.starknetContract.address),
           number.toBN(account2.starknetContract.address),
           number.toBN(account3.starknetContract.address),
@@ -956,12 +956,12 @@ describe("Multisig with multiple owners", function () {
     }
   });
 
-  it("deploy multisig with empty owners fails", async function () {
+  it("deploy multisig with empty signers fails", async function () {
     const multisigFactory = await starknet.getContractFactory("Multisig");
 
     try {
       await multisigFactory.deploy({
-        owners: [],
+        signers: [],
         confirmations_required: 4,
       });
       expect.fail("Should have failed");
@@ -976,7 +976,7 @@ describe("Multisig with multiple owners", function () {
         number.toBN(account2.starknetContract.address),
         number.toBN(account3.starknetContract.address),
       ];
-      await account1.invoke(multisig, "set_owners", { owners: newOwners });
+      await account1.invoke(multisig, "set_signers", { signers: newOwners });
 
       expect.fail("Should have failed");
     } catch (err: any) {
@@ -984,9 +984,9 @@ describe("Multisig with multiple owners", function () {
     }
   });
 
-  it("set 0 owners", async () => {
+  it("set 0 signers", async () => {
     const numOfOwners = 0;
-    const selector = getSelectorFromName("set_owners");
+    const selector = getSelectorFromName("set_signers");
     const payload = {
       to: number.toBN(multisig.address),
       function_selector: number.toBN(selector),
@@ -1013,7 +1013,7 @@ describe("Multisig with multiple owners", function () {
       const payload = defaultPayload(targetContract.address, 66, 1);
       await account2.invoke(multisig, "submit_transaction", payload);
     } catch (err: any) {
-      assertErrorMsg(err.message, "not owner");
+      assertErrorMsg(err.message, "not signer");
     }
   });
 });
