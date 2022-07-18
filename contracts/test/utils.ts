@@ -44,6 +44,7 @@ export interface IEventDataEntry {
   isAddress?: boolean;
 }
 
+// Asserts that the given event exists in the given receipt, with the correct event data
 export const assertEvent = (
   receipt: TransactionReceipt,
   eventName: string,
