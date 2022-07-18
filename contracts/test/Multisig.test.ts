@@ -9,12 +9,14 @@ import {
 } from "hardhat/types/runtime";
 import { number } from "starknet";
 import { getSelectorFromName } from "starknet/dist/utils/hash";
-import { defaultPayload, assertErrorMsg } from "./utils";
-
-interface IEventDataEntry {
-  data: any;
-  isAddress?: boolean;
-}
+import {
+  defaultPayload,
+  assertErrorMsg,
+  assertGenericRevert,
+  assertEvent,
+  IEventDataEntry,
+} from "./utils";
+import fs from "fs";
 
 const dumpFile = "test/unittest-dump.dmp";
 
@@ -26,15 +28,14 @@ describe("Multisig with single signer", function () {
   let multisig: StarknetContract;
 
   let account: Account;
-  let nonOwner: Account;
+  let nonSigner: Account;
   let accountAddress: string;
   let privateKey: string;
   let publicKey: string;
 
-  // should be beforeeach, but that'd be horribly slow. Just remember that the tests are not idempotent
   before(async function () {
     account = await starknet.deployAccount("OpenZeppelin");
-    nonOwner = await starknet.deployAccount("OpenZeppelin");
+    nonSigner = await starknet.deployAccount("OpenZeppelin");
 
     accountAddress = account.starknetContract.address;
     privateKey = account.privateKey;
@@ -61,6 +62,10 @@ describe("Multisig with single signer", function () {
 
   beforeEach(async function () {
     await starknet.devnet.load(dumpFile);
+  });
+
+  after(async function () {
+    fs.unlink(dumpFile, () => {});
   });
 
   describe(" - submit - ", function () {
@@ -268,7 +273,7 @@ describe("Multisig with single signer", function () {
       const payload = defaultPayload(targetContract.address, 10, 0);
 
       try {
-        await nonOwner.invoke(multisig, "submit_transaction", payload);
+        await nonSigner.invoke(multisig, "submit_transaction", payload);
         expect.fail("Should have failed");
       } catch (err: any) {
         assertErrorMsg(err.message, "not signer");
@@ -333,7 +338,7 @@ describe("Multisig with single signer", function () {
 
       await account.invoke(multisig, "submit_transaction", payload);
       try {
-        await nonOwner.invoke(multisig, "confirm_transaction", {
+        await nonSigner.invoke(multisig, "confirm_transaction", {
           nonce: 0,
         });
         expect.fail("Should have failed");
@@ -403,7 +408,7 @@ describe("Multisig with single signer", function () {
       });
 
       try {
-        await nonOwner.invoke(multisig, "revoke_confirmation", {
+        await nonSigner.invoke(multisig, "revoke_confirmation", {
           nonce: 0,
         });
         expect.fail("Should have failed");
@@ -477,7 +482,7 @@ describe("Multisig with single signer", function () {
         nonce: 0,
       });
 
-      await nonOwner.invoke(multisig, "execute_transaction", {
+      await nonSigner.invoke(multisig, "execute_transaction", {
         nonce: 0,
       });
     });
@@ -548,9 +553,7 @@ describe("Multisig with single signer", function () {
 
   describe("- event emission - ", function () {
     it("correct events are emitted for normal flow", async function () {
-      const nonce = Number((await multisig.call("get_transactions_len")).res);
-
-      const payload = defaultPayload(targetContract.address, 6, nonce);
+      const payload = defaultPayload(targetContract.address, 6, 0);
       let txHash = await account.invoke(
         multisig,
         "submit_transaction",
@@ -560,26 +563,26 @@ describe("Multisig with single signer", function () {
 
       const eventDataSubmit: IEventDataEntry[] = [
         { data: accountAddress, isAddress: true },
-        { data: ethers.utils.hexValue(nonce) },
+        { data: ethers.utils.hexValue(0) },
         { data: targetContract.address, isAddress: true },
       ];
 
       txHash = await account.invoke(multisig, "confirm_transaction", {
-        nonce: nonce,
+        nonce: 0,
       });
       const receiptConfirm = await starknet.getTransactionReceipt(txHash);
       const eventDataConfirm: IEventDataEntry[] = [
         { data: accountAddress, isAddress: true },
-        { data: ethers.utils.hexValue(nonce) },
+        { data: ethers.utils.hexValue(0) },
       ];
 
       txHash = await account.invoke(multisig, "execute_transaction", {
-        nonce: nonce,
+        nonce: 0,
       });
       const receiptExecute = await starknet.getTransactionReceipt(txHash);
       const eventDataExecute: IEventDataEntry[] = [
         { data: accountAddress, isAddress: true },
-        { data: ethers.utils.hexValue(nonce) },
+        { data: ethers.utils.hexValue(0) },
       ];
 
       assertEvent(receiptSubmit, "SubmitTransaction", eventDataSubmit);
@@ -588,48 +591,140 @@ describe("Multisig with single signer", function () {
     });
 
     it("correct events are emitted for revoke", async function () {
-      const nonce = Number((await multisig.call("get_transactions_len")).res);
-      const payload = defaultPayload(targetContract.address, 6, nonce);
+      const payload = defaultPayload(targetContract.address, 6, 0);
       await account.invoke(multisig, "submit_transaction", payload);
 
       await account.invoke(multisig, "confirm_transaction", {
-        nonce: nonce,
+        nonce: 0,
       });
       const txHash = await account.invoke(multisig, "revoke_confirmation", {
-        nonce: nonce,
+        nonce: 0,
       });
       const receipt = await starknet.getTransactionReceipt(txHash);
 
       const eventData: IEventDataEntry[] = [
         { data: accountAddress, isAddress: true },
-        { data: ethers.utils.hexValue(nonce) },
+        { data: ethers.utils.hexValue(0) },
       ];
 
       assertEvent(receipt, "RevokeConfirmation", eventData);
     });
 
-    it("correct events are emitted for revoke", async function () {
-      const nonce = Number((await multisig.call("get_transactions_len")).res);
-      const payload = defaultPayload(targetContract.address, 6, nonce);
+    it("correct events are emitted for signer change", async function () {
+      const selector = getSelectorFromName("set_signers");
+      const newOwners = [number.toBN(nonSigner.starknetContract.address)];
+      const payload = {
+        to: number.toBN(multisig.address),
+        function_selector: number.toBN(selector),
+        calldata: [newOwners.length, ...newOwners],
+        nonce: 0,
+      };
+
       await account.invoke(multisig, "submit_transaction", payload);
 
       await account.invoke(multisig, "confirm_transaction", {
-        nonce: nonce,
+        nonce: 0,
       });
-      const txHash = await account.invoke(multisig, "revoke_confirmation", {
-        nonce: nonce,
+
+      const txHash = await account.invoke(multisig, "execute_transaction", {
+        nonce: 0,
       });
+
       const receipt = await starknet.getTransactionReceipt(txHash);
 
       const eventData: IEventDataEntry[] = [
-        { data: accountAddress, isAddress: true },
-        { data: ethers.utils.hexValue(nonce) },
+        { data: ethers.utils.hexValue(1) },
+        { data: nonSigner.address, isAddress: true },
       ];
 
-      assertEvent(receipt, "RevokeConfirmation", eventData);
+      assertEvent(receipt, "SignersSet", eventData);
     });
 
-    // TODO: add tests for signer changes
+    it("correct events are emitted for threshold change", async function () {
+      const selector = getSelectorFromName("set_threshold");
+      const newOwners = [number.toBN(nonSigner.starknetContract.address)];
+      const payload = {
+        to: number.toBN(multisig.address),
+        function_selector: number.toBN(selector),
+        calldata: [1],
+        nonce: 0,
+      };
+
+      await account.invoke(multisig, "submit_transaction", payload);
+
+      await account.invoke(multisig, "confirm_transaction", {
+        nonce: 0,
+      });
+
+      const txHash = await account.invoke(multisig, "execute_transaction", {
+        nonce: 0,
+      });
+
+      const receipt = await starknet.getTransactionReceipt(txHash);
+
+      const eventData: IEventDataEntry[] = [{ data: ethers.utils.hexValue(1) }];
+
+      assertEvent(receipt, "ThresholdsSet", eventData);
+    });
+
+    it("correct events are emitted for signer and implicit threshold change", async function () {
+      // First change the list of signers to 2 and threshold to 2
+      {
+        const selector = getSelectorFromName("set_signers_and_threshold");
+        const newOwners = [account.address, nonSigner.address];
+        const payload = {
+          to: number.toBN(multisig.address),
+          function_selector: number.toBN(selector),
+          calldata: [newOwners.length, ...newOwners, newOwners.length],
+          nonce: 0,
+        };
+        await account.invoke(multisig, "submit_transaction", payload);
+
+        await account.invoke(multisig, "confirm_transaction", {
+          nonce: 0,
+        });
+
+        await account.invoke(multisig, "execute_transaction", {
+          nonce: 0,
+        });
+      }
+
+      // Change signers to a list of 1
+      const selector = getSelectorFromName("set_signers");
+      const newOwners = [account.address];
+      const payload = {
+        to: number.toBN(multisig.address),
+        function_selector: number.toBN(selector),
+        calldata: [newOwners.length, ...newOwners],
+        nonce: 1,
+      };
+      await account.invoke(multisig, "submit_transaction", payload);
+
+      await account.invoke(multisig, "confirm_transaction", {
+        nonce: 1,
+      });
+      await nonSigner.invoke(multisig, "confirm_transaction", {
+        nonce: 1,
+      });
+
+      const txHash = await account.invoke(multisig, "execute_transaction", {
+        nonce: 1,
+      });
+
+      const receipt = await starknet.getTransactionReceipt(txHash);
+
+      const eventData0: IEventDataEntry[] = [
+        { data: ethers.utils.hexValue(1) },
+        { data: account.address, isAddress: true },
+      ];
+
+      const eventData1: IEventDataEntry[] = [
+        { data: ethers.utils.hexValue(1) },
+      ];
+
+      assertEvent(receipt, "SignersSet", eventData0);
+      assertEvent(receipt, "ThresholdsSet", eventData1);
+    });
   });
 });
 
@@ -673,6 +768,10 @@ describe("Multisig with multiple signers", function () {
 
   beforeEach(async function () {
     await starknet.devnet.load(dumpFile);
+  });
+
+  after(async function () {
+    fs.unlink(dumpFile, () => {});
   });
 
   it("transaction execute works", async function () {
@@ -1013,38 +1112,3 @@ describe("Multisig with multiple signers", function () {
     }
   });
 });
-
-const assertEvent = (
-  receipt: TransactionReceipt,
-  eventName: string,
-  eventData: IEventDataEntry[]
-) => {
-  const eventKey = getSelectorFromName(eventName);
-  const foundEvent = receipt.events.filter((e) =>
-    e.keys.some((a) => a == eventKey)
-  );
-  if (!foundEvent || foundEvent.length != 1 || foundEvent[0].keys.length != 1) {
-    expect.fail("No event " + eventName + " found");
-  }
-
-  expect(foundEvent[0].data.length).to.equal(eventData.length);
-  for (let i = 0; i < eventData.length; i++) {
-    if (eventData[i].isAddress) {
-      // Addresses in events are not padded to 32 bytes by default, for some reason
-      expect(ethers.utils.hexZeroPad(eventData[i].data, 32)).to.equal(
-        ethers.utils.hexZeroPad(foundEvent[0].data[i], 32)
-      );
-    } else {
-      expect(eventData[i].data).to.equal(foundEvent[0].data[i]);
-    }
-  }
-};
-
-// Checks that there is a generic revert. A generic revert is something which doesn't have an error message coming from code - for example the called function doesn't exist
-const assertGenericRevert = (error: string) => {
-  // Couldn't find anything precise in the error message to detect generic revert. These two are the best I could come up with
-  // This is checked so that we know there's a problem in the "call_contract" part
-  expect(error).to.deep.contain("call_contract");
-  // I guess this is included in all error messages, but at least this checks that it's an execution error
-  expect(error).to.deep.contain("Transaction rejected. Error message:");
-};
