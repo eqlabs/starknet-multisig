@@ -38,7 +38,7 @@ func SignersSet(signers_len : felt, signers : felt*):
 end
 
 @event
-func ThresholdsSet(threshold : felt):
+func ThresholdSet(threshold : felt):
 end
 
 #
@@ -583,7 +583,7 @@ func _set_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_chec
     threshold : felt
 ):
     _threshold.write(threshold)
-    ThresholdsSet.emit(threshold)
+    ThresholdSet.emit(threshold)
 
     return ()
 end

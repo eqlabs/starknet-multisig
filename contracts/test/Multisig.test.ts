@@ -663,7 +663,7 @@ describe("Multisig with single signer", function () {
 
       const eventData: IEventDataEntry[] = [{ data: ethers.utils.hexValue(1) }];
 
-      assertEvent(receipt, "ThresholdsSet", eventData);
+      assertEvent(receipt, "ThresholdSet", eventData);
     });
 
     it("correct events are emitted for signer and implicit threshold change", async function () {
@@ -722,7 +722,7 @@ describe("Multisig with single signer", function () {
       ];
 
       assertEvent(receipt, "SignersSet", eventData0);
-      assertEvent(receipt, "ThresholdsSet", eventData1);
+      assertEvent(receipt, "ThresholdSet", eventData1);
     });
   });
 });

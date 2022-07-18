@@ -119,7 +119,7 @@
                 }
             ],
             "keys": [],
-            "name": "ThresholdsSet",
+            "name": "ThresholdSet",
             "type": "event"
         },
         {
@@ -1302,7 +1302,7 @@
             "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffd7e",
             "0x40137fff7fff8000",
             "0x480680017fff8000",
-            "0x2920716a6a9e8ebb39fd57175ef6f2df58ca737123ab346bea9d294ddc429ac",
+            "0x28fd088fe5f0d3a777cc5c4829e855ed8e4465fd8a622a153b5b5e80ae46ce8",
             "0x4002800080007fff",
             "0x1104800180018000",
             "0x800000000000010fffffffffffffffffffffffffffffffffffffffffffffd78",
@@ -2925,9 +2925,9 @@
                 "autogen/starknet/event/SubmitTransaction/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo": "func emit{syscall_ptr : felt*, range_check_ptr}():\nend\n",
                 "autogen/starknet/event/SubmitTransaction/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo": "alloc_locals\nlet (local __keys_ptr : felt*) = alloc()\nassert [__keys_ptr] = SELECTOR\nlet (local __data_ptr : felt*) = alloc()\nlet __calldata_ptr = __data_ptr\n",
                 "autogen/starknet/event/SubmitTransaction/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo": "emit_event(keys_len=1, keys=__keys_ptr, data_len=__calldata_ptr - __data_ptr, data=__data_ptr)\nreturn ()\n",
-                "autogen/starknet/event/ThresholdsSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo": "func emit{syscall_ptr : felt*, range_check_ptr}():\nend\n",
-                "autogen/starknet/event/ThresholdsSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo": "alloc_locals\nlet (local __keys_ptr : felt*) = alloc()\nassert [__keys_ptr] = SELECTOR\nlet (local __data_ptr : felt*) = alloc()\nlet __calldata_ptr = __data_ptr\n",
-                "autogen/starknet/event/ThresholdsSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo": "emit_event(keys_len=1, keys=__keys_ptr, data_len=__calldata_ptr - __data_ptr, data=__data_ptr)\nreturn ()\n",
+                "autogen/starknet/event/ThresholdSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo": "func emit{syscall_ptr : felt*, range_check_ptr}():\nend\n",
+                "autogen/starknet/event/ThresholdSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo": "alloc_locals\nlet (local __keys_ptr : felt*) = alloc()\nassert [__keys_ptr] = SELECTOR\nlet (local __data_ptr : felt*) = alloc()\nlet __calldata_ptr = __data_ptr\n",
+                "autogen/starknet/event/ThresholdSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo": "emit_event(keys_len=1, keys=__keys_ptr, data_len=__calldata_ptr - __data_ptr, data=__data_ptr)\nreturn ()\n",
                 "autogen/starknet/external/confirm_transaction/424b26e79f70343cc02557f1fbd25745138efb26a3dc5c8b593ca765b73138b7.cairo": "let pedersen_ptr = [cast([cast(fp + (-5), felt**)] + 1, starkware.cairo.common.cairo_builtins.HashBuiltin**)]\n",
                 "autogen/starknet/external/confirm_transaction/4ba2b119ceb30fe10f4cca3c9d73ef620c0fb5eece91b99a99d71217bba1001c.cairo": "return (syscall_ptr,pedersen_ptr,range_check_ptr,retdata_size,retdata)\n",
                 "autogen/starknet/external/confirm_transaction/c7060df96cb0acca1380ae43bf758cab727bfdf73cb5d34a93e24a9742817fda.cairo": "let syscall_ptr = [cast([cast(fp + (-5), felt**)] + 0, felt**)]\n",
@@ -15799,8 +15799,8 @@
                 "641": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -15808,11 +15808,11 @@
                         "end_col": 13,
                         "end_line": 1,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -15829,8 +15829,8 @@
                 "643": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -15838,11 +15838,11 @@
                         "end_col": 41,
                         "end_line": 2,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -15859,8 +15859,8 @@
                 "645": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -15868,11 +15868,11 @@
                         "end_col": 30,
                         "end_line": 2,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -15889,8 +15889,8 @@
                 "646": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -15898,11 +15898,11 @@
                         "end_col": 31,
                         "end_line": 3,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -15919,8 +15919,8 @@
                 "648": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -15928,11 +15928,11 @@
                         "end_col": 31,
                         "end_line": 3,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -15949,8 +15949,8 @@
                 "649": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -15958,11 +15958,11 @@
                         "end_col": 41,
                         "end_line": 4,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -15979,8 +15979,8 @@
                 "651": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -15988,11 +15988,11 @@
                         "end_col": 30,
                         "end_line": 4,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -16009,8 +16009,8 @@
                 "652": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -16022,12 +16022,12 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 29,
+                                "end_col": 28,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                 },
-                                "start_col": 20,
+                                "start_col": 19,
                                 "start_line": 41
                             },
                             "While handling calldata argument 'threshold'"
@@ -16039,8 +16039,8 @@
                 "653": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -16052,7 +16052,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 29,
+                                "end_col": 28,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -16062,11 +16062,11 @@
                                         "end_col": 64,
                                         "end_line": 1,
                                         "input_file": {
-                                            "filename": "autogen/starknet/event/ThresholdsSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
+                                            "filename": "autogen/starknet/event/ThresholdSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 19,
+                                                "end_col": 18,
                                                 "end_line": 41,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -16081,7 +16081,7 @@
                                     },
                                     "While expanding the reference '__calldata_ptr' in:"
                                 ],
-                                "start_col": 20,
+                                "start_col": 19,
                                 "start_line": 41
                             },
                             "While handling calldata argument 'threshold'"
@@ -16093,8 +16093,8 @@
                 "655": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -16102,11 +16102,11 @@
                         "end_col": 30,
                         "end_line": 1,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -16123,11 +16123,11 @@
                                                 "end_col": 95,
                                                 "end_line": 1,
                                                 "input_file": {
-                                                    "filename": "autogen/starknet/event/ThresholdsSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
+                                                    "filename": "autogen/starknet/event/ThresholdSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
                                                 },
                                                 "parent_location": [
                                                     {
-                                                        "end_col": 19,
+                                                        "end_col": 18,
                                                         "end_line": 41,
                                                         "input_file": {
                                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -16159,8 +16159,8 @@
                 "656": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -16168,11 +16168,11 @@
                         "end_col": 22,
                         "end_line": 1,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -16189,8 +16189,8 @@
                 "658": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -16198,11 +16198,11 @@
                         "end_col": 22,
                         "end_line": 2,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -16212,11 +16212,11 @@
                                         "end_col": 39,
                                         "end_line": 1,
                                         "input_file": {
-                                            "filename": "autogen/starknet/event/ThresholdsSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
+                                            "filename": "autogen/starknet/event/ThresholdSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 19,
+                                                "end_col": 18,
                                                 "end_line": 41,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -16243,8 +16243,8 @@
                 "659": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -16252,11 +16252,11 @@
                         "end_col": 77,
                         "end_line": 1,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -16273,8 +16273,8 @@
                 "660": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -16282,11 +16282,11 @@
                         "end_col": 22,
                         "end_line": 4,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/65c5085194e774f24b349fa5ca17d70e9ee7479a2b72fa6bed01a6505af19ff9.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -16296,11 +16296,11 @@
                                         "end_col": 94,
                                         "end_line": 1,
                                         "input_file": {
-                                            "filename": "autogen/starknet/event/ThresholdsSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
+                                            "filename": "autogen/starknet/event/ThresholdSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 19,
+                                                "end_col": 18,
                                                 "end_line": 41,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -16327,8 +16327,8 @@
                 "661": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -16336,11 +16336,11 @@
                         "end_col": 95,
                         "end_line": 1,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -16357,8 +16357,8 @@
                 "663": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -16366,11 +16366,11 @@
                         "end_col": 47,
                         "end_line": 1,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -16380,11 +16380,11 @@
                                         "end_col": 47,
                                         "end_line": 1,
                                         "input_file": {
-                                            "filename": "autogen/starknet/event/ThresholdsSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo"
+                                            "filename": "autogen/starknet/event/ThresholdSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo"
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 19,
+                                                "end_col": 18,
                                                 "end_line": 41,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -16394,11 +16394,11 @@
                                                         "end_col": 10,
                                                         "end_line": 2,
                                                         "input_file": {
-                                                            "filename": "autogen/starknet/event/ThresholdsSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
+                                                            "filename": "autogen/starknet/event/ThresholdSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
                                                         },
                                                         "parent_location": [
                                                             {
-                                                                "end_col": 19,
+                                                                "end_col": 18,
                                                                 "end_line": 41,
                                                                 "input_file": {
                                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -16435,8 +16435,8 @@
                 "664": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__.ThresholdsSet",
-                        "__main__.ThresholdsSet.emit"
+                        "__main__.ThresholdSet",
+                        "__main__.ThresholdSet.emit"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -16444,11 +16444,11 @@
                         "end_col": 10,
                         "end_line": 2,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/858f2c0e8fdda3108b2e383053abb5bae67b6b5a2bf306a848bd20c7d5507d8c.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -62673,18 +62673,18 @@
                                         "end_col": 30,
                                         "end_line": 1,
                                         "input_file": {
-                                            "filename": "autogen/starknet/event/ThresholdsSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo"
+                                            "filename": "autogen/starknet/event/ThresholdSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo"
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 19,
+                                                "end_col": 18,
                                                 "end_line": 41,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                                 },
                                                 "parent_location": [
                                                     {
-                                                        "end_col": 34,
+                                                        "end_col": 33,
                                                         "end_line": 586,
                                                         "input_file": {
                                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -62738,18 +62738,18 @@
                                         "end_col": 47,
                                         "end_line": 1,
                                         "input_file": {
-                                            "filename": "autogen/starknet/event/ThresholdsSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo"
+                                            "filename": "autogen/starknet/event/ThresholdSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo"
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 19,
+                                                "end_col": 18,
                                                 "end_line": 41,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                                 },
                                                 "parent_location": [
                                                     {
-                                                        "end_col": 34,
+                                                        "end_col": 33,
                                                         "end_line": 586,
                                                         "input_file": {
                                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -62793,12 +62793,12 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 33,
+                                "end_col": 32,
                                 "end_line": 586,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                 },
-                                "start_col": 24,
+                                "start_col": 23,
                                 "start_line": 586
                             },
                             "While expanding the reference 'threshold' in:"
@@ -62815,7 +62815,7 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 34,
+                        "end_col": 33,
                         "end_line": 586,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -62835,18 +62835,18 @@
                         "end_col": 30,
                         "end_line": 1,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 34,
+                                        "end_col": 33,
                                         "end_line": 586,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -62953,18 +62953,18 @@
                         "end_col": 47,
                         "end_line": 1,
                         "input_file": {
-                            "filename": "autogen/starknet/event/ThresholdsSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo"
+                            "filename": "autogen/starknet/event/ThresholdSet/061e12d2ab61277b9c9f3e137932ed9dc55f304b27d122b3d1541234d0033a6d.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 19,
+                                "end_col": 18,
                                 "end_line": 41,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 34,
+                                        "end_col": 33,
                                         "end_line": 586,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -64426,44 +64426,44 @@
                 "destination": "starkware.cairo.common.bool.TRUE",
                 "type": "alias"
             },
-            "__main__.ThresholdsSet": {
+            "__main__.ThresholdSet": {
                 "type": "namespace"
             },
-            "__main__.ThresholdsSet.Args": {
-                "full_name": "__main__.ThresholdsSet.Args",
+            "__main__.ThresholdSet.Args": {
+                "full_name": "__main__.ThresholdSet.Args",
                 "members": {},
                 "size": 0,
                 "type": "struct"
             },
-            "__main__.ThresholdsSet.ImplicitArgs": {
-                "full_name": "__main__.ThresholdsSet.ImplicitArgs",
+            "__main__.ThresholdSet.ImplicitArgs": {
+                "full_name": "__main__.ThresholdSet.ImplicitArgs",
                 "members": {},
                 "size": 0,
                 "type": "struct"
             },
-            "__main__.ThresholdsSet.Return": {
+            "__main__.ThresholdSet.Return": {
                 "cairo_type": "()",
                 "type": "type_definition"
             },
-            "__main__.ThresholdsSet.SELECTOR": {
+            "__main__.ThresholdSet.SELECTOR": {
                 "type": "const",
-                "value": 1162634291519168373803263392265070859219073488254182483621601248701361433004
+                "value": 1158724084011144979878060794894404731628746917156252781573750267285887806696
             },
-            "__main__.ThresholdsSet.SIZEOF_LOCALS": {
+            "__main__.ThresholdSet.SIZEOF_LOCALS": {
                 "type": "const",
                 "value": 0
             },
-            "__main__.ThresholdsSet.alloc": {
+            "__main__.ThresholdSet.alloc": {
                 "destination": "starkware.cairo.common.alloc.alloc",
                 "type": "alias"
             },
-            "__main__.ThresholdsSet.emit": {
+            "__main__.ThresholdSet.emit": {
                 "decorators": [],
                 "pc": 641,
                 "type": "function"
             },
-            "__main__.ThresholdsSet.emit.Args": {
-                "full_name": "__main__.ThresholdsSet.emit.Args",
+            "__main__.ThresholdSet.emit.Args": {
+                "full_name": "__main__.ThresholdSet.emit.Args",
                 "members": {
                     "threshold": {
                         "cairo_type": "felt",
@@ -64473,8 +64473,8 @@
                 "size": 1,
                 "type": "struct"
             },
-            "__main__.ThresholdsSet.emit.ImplicitArgs": {
-                "full_name": "__main__.ThresholdsSet.emit.ImplicitArgs",
+            "__main__.ThresholdSet.emit.ImplicitArgs": {
+                "full_name": "__main__.ThresholdSet.emit.ImplicitArgs",
                 "members": {
                     "range_check_ptr": {
                         "cairo_type": "felt",
@@ -64488,19 +64488,19 @@
                 "size": 2,
                 "type": "struct"
             },
-            "__main__.ThresholdsSet.emit.Return": {
+            "__main__.ThresholdSet.emit.Return": {
                 "cairo_type": "()",
                 "type": "type_definition"
             },
-            "__main__.ThresholdsSet.emit.SIZEOF_LOCALS": {
+            "__main__.ThresholdSet.emit.SIZEOF_LOCALS": {
                 "type": "const",
                 "value": 2
             },
-            "__main__.ThresholdsSet.emit_event": {
+            "__main__.ThresholdSet.emit_event": {
                 "destination": "starkware.starknet.common.syscalls.emit_event",
                 "type": "alias"
             },
-            "__main__.ThresholdsSet.memcpy": {
+            "__main__.ThresholdSet.memcpy": {
                 "destination": "starkware.cairo.common.memcpy.memcpy",
                 "type": "alias"
             },
