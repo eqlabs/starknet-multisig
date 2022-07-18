@@ -612,11 +612,11 @@ describe("Multisig with single signer", function () {
 
     it("correct events are emitted for signer change", async function () {
       const selector = getSelectorFromName("set_signers");
-      const newOwners = [number.toBN(nonSigner.starknetContract.address)];
+      const newSigners = [number.toBN(nonSigner.starknetContract.address)];
       const payload = {
         to: number.toBN(multisig.address),
         function_selector: number.toBN(selector),
-        calldata: [newOwners.length, ...newOwners],
+        calldata: [newSigners.length, ...newSigners],
         nonce: 0,
       };
 
@@ -642,7 +642,6 @@ describe("Multisig with single signer", function () {
 
     it("correct events are emitted for threshold change", async function () {
       const selector = getSelectorFromName("set_threshold");
-      const newOwners = [number.toBN(nonSigner.starknetContract.address)];
       const payload = {
         to: number.toBN(multisig.address),
         function_selector: number.toBN(selector),
@@ -671,11 +670,11 @@ describe("Multisig with single signer", function () {
       // First change the list of signers to 2 and threshold to 2
       {
         const selector = getSelectorFromName("set_signers_and_threshold");
-        const newOwners = [account.address, nonSigner.address];
+        const newSigners = [account.address, nonSigner.address];
         const payload = {
           to: number.toBN(multisig.address),
           function_selector: number.toBN(selector),
-          calldata: [newOwners.length, ...newOwners, newOwners.length],
+          calldata: [newSigners.length, ...newSigners, newSigners.length],
           nonce: 0,
         };
         await account.invoke(multisig, "submit_transaction", payload);
@@ -691,11 +690,11 @@ describe("Multisig with single signer", function () {
 
       // Change signers to a list of 1
       const selector = getSelectorFromName("set_signers");
-      const newOwners = [account.address];
+      const newSigners = [account.address];
       const payload = {
         to: number.toBN(multisig.address),
         function_selector: number.toBN(selector),
-        calldata: [newOwners.length, ...newOwners],
+        calldata: [newSigners.length, ...newSigners],
         nonce: 1,
       };
       await account.invoke(multisig, "submit_transaction", payload);
@@ -871,14 +870,14 @@ describe("Multisig with multiple signers", function () {
   // Tests below are interdependent and shall be run sequentially
   it("transaction sets new signers", async function () {
     const selector = getSelectorFromName("set_signers");
-    const newOwners = [
+    const newSigners = [
       number.toBN(account2.starknetContract.address),
       number.toBN(account3.starknetContract.address),
     ];
     const payload = {
       to: number.toBN(multisig.address),
       function_selector: number.toBN(selector),
-      calldata: [newOwners.length, ...newOwners],
+      calldata: [newSigners.length, ...newSigners],
       nonce: 0,
     };
 
@@ -898,17 +897,17 @@ describe("Multisig with multiple signers", function () {
     const res = await account2.call(multisig, "get_signers");
     expect(res.signers_len).to.equal(2n);
     expect(res.signers.map((address: any) => address.toString())).to.eql(
-      newOwners.map((address) => address.toString())
+      newSigners.map((address) => address.toString())
     );
   });
 
   it("set single signer thus lowering threshold", async function () {
     const selector = getSelectorFromName("set_signers");
-    const newOwners = [number.toBN(account2.starknetContract.address)];
+    const newSigners = [number.toBN(account2.starknetContract.address)];
     const payload = {
       to: number.toBN(multisig.address),
       function_selector: number.toBN(selector),
-      calldata: [newOwners.length, ...newOwners],
+      calldata: [newSigners.length, ...newSigners],
       nonce: 0,
     };
 
@@ -928,7 +927,7 @@ describe("Multisig with multiple signers", function () {
     const res = await account2.call(multisig, "get_signers");
     expect(res.signers_len).to.equal(1n);
     expect(res.signers.map((address: any) => address.toString())).to.eql(
-      newOwners.map((address) => address.toString())
+      newSigners.map((address) => address.toString())
     );
   });
 
@@ -946,7 +945,7 @@ describe("Multisig with multiple signers", function () {
       (await multisig.call("get_transactions_len")).res
     );
     const selector = getSelectorFromName("set_signers_and_threshold");
-    const newOwners = [
+    const newSigners = [
       number.toBN(account2.starknetContract.address),
       number.toBN(account1.starknetContract.address),
     ];
@@ -954,8 +953,8 @@ describe("Multisig with multiple signers", function () {
       to: number.toBN(multisig.address),
       function_selector: number.toBN(selector),
       calldata: [
-        newOwners.length,
-        ...newOwners, // signers
+        newSigners.length,
+        ...newSigners, // signers
         2, // threshold
       ],
       nonce: invalidatingNonce,
@@ -992,14 +991,14 @@ describe("Multisig with multiple signers", function () {
       const res = await account1.call(multisig, "get_signers");
       expect(res.signers_len).to.equal(2n);
       expect(res.signers.map((address: any) => address.toString())).to.eql(
-        newOwners.map((address) => address.toString())
+        newSigners.map((address) => address.toString())
       );
     }
   });
 
   it("set invalid threshold", async function () {
     const selector = getSelectorFromName("set_signers_and_threshold");
-    const newOwners = [
+    const newSigners = [
       number.toBN(account2.starknetContract.address),
       number.toBN(account3.starknetContract.address),
     ];
@@ -1007,8 +1006,8 @@ describe("Multisig with multiple signers", function () {
       to: number.toBN(multisig.address),
       function_selector: number.toBN(selector),
       calldata: [
-        newOwners.length,
-        ...newOwners, // new signers
+        newSigners.length,
+        ...newSigners, // new signers
         3, // threshold
       ],
       nonce: 0,
@@ -1067,11 +1066,11 @@ describe("Multisig with multiple signers", function () {
 
   it("non recursive call fails", async function () {
     try {
-      const newOwners = [
+      const newSigners = [
         number.toBN(account2.starknetContract.address),
         number.toBN(account3.starknetContract.address),
       ];
-      await account1.invoke(multisig, "set_signers", { signers: newOwners });
+      await account1.invoke(multisig, "set_signers", { signers: newSigners });
 
       expect.fail("Should have failed");
     } catch (err: any) {
@@ -1080,12 +1079,12 @@ describe("Multisig with multiple signers", function () {
   });
 
   it("set 0 signers", async () => {
-    const numOfOwners = 0;
+    const numOfSigners = 0;
     const selector = getSelectorFromName("set_signers");
     const payload = {
       to: number.toBN(multisig.address),
       function_selector: number.toBN(selector),
-      calldata: [numOfOwners],
+      calldata: [numOfSigners],
       nonce: 0,
     };
 
