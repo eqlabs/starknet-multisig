@@ -43,7 +43,7 @@ describe("Multisig with single signer", function () {
     let multisigFactory = await starknet.getContractFactory("Multisig");
     multisig = await multisigFactory.deploy({
       signers: [number.toBN(accountAddress)],
-      confirmations_required: 1,
+      threshold: 1,
     });
 
     contractFactory = await starknet.getContractFactory("Target");
@@ -83,7 +83,7 @@ describe("Multisig with single signer", function () {
       expect(res.tx.function_selector.toString()).to.equal(selector.toString());
       expect(res.tx.calldata_len).to.equal(1n);
       expect(res.tx.executed).to.equal(0n);
-      expect(res.tx.num_confirmations).to.equal(0n);
+      expect(res.tx.threshold).to.equal(0n);
       expect(res.tx_calldata_len).to.equal(1n);
       expect(res.tx_calldata[0]).to.equal(5n);
     });
@@ -656,7 +656,7 @@ describe("Multisig with multiple signers", function () {
         number.toBN(account2.starknetContract.address),
         number.toBN(account3.starknetContract.address),
       ],
-      confirmations_required: 2,
+      threshold: 2,
     });
 
     targetFactory = await starknet.getContractFactory("Target");
@@ -803,7 +803,7 @@ describe("Multisig with multiple signers", function () {
     );
   });
 
-  it("set single signer thus lowering required confirmations", async function () {
+  it("set single signer thus lowering threshold", async function () {
     const selector = getSelectorFromName("set_signers");
     const newOwners = [number.toBN(account2.starknetContract.address)];
     const payload = {
@@ -846,9 +846,7 @@ describe("Multisig with multiple signers", function () {
     const invalidatingTxIndex = Number(
       (await multisig.call("get_transactions_len")).res
     );
-    const selector = getSelectorFromName(
-      "set_signers_and_confirmations_required"
-    );
+    const selector = getSelectorFromName("set_signers_and_threshold");
     const newOwners = [
       number.toBN(account2.starknetContract.address),
       number.toBN(account1.starknetContract.address),
@@ -859,7 +857,7 @@ describe("Multisig with multiple signers", function () {
       calldata: [
         newOwners.length,
         ...newOwners, // signers
-        2, // confirmations_required
+        2, // threshold
       ],
       tx_index: invalidatingTxIndex,
     };
@@ -887,8 +885,8 @@ describe("Multisig with multiple signers", function () {
     }
 
     {
-      const res = await account1.call(multisig, "get_confirmations_required");
-      expect(res.confirmations_required).to.equal(2n);
+      const res = await account1.call(multisig, "get_threshold");
+      expect(res.threshold).to.equal(2n);
     }
 
     {
@@ -900,10 +898,8 @@ describe("Multisig with multiple signers", function () {
     }
   });
 
-  it("set invalid number of confirmations", async function () {
-    const selector = getSelectorFromName(
-      "set_signers_and_confirmations_required"
-    );
+  it("set invalid threshold", async function () {
+    const selector = getSelectorFromName("set_signers_and_threshold");
     const newOwners = [
       number.toBN(account2.starknetContract.address),
       number.toBN(account3.starknetContract.address),
@@ -914,7 +910,7 @@ describe("Multisig with multiple signers", function () {
       calldata: [
         newOwners.length,
         ...newOwners, // new signers
-        3, // confirmations required
+        3, // threshold
       ],
       tx_index: 0,
     };
@@ -938,7 +934,7 @@ describe("Multisig with multiple signers", function () {
     }
   });
 
-  it("deploy multisig with invalid confirmations number fails", async function () {
+  it("deploy multisig with invalid threshold fails", async function () {
     const multisigFactory = await starknet.getContractFactory("Multisig");
 
     try {
@@ -948,7 +944,7 @@ describe("Multisig with multiple signers", function () {
           number.toBN(account2.starknetContract.address),
           number.toBN(account3.starknetContract.address),
         ],
-        confirmations_required: 4,
+        threshold: 4,
       });
       expect.fail("Should have failed");
     } catch (err: any) {
@@ -962,7 +958,7 @@ describe("Multisig with multiple signers", function () {
     try {
       await multisigFactory.deploy({
         signers: [],
-        confirmations_required: 4,
+        threshold: 4,
       });
       expect.fail("Should have failed");
     } catch (err: any) {

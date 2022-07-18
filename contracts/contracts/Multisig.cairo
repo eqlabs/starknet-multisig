@@ -38,7 +38,7 @@ func OwnersSet(signers_len : felt, signers : felt*):
 end
 
 @event
-func ConfirmationsSet(confirmations_required : felt):
+func ConfirmationsSet(threshold : felt):
 end
 
 #
@@ -50,11 +50,11 @@ struct Transaction:
     member function_selector : felt
     member calldata_len : felt
     member executed : felt
-    member num_confirmations : felt
+    member threshold : felt
 end
 
 @storage_var
-func _confirmations_required() -> (res : felt):
+func _threshold() -> (res : felt):
 end
 
 @storage_var
@@ -186,15 +186,15 @@ func require_multisig{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_ch
     return ()
 end
 
-func require_valid_confirmations_required{
+func require_valid_threshold{
     syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
-}(confirmations_required : felt, signers_len : felt):
+}(threshold : felt, signers_len : felt):
     const lower_bound = 1
 
-    # will throw if signers_len is 0 and if confirmations_required
+    # will throw if signers_len is 0 and if threshold
     # is not in range [1, signers_len]
     with_attr error_message("invalid parameters"):
-        assert_in_range(confirmations_required, lower_bound, signers_len + 1)
+        assert_in_range(threshold, lower_bound, signers_len + 1)
     end
 
     return ()
@@ -253,10 +253,10 @@ func get_transactions_len{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, rang
 end
 
 @view
-func get_confirmations_required{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    ) -> (confirmations_required : felt):
-    let (confirmations_required) = _confirmations_required.read()
-    return (confirmations_required)
+func get_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    ) -> (threshold : felt):
+    let (threshold) = _threshold.read()
+    return (threshold)
 end
 
 @view
@@ -308,15 +308,15 @@ func get_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_che
     )
     let (calldata_len) = _transactions.read(tx_index=tx_index, field=Transaction.calldata_len)
     let (executed) = _transactions.read(tx_index=tx_index, field=Transaction.executed)
-    let (num_confirmations) = _transactions.read(
-        tx_index=tx_index, field=Transaction.num_confirmations
+    let (threshold) = _transactions.read(
+        tx_index=tx_index, field=Transaction.threshold
     )
     let tx = Transaction(
         to=to,
         function_selector=function_selector,
         calldata_len=calldata_len,
         executed=executed,
-        num_confirmations=num_confirmations,
+        threshold=threshold,
     )
 
     let (calldata) = alloc()
@@ -337,12 +337,12 @@ end
 
 @constructor
 func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    signers_len : felt, signers : felt*, confirmations_required : felt
+    signers_len : felt, signers : felt*, threshold : felt
 ):
-    require_valid_confirmations_required(confirmations_required, signers_len)
+    require_valid_threshold(threshold, signers_len)
 
     _set_signers(signers_len, signers)
-    _set_confirmations_required(confirmations_required)
+    _set_threshold(threshold)
 
     return ()
 end
@@ -385,11 +385,11 @@ func confirm_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     require_not_executed(tx_index=tx_index)
     require_not_confirmed(tx_index=tx_index)
 
-    let (num_confirmations) = _transactions.read(
-        tx_index=tx_index, field=Transaction.num_confirmations
+    let (threshold) = _transactions.read(
+        tx_index=tx_index, field=Transaction.threshold
     )
     _transactions.write(
-        tx_index=tx_index, field=Transaction.num_confirmations, value=num_confirmations + 1
+        tx_index=tx_index, field=Transaction.threshold, value=threshold + 1
     )
     let (caller) = get_caller_address()
     _is_confirmed.write(tx_index=tx_index, signer=caller, value=TRUE)
@@ -408,11 +408,11 @@ func revoke_confirmation{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     require_not_executed(tx_index=tx_index)
     require_confirmed(tx_index=tx_index)
 
-    let (num_confirmations) = _transactions.read(
-        tx_index=tx_index, field=Transaction.num_confirmations
+    let (threshold) = _transactions.read(
+        tx_index=tx_index, field=Transaction.threshold
     )
     _transactions.write(
-        tx_index=tx_index, field=Transaction.num_confirmations, value=num_confirmations - 1
+        tx_index=tx_index, field=Transaction.threshold, value=threshold - 1
     )
     let (caller) = get_caller_address()
     _is_confirmed.write(tx_index=tx_index, signer=caller, value=FALSE)
@@ -431,10 +431,10 @@ func execute_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
 
     let (tx, tx_calldata_len, tx_calldata) = get_transaction(tx_index=tx_index)
 
-    # Require minimum configured confirmations
-    let (required_confirmations) = _confirmations_required.read()
+    # Require minimum configured threshold
+    let (threshold) = _threshold.read()
     with_attr error_message("need more confirmations"):
-        assert_le(required_confirmations, tx.num_confirmations)
+        assert_le(threshold, tx.threshold)
     end
 
     # Mark as executed
@@ -452,26 +452,25 @@ func execute_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     return (response_len=response.retdata_size, response=response.retdata)
 end
 
-# Sets number of required confirmations. The only way this can be invoked
-# is via a recursive call from execute_transaction -> set_confirmations_required.
+# Sets threshold. The only way this can be invoked
+# is via a recursive call from execute_transaction -> set_threshold.
 @external
-func set_confirmations_required{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    confirmations_required : felt
+func set_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    threshold : felt
 ):
     require_multisig()
 
     let (signers_len) = _signers_len.read()
-    require_valid_confirmations_required(confirmations_required, signers_len)
+    require_valid_threshold(threshold, signers_len)
 
-    _set_confirmations_required(confirmations_required)
+    _set_threshold(threshold)
 
     return ()
 end
 
 # Sets the signers field on the multisig. The only way this can be invoked
 # is via a recursive call from execute_transaction -> set_signers.
-# Number of required confirmations is decreased in case its larger than
-# number of new signers.
+# Threshold is decreased in case its' larger than number of new signers.
 @external
 func set_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     signers_len : felt, signers : felt*
@@ -481,28 +480,28 @@ func set_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
 
     _set_signers(signers_len, signers)
 
-    let (local confirmations_required) = _confirmations_required.read()
-    let (lt) = is_le(signers_len, confirmations_required - 1)  # signers_len < confirmations_required
+    let (local threshold) = _threshold.read()
+    let (lt) = is_le(signers_len, threshold - 1)  # signers_len < threshold
     if lt == TRUE:
-        _set_confirmations_required(signers_len)
+        _set_threshold(signers_len)
         return ()
     end
 
     return ()
 end
 
-# Set new signers and number of required confirmations.
+# Set new signers and threshold.
 # Can be called only via recursively from
-# execute_transaction -> set_signers_and_confirmations_required
+# execute_transaction -> set_signers_and_threshold
 @external
-func set_signers_and_confirmations_required{
+func set_signers_and_threshold{
     syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
-}(signers_len : felt, signers : felt*, confirmations_required : felt):
+}(signers_len : felt, signers : felt*, threshold : felt):
     require_multisig()
-    require_valid_confirmations_required(confirmations_required, signers_len)
+    require_valid_threshold(threshold, signers_len)
 
     _set_signers(signers_len, signers)
-    _set_confirmations_required(confirmations_required)
+    _set_threshold(threshold)
 
     return ()
 end
@@ -596,11 +595,11 @@ func _clean_signers_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, rang
     return _clean_signers_range(signers_index + 1, signers_len)
 end
 
-func _set_confirmations_required{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    confirmations_required : felt
+func _set_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    threshold : felt
 ):
-    _confirmations_required.write(confirmations_required)
-    ConfirmationsSet.emit(confirmations_required)
+    _threshold.write(threshold)
+    ConfirmationsSet.emit(threshold)
 
     return ()
 end
