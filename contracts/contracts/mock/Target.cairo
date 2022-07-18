@@ -96,7 +96,7 @@ end
 
 @view
 func assert_unique_elements_wrapper{range_check_ptr}(data_len : felt, data : felt*):
-    with_attr error_message("owners not unique"):
+    with_attr error_message("signers not unique"):
         assert_unique_elements(data_len, data)
     end
 
