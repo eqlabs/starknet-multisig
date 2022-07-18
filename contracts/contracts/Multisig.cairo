@@ -18,19 +18,19 @@ from util import assert_unique_elements
 #
 
 @event
-func SubmitTransaction(signer : felt, tx_index : felt, to : felt):
+func SubmitTransaction(signer : felt, nonce : felt, to : felt):
 end
 
 @event
-func ConfirmTransaction(signer : felt, tx_index : felt):
+func ConfirmTransaction(signer : felt, nonce : felt):
 end
 
 @event
-func RevokeConfirmation(signer : felt, tx_index : felt):
+func RevokeConfirmation(signer : felt, nonce : felt):
 end
 
 @event
-func ExecuteTransaction(signer : felt, tx_index : felt):
+func ExecuteTransaction(signer : felt, nonce : felt):
 end
 
 @event
@@ -68,7 +68,7 @@ end
 @storage_var
 func _tx_valid_since() -> (res : felt):
     # setting new signers invalidates all pending transactions
-    # contains transactions index since which transactions valid
+    # contains transactions nonce since which transactions valid
 end
 
 @storage_var
@@ -76,20 +76,20 @@ func _is_signer(address : felt) -> (res : felt):
 end
 
 @storage_var
-func _next_tx_index() -> (res : felt):
+func _next_nonce() -> (res : felt):
 end
 
 @storage_var
-func _transactions(tx_index : felt, field : felt) -> (res : felt):
+func _transactions(nonce : felt, field : felt) -> (res : felt):
     # Field enum pattern described in https://hackmd.io/@RoboTeddy/BJZFu56wF#Concise-way
 end
 
 @storage_var
-func _transaction_calldata(tx_index : felt, calldata_index : felt) -> (res : felt):
+func _transaction_calldata(nonce : felt, calldata_index : felt) -> (res : felt):
 end
 
 @storage_var
-func _is_confirmed(tx_index : felt, signer : felt) -> (res : felt):
+func _is_confirmed(nonce : felt, signer : felt) -> (res : felt):
 end
 
 #
@@ -108,20 +108,20 @@ end
 
 # Revert if tx does not exist
 func require_tx_exists{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    tx_index : felt
+    nonce : felt
 ):
-    let (next_tx_index) = _next_tx_index.read()
+    let (next_nonce) = _next_nonce.read()
     with_attr error_message("tx does not exist"):
-        assert_lt(tx_index, next_tx_index)
+        assert_lt(nonce, next_nonce)
     end
     return ()
 end
 
 # Revert if tx has been executed
 func require_not_executed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    tx_index : felt
+    nonce : felt
 ):
-    let (is_executed) = _transactions.read(tx_index=tx_index, field=Transaction.executed)
+    let (is_executed) = _transactions.read(nonce=nonce, field=Transaction.executed)
     with_attr error_message("tx already executed"):
         assert is_executed = FALSE
     end
@@ -130,10 +130,10 @@ end
 
 # Revert if tx has been confirmed for the calling account already
 func require_not_confirmed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    tx_index : felt
+    nonce : felt
 ):
     let (caller) = get_caller_address()
-    let (is_confirmed_for_caller) = is_confirmed(tx_index=tx_index, signer=caller)
+    let (is_confirmed_for_caller) = is_confirmed(nonce=nonce, signer=caller)
     with_attr error_message("tx already confirmed"):
         assert is_confirmed_for_caller = FALSE
     end
@@ -142,10 +142,10 @@ end
 
 # Revert if tx has not been confirmed for the calling account already
 func require_confirmed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    tx_index : felt
+    nonce : felt
 ):
     let (caller) = get_caller_address()
-    let (is_confirmed_for_caller) = is_confirmed(tx_index=tx_index, signer=caller)
+    let (is_confirmed_for_caller) = is_confirmed(nonce=nonce, signer=caller)
     with_attr error_message("tx not confirmed"):
         assert is_confirmed_for_caller = TRUE
     end
@@ -163,13 +163,13 @@ func require_unique_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, ra
     return ()
 end
 
-# Require tx_index to be greater then the last update of set of signers.
+# Require nonce to be greater then the last update of set of signers.
 # Since updating signers invalidates all pending transations
-func require_tx_valid{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(tx_index):
+func require_tx_valid{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(nonce):
     let (tx_valid_since) = _tx_valid_since.read()
 
     with_attr error_message("tx invalidated: config changed after submission"):
-        assert_le(tx_valid_since, tx_index)
+        assert_le(tx_valid_since, nonce)
     end
 
     return ()
@@ -200,12 +200,12 @@ func require_valid_threshold{
     return ()
 end
 
-func require_valid_tx_index{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    tx_index : felt
+func require_valid_nonce{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    nonce : felt
 ):
-    let (next_tx_index) = _next_tx_index.read()
-    with_attr error_message("invalid tx index"):
-        assert tx_index = next_tx_index
+    let (next_nonce) = _next_nonce.read()
+    with_attr error_message("invalid nonce"):
+        assert nonce = next_nonce
     end
 
     return ()
@@ -248,7 +248,7 @@ end
 func get_transactions_len{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
     res : felt
 ):
-    let (res) = _next_tx_index.read()
+    let (res) = _next_nonce.read()
     return (res)
 end
 
@@ -261,34 +261,34 @@ end
 
 @view
 func is_confirmed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    tx_index : felt, signer : felt
+    nonce : felt, signer : felt
 ) -> (res : felt):
-    let (res) = _is_confirmed.read(tx_index=tx_index, signer=signer)
+    let (res) = _is_confirmed.read(nonce=nonce, signer=signer)
     return (res)
 end
 
 @view
 func is_executed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    tx_index : felt
+    nonce : felt
 ) -> (res : felt):
-    let (res) = _transactions.read(tx_index=tx_index, field=Transaction.executed)
+    let (res) = _transactions.read(nonce=nonce, field=Transaction.executed)
     return (res)
 end
 
 func _get_transaction_calldata{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    tx_index : felt, calldata_index : felt, calldata_len : felt, calldata : felt*
+    nonce : felt, calldata_index : felt, calldata_len : felt, calldata : felt*
 ):
     if calldata_index == calldata_len:
         return ()
     end
 
     let (calldata_arg) = _transaction_calldata.read(
-        tx_index=tx_index, calldata_index=calldata_index
+        nonce=nonce, calldata_index=calldata_index
     )
     assert calldata[calldata_index] = calldata_arg
 
     _get_transaction_calldata(
-        tx_index=tx_index,
+        nonce=nonce,
         calldata_index=calldata_index + 1,
         calldata_len=calldata_len,
         calldata=calldata,
@@ -298,18 +298,18 @@ end
 
 @view
 func get_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    tx_index : felt
+    nonce : felt
 ) -> (tx : Transaction, tx_calldata_len : felt, tx_calldata : felt*):
     alloc_locals
 
-    let (to) = _transactions.read(tx_index=tx_index, field=Transaction.to)
+    let (to) = _transactions.read(nonce=nonce, field=Transaction.to)
     let (function_selector) = _transactions.read(
-        tx_index=tx_index, field=Transaction.function_selector
+        nonce=nonce, field=Transaction.function_selector
     )
-    let (calldata_len) = _transactions.read(tx_index=tx_index, field=Transaction.calldata_len)
-    let (executed) = _transactions.read(tx_index=tx_index, field=Transaction.executed)
+    let (calldata_len) = _transactions.read(nonce=nonce, field=Transaction.calldata_len)
+    let (executed) = _transactions.read(nonce=nonce, field=Transaction.executed)
     let (threshold) = _transactions.read(
-        tx_index=tx_index, field=Transaction.threshold
+        nonce=nonce, field=Transaction.threshold
     )
     let tx = Transaction(
         to=to,
@@ -326,7 +326,7 @@ func get_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_che
 
     # Recursively get more calldata args and add them to the list
     _get_transaction_calldata(
-        tx_index=tx_index, calldata_index=0, calldata_len=calldata_len, calldata=calldata
+        nonce=nonce, calldata_index=0, calldata_len=calldata_len, calldata=calldata
     )
     return (tx=tx, tx_calldata_len=calldata_len, tx_calldata=calldata)
 end
@@ -349,87 +349,87 @@ end
 
 @external
 func submit_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    to : felt, function_selector : felt, calldata_len : felt, calldata : felt*, tx_index : felt
+    to : felt, function_selector : felt, calldata_len : felt, calldata : felt*, nonce : felt
 ):
     alloc_locals
     require_signer()
-    require_valid_tx_index(tx_index)
+    require_valid_nonce(nonce)
 
     # Store the tx descriptor
-    _transactions.write(tx_index=tx_index, field=Transaction.to, value=to)
+    _transactions.write(nonce=nonce, field=Transaction.to, value=to)
     _transactions.write(
-        tx_index=tx_index, field=Transaction.function_selector, value=function_selector
+        nonce=nonce, field=Transaction.function_selector, value=function_selector
     )
-    _transactions.write(tx_index=tx_index, field=Transaction.calldata_len, value=calldata_len)
+    _transactions.write(nonce=nonce, field=Transaction.calldata_len, value=calldata_len)
 
     # Recursively store the tx calldata
     _set_transaction_calldata(
-        tx_index=tx_index, calldata_index=0, calldata_len=calldata_len, calldata=calldata
+        nonce=nonce, calldata_index=0, calldata_len=calldata_len, calldata=calldata
     )
 
     # Emit event & update tx count
     let (caller) = get_caller_address()
-    SubmitTransaction.emit(signer=caller, tx_index=tx_index, to=to)
-    _next_tx_index.write(value=tx_index + 1)
+    SubmitTransaction.emit(signer=caller, nonce=nonce, to=to)
+    _next_nonce.write(value=nonce + 1)
 
     return ()
 end
 
 @external
 func confirm_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    tx_index : felt
+    nonce : felt
 ):
     require_signer()
-    require_tx_exists(tx_index=tx_index)
-    require_tx_valid(tx_index=tx_index)
-    require_not_executed(tx_index=tx_index)
-    require_not_confirmed(tx_index=tx_index)
+    require_tx_exists(nonce=nonce)
+    require_tx_valid(nonce=nonce)
+    require_not_executed(nonce=nonce)
+    require_not_confirmed(nonce=nonce)
 
     let (threshold) = _transactions.read(
-        tx_index=tx_index, field=Transaction.threshold
+        nonce=nonce, field=Transaction.threshold
     )
     _transactions.write(
-        tx_index=tx_index, field=Transaction.threshold, value=threshold + 1
+        nonce=nonce, field=Transaction.threshold, value=threshold + 1
     )
     let (caller) = get_caller_address()
-    _is_confirmed.write(tx_index=tx_index, signer=caller, value=TRUE)
+    _is_confirmed.write(nonce=nonce, signer=caller, value=TRUE)
 
-    ConfirmTransaction.emit(signer=caller, tx_index=tx_index)
+    ConfirmTransaction.emit(signer=caller, nonce=nonce)
     return ()
 end
 
 @external
 func revoke_confirmation{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    tx_index : felt
+    nonce : felt
 ):
     require_signer()
-    require_tx_exists(tx_index=tx_index)
-    require_tx_valid(tx_index=tx_index)
-    require_not_executed(tx_index=tx_index)
-    require_confirmed(tx_index=tx_index)
+    require_tx_exists(nonce=nonce)
+    require_tx_valid(nonce=nonce)
+    require_not_executed(nonce=nonce)
+    require_confirmed(nonce=nonce)
 
     let (threshold) = _transactions.read(
-        tx_index=tx_index, field=Transaction.threshold
+        nonce=nonce, field=Transaction.threshold
     )
     _transactions.write(
-        tx_index=tx_index, field=Transaction.threshold, value=threshold - 1
+        nonce=nonce, field=Transaction.threshold, value=threshold - 1
     )
     let (caller) = get_caller_address()
-    _is_confirmed.write(tx_index=tx_index, signer=caller, value=FALSE)
+    _is_confirmed.write(nonce=nonce, signer=caller, value=FALSE)
 
-    RevokeConfirmation.emit(signer=caller, tx_index=tx_index)
+    RevokeConfirmation.emit(signer=caller, nonce=nonce)
     return ()
 end
 
 @external
 func execute_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    tx_index : felt
+    nonce : felt
 ) -> (response_len : felt, response : felt*):
-    require_tx_exists(tx_index=tx_index)
-    require_tx_valid(tx_index=tx_index)
-    require_not_executed(tx_index=tx_index)
+    require_tx_exists(nonce=nonce)
+    require_tx_valid(nonce=nonce)
+    require_not_executed(nonce=nonce)
 
-    let (tx, tx_calldata_len, tx_calldata) = get_transaction(tx_index=tx_index)
+    let (tx, tx_calldata_len, tx_calldata) = get_transaction(nonce=nonce)
 
     # Require minimum configured threshold
     let (threshold) = _threshold.read()
@@ -438,9 +438,9 @@ func execute_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     end
 
     # Mark as executed
-    _transactions.write(tx_index=tx_index, field=Transaction.executed, value=TRUE)
+    _transactions.write(nonce=nonce, field=Transaction.executed, value=TRUE)
     let (caller) = get_caller_address()
-    ExecuteTransaction.emit(signer=caller, tx_index=tx_index)
+    ExecuteTransaction.emit(signer=caller, nonce=nonce)
 
     # Actually execute it
     let response = call_contract(
@@ -534,7 +534,7 @@ func _set_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_
     let (old_signers_len) = _signers_len.read()
     _clean_signers_range(0, old_signers_len)
 
-    let (tx_valid_since) = _next_tx_index.read()
+    let (tx_valid_since) = _next_nonce.read()
     _tx_valid_since.write(tx_valid_since)
 
     _signers_len.write(signers_len)
@@ -562,18 +562,18 @@ func _set_signers_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_
 end
 
 func _set_transaction_calldata{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    tx_index : felt, calldata_index : felt, calldata_len : felt, calldata : felt*
+    nonce : felt, calldata_index : felt, calldata_len : felt, calldata : felt*
 ):
     if calldata_index == calldata_len:
         return ()
     end
 
     # Write the current iteration to storage
-    _transaction_calldata.write(tx_index=tx_index, calldata_index=calldata_index, value=[calldata])
+    _transaction_calldata.write(nonce=nonce, calldata_index=calldata_index, value=[calldata])
 
     # Recursively write the rest
     _set_transaction_calldata(
-        tx_index=tx_index,
+        nonce=nonce,
         calldata_index=calldata_index + 1,
         calldata_len=calldata_len,
         calldata=calldata + 1,

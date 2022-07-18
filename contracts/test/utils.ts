@@ -6,7 +6,7 @@ import { BigNumber, utils } from "ethers";
 export const defaultPayload = (
   contractAddress: string,
   newValue: number,
-  txIndex: number
+  nonce: number
 ) => {
   const setSelector = number.toBN(getSelectorFromName("set_balance"));
   const target = number.toBN(contractAddress);
@@ -14,7 +14,7 @@ export const defaultPayload = (
     to: target,
     function_selector: setSelector,
     calldata: [newValue],
-    tx_index: txIndex,
+    nonce: nonce,
   };
 
   return setPayload;

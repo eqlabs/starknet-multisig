@@ -71,12 +71,12 @@ describe("Multisig with single signer", function () {
         to: target,
         function_selector: selector,
         calldata: [5],
-        tx_index: 0,
+        nonce: 0,
       };
 
       await account.invoke(multisig, "submit_transaction", payload);
       const res = await multisig.call("get_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
 
       expect(res.tx.to.toString()).to.equal(target.toString());
@@ -89,30 +89,30 @@ describe("Multisig with single signer", function () {
     });
 
     it("fails for too big transaction nonce", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+      const nonce = Number((await multisig.call("get_transactions_len")).res);
 
-      const payload = defaultPayload(targetContract.address, 6, txIndex);
-      payload.tx_index = txIndex + 5;
+      const payload = defaultPayload(targetContract.address, 6, nonce);
+      payload.nonce = nonce + 5;
 
       try {
         await account.invoke(multisig, "submit_transaction", payload);
         expect.fail("Should have failed");
       } catch (err: any) {
-        assertErrorMsg(err.message, "invalid tx index");
+        assertErrorMsg(err.message, "invalid nonce");
       }
     });
 
     it("fails for too small transaction nonce", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+      const nonce = Number((await multisig.call("get_transactions_len")).res);
 
-      const payload = defaultPayload(targetContract.address, 6, txIndex);
-      payload.tx_index = txIndex - 5;
+      const payload = defaultPayload(targetContract.address, 6, nonce);
+      payload.nonce = nonce - 5;
 
       try {
         await account.invoke(multisig, "submit_transaction", payload);
         expect.fail("Should have failed");
       } catch (err: any) {
-        assertErrorMsg(err.message, "invalid tx index");
+        assertErrorMsg(err.message, "invalid nonce");
       }
     });
 
@@ -120,10 +120,10 @@ describe("Multisig with single signer", function () {
       const payload = defaultPayload(targetContract.address, 6, 0);
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
 
       const bal = await targetContract.call("get_balance");
@@ -135,10 +135,10 @@ describe("Multisig with single signer", function () {
       await account.invoke(multisig, "submit_transaction", payload);
 
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
 
       // submit another transaction with the same multisig
@@ -146,10 +146,10 @@ describe("Multisig with single signer", function () {
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: 1,
+        nonce: 1,
       });
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: 1,
+        nonce: 1,
       });
 
       const bal = await targetContract.call("get_balance");
@@ -157,47 +157,47 @@ describe("Multisig with single signer", function () {
     });
 
     it("transactions can be confirmed and executed in any order", async function () {
-      let txIndex = Number((await multisig.call("get_transactions_len")).res);
-      let payload = defaultPayload(targetContract.address, 17, txIndex);
+      let nonce = Number((await multisig.call("get_transactions_len")).res);
+      let payload = defaultPayload(targetContract.address, 17, nonce);
       await account.invoke(multisig, "submit_transaction", payload);
-      const txIndex1 =
+      const nonce1 =
         Number((await multisig.call("get_transactions_len")).res) - 1;
 
-      payload = defaultPayload(targetContract.address, 18, txIndex + 1);
+      payload = defaultPayload(targetContract.address, 18, nonce + 1);
       await account.invoke(multisig, "submit_transaction", payload);
-      const txIndex2 =
+      const nonce2 =
         Number((await multisig.call("get_transactions_len")).res) - 1;
 
-      payload = defaultPayload(targetContract.address, 19, txIndex + 2);
+      payload = defaultPayload(targetContract.address, 19, nonce + 2);
       await account.invoke(multisig, "submit_transaction", payload);
-      const txIndex3 =
+      const nonce3 =
         Number((await multisig.call("get_transactions_len")).res) - 1;
 
       // confirm in any order (skip one)
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex3,
+        nonce: nonce3,
       });
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex1,
+        nonce: nonce1,
       });
 
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: txIndex3,
+        nonce: nonce3,
       });
       const bal3 = await targetContract.call("get_balance");
 
       // confirm also the one unconfirmed
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex2,
+        nonce: nonce2,
       });
 
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: txIndex1,
+        nonce: nonce1,
       });
       const bal1 = await targetContract.call("get_balance");
 
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: txIndex2,
+        nonce: nonce2,
       });
       const bal2 = await targetContract.call("get_balance");
 
@@ -230,15 +230,15 @@ describe("Multisig with single signer", function () {
         to: target,
         function_selector: selector,
         calldata: calldata,
-        tx_index: 0,
+        nonce: 0,
       };
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
 
       const bal = await targetContract.call("getArraySum");
@@ -256,7 +256,7 @@ describe("Multisig with single signer", function () {
       await account.invoke(multisig, "submit_transaction", payload);
       try {
         await account.invoke(multisig, "execute_transaction", {
-          tx_index: 0,
+          nonce: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -277,23 +277,23 @@ describe("Multisig with single signer", function () {
 
     it("executing a failing transaction fails", async function () {
       const selector = number.toBN(getSelectorFromName("revertFunc"));
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+      const nonce = Number((await multisig.call("get_transactions_len")).res);
       const target = number.toBN(targetContract.address);
       const payload = {
         to: target,
         function_selector: selector,
         calldata: [],
-        tx_index: txIndex,
+        nonce: nonce,
       };
       await account.invoke(multisig, "submit_transaction", payload);
 
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        nonce: nonce,
       });
 
       try {
         await account.invoke(multisig, "execute_transaction", {
-          tx_index: txIndex,
+          nonce: nonce,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -303,22 +303,22 @@ describe("Multisig with single signer", function () {
 
     it("executing a transaction to a non-existing function fails", async function () {
       const selector = number.toBN(getSelectorFromName("nonExisting"));
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+      const nonce = Number((await multisig.call("get_transactions_len")).res);
       const target = number.toBN(targetContract.address);
       const payload = {
         to: target,
         function_selector: selector,
         calldata: [],
-        tx_index: txIndex,
+        nonce: nonce,
       };
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        nonce: nonce,
       });
 
       try {
         await account.invoke(multisig, "execute_transaction", {
-          tx_index: txIndex,
+          nonce: nonce,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -334,7 +334,7 @@ describe("Multisig with single signer", function () {
       await account.invoke(multisig, "submit_transaction", payload);
       try {
         await nonOwner.invoke(multisig, "confirm_transaction", {
-          tx_index: 0,
+          nonce: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -345,7 +345,7 @@ describe("Multisig with single signer", function () {
     it("can't confirm a non-existing transaction", async function () {
       try {
         await account.invoke(multisig, "confirm_transaction", {
-          tx_index: 500,
+          nonce: 500,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -358,15 +358,15 @@ describe("Multisig with single signer", function () {
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
 
       try {
         await account.invoke(multisig, "confirm_transaction", {
-          tx_index: 0,
+          nonce: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -379,12 +379,12 @@ describe("Multisig with single signer", function () {
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
 
       try {
         await account.invoke(multisig, "confirm_transaction", {
-          tx_index: 0,
+          nonce: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -399,12 +399,12 @@ describe("Multisig with single signer", function () {
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
 
       try {
         await nonOwner.invoke(multisig, "revoke_confirmation", {
-          tx_index: 0,
+          nonce: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -415,7 +415,7 @@ describe("Multisig with single signer", function () {
     it("can't revoke a confirmation for a non-existing transaction", async function () {
       try {
         await account.invoke(multisig, "revoke_confirmation", {
-          tx_index: 5000,
+          nonce: 5000,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -428,16 +428,16 @@ describe("Multisig with single signer", function () {
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
 
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
 
       try {
         await account.invoke(multisig, "revoke_confirmation", {
-          tx_index: 0,
+          nonce: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -450,16 +450,16 @@ describe("Multisig with single signer", function () {
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
 
       await account.invoke(multisig, "revoke_confirmation", {
-        tx_index: 0,
+        nonce: 0,
       });
 
       try {
         await account.invoke(multisig, "revoke_confirmation", {
-          tx_index: 0,
+          nonce: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -474,32 +474,32 @@ describe("Multisig with single signer", function () {
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
 
       await nonOwner.invoke(multisig, "execute_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
     });
 
     it("executing a failing transaction fails", async function () {
       const selector = number.toBN(getSelectorFromName("revertFunc"));
       const target = number.toBN(targetContract.address);
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+      const nonce = Number((await multisig.call("get_transactions_len")).res);
       const payload = {
         to: target,
         function_selector: selector,
         calldata: [],
-        tx_index: txIndex,
+        nonce: nonce,
       };
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        nonce: nonce,
       });
 
       try {
         await account.invoke(multisig, "execute_transaction", {
-          tx_index: txIndex,
+          nonce: nonce,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -515,7 +515,7 @@ describe("Multisig with single signer", function () {
     it("can't execute a non-existing transaction", async function () {
       try {
         await account.invoke(multisig, "execute_transaction", {
-          tx_index: 600,
+          nonce: 600,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -528,16 +528,16 @@ describe("Multisig with single signer", function () {
 
       await account.invoke(multisig, "submit_transaction", payload);
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
 
       await account.invoke(multisig, "execute_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
 
       try {
         await account.invoke(multisig, "execute_transaction", {
-          tx_index: 0,
+          nonce: 0,
         });
         expect.fail("Should have failed");
       } catch (err: any) {
@@ -548,9 +548,9 @@ describe("Multisig with single signer", function () {
 
   describe("- event emission - ", function () {
     it("correct events are emitted for normal flow", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
+      const nonce = Number((await multisig.call("get_transactions_len")).res);
 
-      const payload = defaultPayload(targetContract.address, 6, txIndex);
+      const payload = defaultPayload(targetContract.address, 6, nonce);
       let txHash = await account.invoke(
         multisig,
         "submit_transaction",
@@ -560,26 +560,26 @@ describe("Multisig with single signer", function () {
 
       const eventDataSubmit: IEventDataEntry[] = [
         { data: accountAddress, isAddress: true },
-        { data: ethers.utils.hexValue(txIndex) },
+        { data: ethers.utils.hexValue(nonce) },
         { data: targetContract.address, isAddress: true },
       ];
 
       txHash = await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        nonce: nonce,
       });
       const receiptConfirm = await starknet.getTransactionReceipt(txHash);
       const eventDataConfirm: IEventDataEntry[] = [
         { data: accountAddress, isAddress: true },
-        { data: ethers.utils.hexValue(txIndex) },
+        { data: ethers.utils.hexValue(nonce) },
       ];
 
       txHash = await account.invoke(multisig, "execute_transaction", {
-        tx_index: txIndex,
+        nonce: nonce,
       });
       const receiptExecute = await starknet.getTransactionReceipt(txHash);
       const eventDataExecute: IEventDataEntry[] = [
         { data: accountAddress, isAddress: true },
-        { data: ethers.utils.hexValue(txIndex) },
+        { data: ethers.utils.hexValue(nonce) },
       ];
 
       assertEvent(receiptSubmit, "SubmitTransaction", eventDataSubmit);
@@ -588,42 +588,42 @@ describe("Multisig with single signer", function () {
     });
 
     it("correct events are emitted for revoke", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-      const payload = defaultPayload(targetContract.address, 6, txIndex);
+      const nonce = Number((await multisig.call("get_transactions_len")).res);
+      const payload = defaultPayload(targetContract.address, 6, nonce);
       await account.invoke(multisig, "submit_transaction", payload);
 
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        nonce: nonce,
       });
       const txHash = await account.invoke(multisig, "revoke_confirmation", {
-        tx_index: txIndex,
+        nonce: nonce,
       });
       const receipt = await starknet.getTransactionReceipt(txHash);
 
       const eventData: IEventDataEntry[] = [
         { data: accountAddress, isAddress: true },
-        { data: ethers.utils.hexValue(txIndex) },
+        { data: ethers.utils.hexValue(nonce) },
       ];
 
       assertEvent(receipt, "RevokeConfirmation", eventData);
     });
 
     it("correct events are emitted for revoke", async function () {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-      const payload = defaultPayload(targetContract.address, 6, txIndex);
+      const nonce = Number((await multisig.call("get_transactions_len")).res);
+      const payload = defaultPayload(targetContract.address, 6, nonce);
       await account.invoke(multisig, "submit_transaction", payload);
 
       await account.invoke(multisig, "confirm_transaction", {
-        tx_index: txIndex,
+        nonce: nonce,
       });
       const txHash = await account.invoke(multisig, "revoke_confirmation", {
-        tx_index: txIndex,
+        nonce: nonce,
       });
       const receipt = await starknet.getTransactionReceipt(txHash);
 
       const eventData: IEventDataEntry[] = [
         { data: accountAddress, isAddress: true },
-        { data: ethers.utils.hexValue(txIndex) },
+        { data: ethers.utils.hexValue(nonce) },
       ];
 
       assertEvent(receipt, "RevokeConfirmation", eventData);
@@ -680,14 +680,14 @@ describe("Multisig with multiple signers", function () {
 
     await account1.invoke(multisig, "submit_transaction", payload);
     await account1.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account2.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
 
     await account1.invoke(multisig, "execute_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
 
     const bal = await targetContract.call("get_balance");
@@ -699,16 +699,16 @@ describe("Multisig with multiple signers", function () {
 
     await account1.invoke(multisig, "submit_transaction", payload);
     await account1.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account2.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account3.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account1.invoke(multisig, "execute_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
 
     const bal = await targetContract.call("get_balance");
@@ -720,19 +720,19 @@ describe("Multisig with multiple signers", function () {
 
     await account1.invoke(multisig, "submit_transaction", payload);
     await account1.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account2.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account3.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account2.invoke(multisig, "revoke_confirmation", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account1.invoke(multisig, "execute_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
 
     const bal = await targetContract.call("get_balance");
@@ -744,24 +744,24 @@ describe("Multisig with multiple signers", function () {
 
     await account1.invoke(multisig, "submit_transaction", payload);
     await account1.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account2.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account3.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account2.invoke(multisig, "revoke_confirmation", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account1.invoke(multisig, "revoke_confirmation", {
-      tx_index: 0,
+      nonce: 0,
     });
 
     try {
       await account3.invoke(multisig, "execute_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
       expect.fail("Should have failed");
     } catch (err: any) {
@@ -780,20 +780,20 @@ describe("Multisig with multiple signers", function () {
       to: number.toBN(multisig.address),
       function_selector: number.toBN(selector),
       calldata: [newOwners.length, ...newOwners],
-      tx_index: 0,
+      nonce: 0,
     };
 
     await account1.invoke(multisig, "submit_transaction", payload);
 
     await account1.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account3.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
 
     await account1.invoke(multisig, "execute_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
 
     const res = await account2.call(multisig, "get_signers");
@@ -810,20 +810,20 @@ describe("Multisig with multiple signers", function () {
       to: number.toBN(multisig.address),
       function_selector: number.toBN(selector),
       calldata: [newOwners.length, ...newOwners],
-      tx_index: 0,
+      nonce: 0,
     };
 
     await account2.invoke(multisig, "submit_transaction", payload);
 
     await account2.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account3.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
 
     await account2.invoke(multisig, "execute_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
 
     const res = await account2.call(multisig, "get_signers");
@@ -837,13 +837,13 @@ describe("Multisig with multiple signers", function () {
   xit("invalidate previous transactions with set signers", async function () {
     const numTxToSpawn = 5;
     for (let i = 0; i < numTxToSpawn; i++) {
-      const txIndex = Number((await multisig.call("get_transactions_len")).res);
-      const payload = defaultPayload(targetContract.address, 101 + i, txIndex);
+      const nonce = Number((await multisig.call("get_transactions_len")).res);
+      const payload = defaultPayload(targetContract.address, 101 + i, nonce);
       await account2.invoke(multisig, "submit_transaction", payload);
     }
 
     // Executed set_signers invalidates previous transactions
-    const invalidatingTxIndex = Number(
+    const invalidatingNonce = Number(
       (await multisig.call("get_transactions_len")).res
     );
     const selector = getSelectorFromName("set_signers_and_threshold");
@@ -859,22 +859,22 @@ describe("Multisig with multiple signers", function () {
         ...newOwners, // signers
         2, // threshold
       ],
-      tx_index: invalidatingTxIndex,
+      nonce: invalidatingNonce,
     };
 
     await account2.invoke(multisig, "submit_transaction", payload);
 
     await account2.invoke(multisig, "confirm_transaction", {
-      tx_index: invalidatingTxIndex,
+      nonce: invalidatingNonce,
     });
     await account2.invoke(multisig, "execute_transaction", {
-      tx_index: invalidatingTxIndex,
+      nonce: invalidatingNonce,
     });
 
     // try to confirm invalid transaction
     try {
       await account1.invoke(multisig, "confirm_transaction", {
-        tx_index: invalidatingTxIndex - Math.round(numTxToSpawn / 2),
+        nonce: invalidatingNonce - Math.round(numTxToSpawn / 2),
       });
       expect.fail("Should have failed");
     } catch (err: any) {
@@ -912,21 +912,21 @@ describe("Multisig with multiple signers", function () {
         ...newOwners, // new signers
         3, // threshold
       ],
-      tx_index: 0,
+      nonce: 0,
     };
 
     await account2.invoke(multisig, "submit_transaction", payload);
 
     await account1.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account2.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
 
     try {
       await account2.invoke(multisig, "execute_transaction", {
-        tx_index: 0,
+        nonce: 0,
       });
       expect.fail("Should have failed");
     } catch (err: any) {
@@ -987,21 +987,21 @@ describe("Multisig with multiple signers", function () {
       to: number.toBN(multisig.address),
       function_selector: number.toBN(selector),
       calldata: [numOfOwners],
-      tx_index: 0,
+      nonce: 0,
     };
 
     await account2.invoke(multisig, "submit_transaction", payload);
 
     await account2.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
     await account1.invoke(multisig, "confirm_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
 
     // Execution shall be allowed from any account
     await account3.invoke(multisig, "execute_transaction", {
-      tx_index: 0,
+      nonce: 0,
     });
 
     // No one shall be able to submit new transactions anymore
