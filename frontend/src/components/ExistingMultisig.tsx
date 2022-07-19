@@ -4,14 +4,16 @@ import {
 } from "@starknet-react/core";
 import { styled } from '@stitches/react';
 import Link from "next/link";
+import { useEffect, useState } from 'react';
 import { validateAndParseAddress } from 'starknet';
 import { useMultisigContract } from "~/hooks/multisigContractHook";
 import { pendingStatuses } from '~/types';
 import ArbitraryTransaction from './ArbitraryTransaction';
+import DeploymentStatus from './DeploymentStatus';
 import Erc20Transaction from './Erc20Transaction';
 import { Legend } from "./Forms";
 import MultisigTransactionList from './MultisigTransactionList';
-import Spinner from './Spinner';
+import SkeletonLoader from './SkeletonLoader';
 
 interface MultisigProps {
   contractAddress: string
@@ -46,20 +48,36 @@ const StyledTrigger = styled(Tabs.Trigger, {
 
 export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
   const { account } = useStarknet();
-  const { contract: multisigContract, status, owners, threshold, transactions } = useMultisigContract(
+  const { contract: multisigContract, status, loading, owners, threshold, transactions } = useMultisigContract(
     contractAddress
   );
+  
+  const [firstLoad, setFirstLoad] = useState<boolean>(true)
+  const [pendingStatus, setPendingStatus] = useState<boolean>(false)
 
   const multisigLink =
     "https://goerli.voyager.online/contract/" + contractAddress;
 
+  useEffect(() => {
+    if (!loading) {
+      if (!pendingStatuses.includes(status)) {
+        const delay = firstLoad ? 0 : 2000
+        setTimeout(() => {
+          setPendingStatus(false)
+        }, delay)
+        setFirstLoad(false)
+      } else {
+        setPendingStatus(true)
+      }
+    }
+  }, [firstLoad, loading, status])
+
   return (
     <>
-      <Legend as="h2"><Link href={multisigLink}>Multisig Contract</Link></Legend>
-
-      {!pendingStatuses.includes(status) ? (<>
-        <div>{account && owners.includes(validateAndParseAddress(account)) ? "You are an owner of this wallet." : "You cannot sign transactions in this wallet."}</div>
-        <div>Required signers: {threshold + "/" + owners.length}</div>
+      {!pendingStatus ? (<>
+        <Legend as="h2"><Link href={multisigLink}>Multisig Contract</Link></Legend>
+        {loading ? <SkeletonLoader /> : <div>{account && owners.includes(validateAndParseAddress(account)) ? "You are an owner of this wallet." : "You cannot sign transactions in this wallet."}</div>}
+        {loading ? <SkeletonLoader /> : <div>Required signers: {threshold + "/" + owners.length}</div>}
 
         {transactions.length > 0 && (
           <>
@@ -86,8 +104,9 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
         </Tabs.Root>
       </>
       ) : <>
-        <Spinner />
-        <Legend as="h3">Contract status: {status}</Legend>
+        <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}><span>Deploying...</span><Link href={multisigLink}>See transaction on Voyager</Link></div>
+
+        <DeploymentStatus status={status} />
       </>}
     </>
   );

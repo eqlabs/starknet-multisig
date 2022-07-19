@@ -19,14 +19,18 @@ export const useMultisigContract = (
 ): {
   contract: Contract | undefined;
   status: TransactionStatus;
+  loading: boolean;
   owners: string[];
   threshold: number;
   transactionCount: number;
   transactions: MultisigTransaction[];
 } => {
-  const { library: provider } = useStarknet();
-  const [status, send] = useTransactionStatus();
   const { multisigs } = useSnapshot(state);
+
+  const { library: provider } = useStarknet();
+
+  const [status, send] = useTransactionStatus();
+  const [loading, setLoading] = useState<boolean>(true);
 
   const [owners, setOwners] = useState<string[]>([]);
   const [threshold, setThreshold] = useState<number>(0);
@@ -67,6 +71,8 @@ export const useMultisigContract = (
   );
 
   useEffect(() => {
+    let heartbeat: NodeJS.Timer;
+
     const getLatestStatus = async () => {
       let tx_status;
       const cachedMultisig = getMultisigFromCache();
@@ -76,17 +82,23 @@ export const useMultisigContract = (
           cachedMultisig.transactionHash
         );
         tx_status = response.tx_status as TransactionStatus;
+        if (compareStatuses(tx_status, TransactionStatus.ACCEPTED_ON_L2) > 0) {
+          clearInterval(heartbeat);
+        }
       }
 
       tx_status !== undefined && setLatestStatus(tx_status);
     };
 
     getLatestStatus();
-    const heartbeat = setInterval(getLatestStatus, 5000);
+    setLoading(false);
+
+    heartbeat = setInterval(getLatestStatus, 2000);
 
     return () => {
       clearInterval(heartbeat);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getMultisigFromCache, provider]);
 
   useEffect(() => {
@@ -127,6 +139,7 @@ export const useMultisigContract = (
 
   useEffect(() => {
     const fetchInfo = async () => {
+      setLoading(true);
       try {
         // If contract is deployed, fetch more info
         if (
@@ -153,6 +166,7 @@ export const useMultisigContract = (
       } catch (e) {
         console.error(e);
       }
+      setLoading(false);
     };
 
     contract !== undefined && fetchInfo();
@@ -166,6 +180,7 @@ export const useMultisigContract = (
 
   useEffect(() => {
     const fetchTransactions = async () => {
+      setLoading(true);
       try {
         if (contract && transactionCount > 0) {
           let currentTransactionIndex = transactionCount - 1;
@@ -195,6 +210,7 @@ export const useMultisigContract = (
       } catch (error) {
         console.error(error);
       }
+      setLoading(false);
     };
 
     // Fetch transactions of this multisig if the contract is deployed
@@ -207,6 +223,7 @@ export const useMultisigContract = (
   return {
     contract,
     status: status.value as TransactionStatus,
+    loading,
     owners,
     threshold,
     transactionCount,
