@@ -34,11 +34,11 @@ func ExecuteTransaction(signer : felt, nonce : felt):
 end
 
 @event
-func OwnersSet(signers_len : felt, signers : felt*):
+func SignersSet(signers_len : felt, signers : felt*):
 end
 
 @event
-func ConfirmationsSet(threshold : felt):
+func ThresholdSet(threshold : felt):
 end
 
 #
@@ -186,9 +186,9 @@ func require_multisig{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_ch
     return ()
 end
 
-func require_valid_threshold{
-    syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
-}(threshold : felt, signers_len : felt):
+func require_valid_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    threshold : felt, signers_len : felt
+):
     const lower_bound = 1
 
     # will throw if signers_len is 0 and if threshold
@@ -253,8 +253,9 @@ func get_transactions_len{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, rang
 end
 
 @view
-func get_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    ) -> (threshold : felt):
+func get_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
+    threshold : felt
+):
     let (threshold) = _threshold.read()
     return (threshold)
 end
@@ -282,16 +283,11 @@ func _get_transaction_calldata{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
         return ()
     end
 
-    let (calldata_arg) = _transaction_calldata.read(
-        nonce=nonce, calldata_index=calldata_index
-    )
+    let (calldata_arg) = _transaction_calldata.read(nonce=nonce, calldata_index=calldata_index)
     assert calldata[calldata_index] = calldata_arg
 
     _get_transaction_calldata(
-        nonce=nonce,
-        calldata_index=calldata_index + 1,
-        calldata_len=calldata_len,
-        calldata=calldata,
+        nonce=nonce, calldata_index=calldata_index + 1, calldata_len=calldata_len, calldata=calldata
     )
     return ()
 end
@@ -303,14 +299,10 @@ func get_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_che
     alloc_locals
 
     let (to) = _transactions.read(nonce=nonce, field=Transaction.to)
-    let (function_selector) = _transactions.read(
-        nonce=nonce, field=Transaction.function_selector
-    )
+    let (function_selector) = _transactions.read(nonce=nonce, field=Transaction.function_selector)
     let (calldata_len) = _transactions.read(nonce=nonce, field=Transaction.calldata_len)
     let (executed) = _transactions.read(nonce=nonce, field=Transaction.executed)
-    let (threshold) = _transactions.read(
-        nonce=nonce, field=Transaction.threshold
-    )
+    let (threshold) = _transactions.read(nonce=nonce, field=Transaction.threshold)
     let tx = Transaction(
         to=to,
         function_selector=function_selector,
@@ -357,9 +349,7 @@ func submit_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_
 
     # Store the tx descriptor
     _transactions.write(nonce=nonce, field=Transaction.to, value=to)
-    _transactions.write(
-        nonce=nonce, field=Transaction.function_selector, value=function_selector
-    )
+    _transactions.write(nonce=nonce, field=Transaction.function_selector, value=function_selector)
     _transactions.write(nonce=nonce, field=Transaction.calldata_len, value=calldata_len)
 
     # Recursively store the tx calldata
@@ -385,12 +375,8 @@ func confirm_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     require_not_executed(nonce=nonce)
     require_not_confirmed(nonce=nonce)
 
-    let (threshold) = _transactions.read(
-        nonce=nonce, field=Transaction.threshold
-    )
-    _transactions.write(
-        nonce=nonce, field=Transaction.threshold, value=threshold + 1
-    )
+    let (threshold) = _transactions.read(nonce=nonce, field=Transaction.threshold)
+    _transactions.write(nonce=nonce, field=Transaction.threshold, value=threshold + 1)
     let (caller) = get_caller_address()
     _is_confirmed.write(nonce=nonce, signer=caller, value=TRUE)
 
@@ -408,12 +394,8 @@ func revoke_confirmation{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     require_not_executed(nonce=nonce)
     require_confirmed(nonce=nonce)
 
-    let (threshold) = _transactions.read(
-        nonce=nonce, field=Transaction.threshold
-    )
-    _transactions.write(
-        nonce=nonce, field=Transaction.threshold, value=threshold - 1
-    )
+    let (threshold) = _transactions.read(nonce=nonce, field=Transaction.threshold)
+    _transactions.write(nonce=nonce, field=Transaction.threshold, value=threshold - 1)
     let (caller) = get_caller_address()
     _is_confirmed.write(nonce=nonce, signer=caller, value=FALSE)
 
@@ -494,9 +476,9 @@ end
 # Can be called only via recursively from
 # execute_transaction -> set_signers_and_threshold
 @external
-func set_signers_and_threshold{
-    syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
-}(signers_len : felt, signers : felt*, threshold : felt):
+func set_signers_and_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    signers_len : felt, signers : felt*, threshold : felt
+):
     require_multisig()
     require_valid_threshold(threshold, signers_len)
 
@@ -540,7 +522,7 @@ func _set_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_
     _signers_len.write(signers_len)
     # Recursively write the rest
     _set_signers_range(0, signers_len, signers)
-    OwnersSet.emit(signers_len, signers)
+    SignersSet.emit(signers_len, signers)
 
     return ()
 end
@@ -557,7 +539,9 @@ func _set_signers_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_
     _is_signer.write(address=[signers], value=TRUE)
 
     # Recursively write the rest
-    _set_signers_range(signers_index=signers_index + 1, signers_len=signers_len, signers=signers + 1)
+    _set_signers_range(
+        signers_index=signers_index + 1, signers_len=signers_len, signers=signers + 1
+    )
     return ()
 end
 
@@ -599,7 +583,7 @@ func _set_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_chec
     threshold : felt
 ):
     _threshold.write(threshold)
-    ConfirmationsSet.emit(threshold)
+    ThresholdSet.emit(threshold)
 
     return ()
 end
