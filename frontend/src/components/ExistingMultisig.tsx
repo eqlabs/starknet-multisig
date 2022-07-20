@@ -6,7 +6,9 @@ import { styled } from '@stitches/react';
 import Link from "next/link";
 import { useEffect, useState } from 'react';
 import { validateAndParseAddress } from 'starknet';
+import { useSnapshot } from 'valtio';
 import { useMultisigContract } from "~/hooks/multisigContractHook";
+import { state } from '~/state';
 import { pendingStatuses } from '~/types';
 import ArbitraryTransaction from './ArbitraryTransaction';
 import DeploymentStatus from './DeploymentStatus';
@@ -51,12 +53,17 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
   const { contract: multisigContract, status, loading, owners, threshold, transactions } = useMultisigContract(
     contractAddress
   );
+  const { multisigs } = useSnapshot(state)
   
   const [firstLoad, setFirstLoad] = useState<boolean>(true)
   const [pendingStatus, setPendingStatus] = useState<boolean>(false)
 
-  const multisigLink =
-    "https://goerli.voyager.online/contract/" + contractAddress;
+  // TODO: Make these configurable by used chain
+  const voyagerBaseUrl = "https://goerli.voyager.online/"
+  const transactionFound = multisigs.find(multisigInfo => multisigInfo.address === contractAddress && multisigInfo.transactionHash)?.transactionHash
+  const transactionLink = voyagerBaseUrl + "tx/" + transactionFound
+  const contractLink =
+    voyagerBaseUrl + "contract/" + contractAddress;
 
   useEffect(() => {
     if (!loading) {
@@ -75,7 +82,7 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
   return (
     <>
       {!pendingStatus ? (<>
-        <Legend as="h2"><Link href={multisigLink}>Multisig Contract</Link></Legend>
+        <Legend as="h2"><Link href={contractLink}>Multisig Contract</Link></Legend>
         {loading ? <SkeletonLoader /> : <div>{account && owners.includes(validateAndParseAddress(account)) ? "You are an owner of this wallet." : "You cannot sign transactions in this wallet."}</div>}
         {loading ? <SkeletonLoader /> : <div>Required signers: {threshold + "/" + owners.length}</div>}
 
@@ -104,7 +111,10 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
         </Tabs.Root>
       </>
       ) : <>
-        <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}><span>Deploying...</span><Link href={multisigLink}>See transaction on Voyager</Link></div>
+        <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+          <span>Deploying...</span>
+          <Link href={transactionFound ? transactionLink : contractLink}>{transactionFound ? "See transaction on Voyager" : "See contract on Voyager"}</Link>
+        </div>
 
         <DeploymentStatus status={status} />
       </>}
