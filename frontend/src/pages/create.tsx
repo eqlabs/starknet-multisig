@@ -2,11 +2,11 @@ import { AnimatePresence } from "framer-motion";
 import type { NextPage } from "next";
 import BorderedContainer from "~/components/BorderedContainer";
 import Box from "~/components/Box";
-import { ConnectWallet } from "~/components/ConnectWallet";
 import Footer from "~/components/Footer";
 import Header from "~/components/Header";
+import { NewMultisig } from "~/components/NewMultisig";
 
-const Home: NextPage = () => (
+const Create: NextPage = () => (
   <Box
     css={{
       display: "flex",
@@ -28,7 +28,7 @@ const Home: NextPage = () => (
     >
       <AnimatePresence exitBeforeEnter>
         <BorderedContainer
-          key="connect-account"
+          key="connected-account"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -16 }}
@@ -37,7 +37,7 @@ const Home: NextPage = () => (
             opacity: { duration: 0.2 },
           }}
         >
-          <ConnectWallet />
+          <NewMultisig />
         </BorderedContainer>
       </AnimatePresence>
     </Box>
@@ -45,4 +45,4 @@ const Home: NextPage = () => (
   </Box>
 );
 
-export default Home;
+export default Create;

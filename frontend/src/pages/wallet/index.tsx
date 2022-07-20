@@ -1,12 +1,28 @@
 import { AnimatePresence } from "framer-motion";
 import type { NextPage } from "next";
+import { useSnapshot } from "valtio";
 import BorderedContainer from "~/components/BorderedContainer";
 import Box from "~/components/Box";
-import { ConnectWallet } from "~/components/ConnectWallet";
 import Footer from "~/components/Footer";
+import { Legend } from "~/components/Forms";
 import Header from "~/components/Header";
+import ModeToggle from "~/components/ModeToggle";
+import MultisigAddressInput from "~/components/MultisigAddressInput";
+import MultisigList from "~/components/MultisigList";
+import { state } from "~/state";
 
-const Home: NextPage = () => (
+const Multisigs = () => {
+  const { multisigs } = useSnapshot(state);
+  return <>{multisigs?.length > 0 && (
+    <>
+      <hr />
+      <Legend as="h2">Visited Multisigs</Legend>
+      <MultisigList />
+    </>
+  )}</>
+}
+
+const Contract: NextPage = () => (
   <Box
     css={{
       display: "flex",
@@ -28,7 +44,7 @@ const Home: NextPage = () => (
     >
       <AnimatePresence exitBeforeEnter>
         <BorderedContainer
-          key="connect-account"
+          key="connected-account"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -16 }}
@@ -37,7 +53,10 @@ const Home: NextPage = () => (
             opacity: { duration: 0.2 },
           }}
         >
-          <ConnectWallet />
+          <ModeToggle />
+          <Legend as="h2">Manual Input</Legend>
+          <MultisigAddressInput />
+          <Multisigs />
         </BorderedContainer>
       </AnimatePresence>
     </Box>
@@ -45,4 +64,4 @@ const Home: NextPage = () => (
   </Box>
 );
 
-export default Home;
+export default Contract;

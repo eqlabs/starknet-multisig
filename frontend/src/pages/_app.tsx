@@ -1,28 +1,29 @@
+import { StarknetProvider } from "@starknet-react/core";
+import { ThemeProvider } from "next-themes";
 import type { AppProps } from "next/app";
 import NextHead from "next/head";
-import { ThemeProvider } from "next-themes";
+import WalletListener from "~/components/WalletListener";
+import { defaultProvider } from "~/utils/config";
 import { darkTheme } from "../../stitches.config";
-import { StarknetProvider } from "@starknet-react/core";
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return (
-    <StarknetProvider>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        enableSystem={false}
-        value={{
-          light: "light",
-          dark: darkTheme.className,
-        }}
-      >
-        <NextHead>
-          <title>Starsign — StarkNet Multisig</title>
-        </NextHead>
-        <Component {...pageProps} />
-      </ThemeProvider>
-    </StarknetProvider>
-  );
-}
+const MyApp = ({ Component, pageProps }: AppProps) => (
+  <StarknetProvider defaultProvider={defaultProvider}>
+    <WalletListener />
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem={false}
+      value={{
+        light: "light",
+        dark: darkTheme.className,
+      }}
+    >
+      <NextHead>
+        <title>Starsign — StarkNet Multisig</title>
+      </NextHead>
+      <Component {...pageProps} />
+    </ThemeProvider>
+  </StarknetProvider>
+);
 
 export default MyApp;

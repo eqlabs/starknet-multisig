@@ -1,6 +1,6 @@
 import {
   Transaction,
-  useStarknetTransactionManager,
+  useStarknetTransactionManager
 } from "@starknet-react/core";
 import React from "react";
 
@@ -9,21 +9,20 @@ function TransactionItem({ transaction }: { transaction: Transaction }) {
     "https://goerli.voyager.online/tx/" + transaction.transactionHash;
   return (
     <span>
-      <a href={link} target="_blank">
+      <a href={link} target="_blank" rel="noreferrer">
         {transaction.status}
       </a>
     </span>
   );
 }
 
+// TODO: We might want to use this in a dropdown dialog type of thing to list transactions à la Uniswap
 export function TransactionList() {
   const { transactions } = useStarknetTransactionManager();
   const revMyArr = ([] as Transaction[]).concat(transactions).reverse();
   return (
     <>
       {revMyArr.length > 0 && (
-        <>
-          <h2>Recent Transactions</h2>
           <ul>
             {revMyArr.map((transaction, index) => (
               <li key={index}>
@@ -31,7 +30,6 @@ export function TransactionList() {
               </li>
             ))}
           </ul>
-        </>
       )}
     </>
   );

@@ -1,23 +1,22 @@
 // stitches.config.ts
-import type Stitches from "@stitches/react";
-import { createStitches } from "@stitches/react";
-
 import {
-  gray,
-  grass,
   amber,
-  mint,
-  indigo,
-  grayDark,
-  grassDark,
   amberDark,
+  blackA,
+  grass,
+  grassDark,
+  gray,
+  grayDark,
+  indigo,
+  indigoDark,
+  mint,
+  mintDark,
   red,
   redDark,
-  mintDark,
-  indigoDark,
-  blackA,
   whiteA,
 } from "@radix-ui/colors";
+import type Stitches from "@stitches/react";
+import { createStitches } from "@stitches/react";
 
 export const {
   styled,
@@ -408,5 +407,8 @@ export const globalStyles = globalCss({
   "h1, h2, h3, h4, h5": {
     letterSpacing: "-0.02rem",
     fontWeight: "500",
+  },
+  "*": {
+    boxSizing: "border-box",
   },
 });
