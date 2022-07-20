@@ -100,7 +100,7 @@ end
 func require_signer{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     let (caller) = get_caller_address()
     let (is_caller_signer) = is_signer(address=caller)
-    with_attr error_message("not signer"):
+    with_attr error_message("Invalid signer"):
         assert is_caller_signer = TRUE
     end
     return ()
@@ -111,7 +111,7 @@ func require_tx_exists{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_c
     nonce : felt
 ):
     let (next_nonce) = _next_nonce.read()
-    with_attr error_message("tx does not exist"):
+    with_attr error_message("Transaction does not exist"):
         assert_lt(nonce, next_nonce)
     end
     return ()
@@ -122,7 +122,7 @@ func require_not_executed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, rang
     nonce : felt
 ):
     let (is_executed) = _transactions.read(nonce=nonce, field=Transaction.executed)
-    with_attr error_message("tx already executed"):
+    with_attr error_message("Transaction already executed"):
         assert is_executed = FALSE
     end
     return ()
@@ -134,7 +134,7 @@ func require_not_confirmed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, ran
 ):
     let (caller) = get_caller_address()
     let (is_confirmed_for_caller) = is_confirmed(nonce=nonce, signer=caller)
-    with_attr error_message("tx already confirmed"):
+    with_attr error_message("Transaction already confirmed"):
         assert is_confirmed_for_caller = FALSE
     end
     return ()
@@ -146,7 +146,7 @@ func require_confirmed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_c
 ):
     let (caller) = get_caller_address()
     let (is_confirmed_for_caller) = is_confirmed(nonce=nonce, signer=caller)
-    with_attr error_message("tx not confirmed"):
+    with_attr error_message("Transaction not confirmed"):
         assert is_confirmed_for_caller = TRUE
     end
     return ()
@@ -156,7 +156,7 @@ end
 func require_unique_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     signers_len : felt, signers : felt*
 ):
-    with_attr error_message("signers not unique"):
+    with_attr error_message("Signers not unique"):
         assert_unique_elements(signers_len, signers)
     end
 
@@ -168,7 +168,7 @@ end
 func require_tx_valid{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(nonce):
     let (tx_valid_since) = _tx_valid_since.read()
 
-    with_attr error_message("tx invalidated: config changed after submission"):
+    with_attr error_message("Transaction invalidated: config changed after submission"):
         assert_le(tx_valid_since, nonce)
     end
 
@@ -179,7 +179,7 @@ func require_multisig{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_ch
     let (caller) = get_caller_address()
     let (contract_address) = get_contract_address()
 
-    with_attr error_message("access restricted to multisig"):
+    with_attr error_message("No direct invocations allowed"):
         assert caller = contract_address
     end
 
@@ -193,7 +193,7 @@ func require_valid_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, r
 
     # will throw if signers_len is 0 and if threshold
     # is not in range [1, signers_len]
-    with_attr error_message("invalid parameters"):
+    with_attr error_message("Invalid threshold"):
         assert_in_range(threshold, lower_bound, signers_len + 1)
     end
 
@@ -204,7 +204,7 @@ func require_valid_nonce{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     nonce : felt
 ):
     let (next_nonce) = _next_nonce.read()
-    with_attr error_message("invalid nonce"):
+    with_attr error_message("Invalid nonce"):
         assert nonce = next_nonce
     end
 
@@ -245,19 +245,19 @@ func get_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
 end
 
 @view
-func get_transactions_len{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
-    res : felt
-):
-    let (res) = _next_nonce.read()
-    return (res)
-end
-
-@view
 func get_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
     threshold : felt
 ):
     let (threshold) = _threshold.read()
     return (threshold)
+end
+
+@view
+func get_transactions_len{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
+    res : felt
+):
+    let (res) = _next_nonce.read()
+    return (res)
 end
 
 @view
@@ -276,21 +276,6 @@ func is_executed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     return (res)
 end
 
-func _get_transaction_calldata{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    nonce : felt, calldata_index : felt, calldata_len : felt, calldata : felt*
-):
-    if calldata_index == calldata_len:
-        return ()
-    end
-
-    let (calldata_arg) = _transaction_calldata.read(nonce=nonce, calldata_index=calldata_index)
-    assert calldata[calldata_index] = calldata_arg
-
-    _get_transaction_calldata(
-        nonce=nonce, calldata_index=calldata_index + 1, calldata_len=calldata_len, calldata=calldata
-    )
-    return ()
-end
 
 @view
 func get_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
@@ -415,7 +400,7 @@ func execute_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
 
     # Require minimum configured threshold
     let (threshold) = _threshold.read()
-    with_attr error_message("need more confirmations"):
+    with_attr error_message("More confirmations required"):
         assert_le(threshold, tx.threshold)
     end
 
@@ -577,6 +562,23 @@ func _clean_signers_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, rang
     _signers.write(signers_index, 0)
 
     return _clean_signers_range(signers_index + 1, signers_len)
+end
+
+
+func _get_transaction_calldata{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    nonce : felt, calldata_index : felt, calldata_len : felt, calldata : felt*
+):
+    if calldata_index == calldata_len:
+        return ()
+    end
+
+    let (calldata_arg) = _transaction_calldata.read(nonce=nonce, calldata_index=calldata_index)
+    assert calldata[calldata_index] = calldata_arg
+
+    _get_transaction_calldata(
+        nonce=nonce, calldata_index=calldata_index + 1, calldata_len=calldata_len, calldata=calldata
+    )
+    return ()
 end
 
 func _set_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
