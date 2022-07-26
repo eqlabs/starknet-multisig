@@ -301,7 +301,7 @@ func get_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     return (signers_len=signers_len, signers=signers)
 end
 
-# @dev Gets the current threshold
+# @dev Gets the current multisig threshold
 # @return threshold: Threshold
 @view
 func get_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
