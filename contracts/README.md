@@ -6,11 +6,11 @@ These instructions are only needed if you want to develop on top of the project 
 
 ## Contracts
 
-The main contracts used are:
+The contracts are:
 
 - Multisig.cairo: main multisig functionality
-- Account.cairo: OpenZeppelin account contract
-- Target.cairo: a mock of the target contract for the multisig
+- util.cairo: various helper functionality
+- Target.cairo: a mock of the target contract for the multisig, used in testing
 
 ## Used components
 
@@ -21,29 +21,23 @@ The main contracts used are:
 
 Recommended operating system is Ubuntu. If on Windows, use WSL2.
 
+Installation:
+
 ```
 yarn
 python3.7 -m venv .venv
 source ./.venv/bin/activate
-python -m pip install cairo-nile
-python -m pip install starknet-devnet
-
 ```
 
-Inside the virtual environment:
+Follow the [Cairo installation instructions](https://www.cairo-lang.org/docs/quickstart.html).
+After that, inside the virtual environment:
 
-After that, run the _devnet_ in one tab (`npm run local`) and run the unit tests in another tab with `npx hardhat test`.
+- Install Cairo devnet (local blockchain) `python -m pip install starknet-devnet`
+- Compile the contracts: `npm run compile`
+- Run the devnet: `npm run local`
+- Open another venv tab and run the unit tests with `npx hardhat test`
 
-Tested to be working at least with devnet version 0.2.1.
-
-### Deployment
-
-Usually there is no need to manually deploy anything. But if needed, here are instructions how to deploy a multisig manually to Goerli alpha network:
-
-1. Compile all contracts: `npm run compile`
-1. Deploy an account contract: `npx hardhat starknet-deploy-account --starknet-network alpha --wallet OpenZeppelin --wait`
-1. Deploy the target contract: `npx hardhat starknet-deploy --starknet-network alpha ./starknet-artifacts/contracts/mock/Target.cairo --wait`
-1. Deploy the multisig. Remember to change the parameter to be your own account (in ArgentX if testing through UI): `npx hardhat starknet-deploy --starknet-network alpha ./starknet-artifacts/contracts/Multisig.cairo --inputs "1 0x011833a87cdffb58c2bde4af8708f16c744656666ff97506fd302a7bbd56d27f 1" --wait`
+Tested to be working at least with devnet version 0.2.6.
 
 ## Acknowledgements
 
