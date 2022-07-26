@@ -44,10 +44,10 @@ func RevokeConfirmation(signer : felt, nonce : felt):
 end
 
 # @dev Event emitted when a transaction has been executed
-# @param executor: Who executed the transaction
+# @param executer: Who executed the transaction
 # @param nonce: Transaction nonce
 @event
-func ExecuteTransaction(executor : felt, nonce : felt):
+func ExecuteTransaction(executer : felt, nonce : felt):
 end
 
 # @dev Event emitted when the multisig's signer array has been changed
@@ -511,7 +511,7 @@ func execute_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     # Mark as executed
     _transactions.write(nonce=nonce, field=Transaction.executed, value=TRUE)
     let (caller) = get_caller_address()
-    ExecuteTransaction.emit(executor=caller, nonce=nonce)
+    ExecuteTransaction.emit(executer=caller, nonce=nonce)
 
     # Actually execute it
     let response = call_contract(
