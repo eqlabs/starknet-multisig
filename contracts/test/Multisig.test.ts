@@ -73,11 +73,12 @@ describe("Multisig with single signer", function () {
   describe(" - deployment - ", function () {
     it("works", async function () {
       const multisigFactory = await starknet.getContractFactory("Multisig");
+      const toBeAddedSigner = nonSigner;
 
       const newMultisig = await multisigFactory.deploy({
         signers: [
           number.toBN(account.starknetContract.address),
-          number.toBN(nonSigner.starknetContract.address),
+          number.toBN(toBeAddedSigner.starknetContract.address),
         ],
         threshold: 1,
       });
@@ -88,27 +89,19 @@ describe("Multisig with single signer", function () {
         address: number.toBN(account.starknetContract.address),
       });
       const isSignerValid2 = await newMultisig.call("is_signer", {
-        address: number.toBN(nonSigner.starknetContract.address),
+        address: number.toBN(toBeAddedSigner.starknetContract.address),
       });
       const isSignerInvalid = await newMultisig.call("is_signer", {
         address: number.toBN(123),
       });
       const threshold = await newMultisig.call("get_threshold");
 
-      console.log(
-        "signers",
-        signers.signers.length,
-        signers.signers,
-        signers.signers[0],
-        number.toBN(account.starknetContract.address).toString()
-      );
-
       expect(signers.signers_len).to.equal(2n);
       expect(signers.signers[0].toString()).to.equal(
         number.toBN(account.starknetContract.address).toString()
       );
       expect(signers.signers[1].toString()).to.equal(
-        number.toBN(nonSigner.starknetContract.address).toString()
+        number.toBN(toBeAddedSigner.starknetContract.address).toString()
       );
       expect(signers_length.signers_len).to.equal(2n);
       expect(isSignerValid1.res).to.equal(1n);
@@ -119,12 +112,13 @@ describe("Multisig with single signer", function () {
 
     it("deploy multisig with invalid threshold fails", async function () {
       const multisigFactory = await starknet.getContractFactory("Multisig");
+      const toBeAddedSigner = nonSigner;
 
       try {
         await multisigFactory.deploy({
           signers: [
             number.toBN(account.starknetContract.address),
-            number.toBN(nonSigner.starknetContract.address),
+            number.toBN(toBeAddedSigner.starknetContract.address),
           ],
           threshold: 3,
         });
@@ -731,8 +725,11 @@ describe("Multisig with single signer", function () {
     });
 
     it("correct events are emitted for signer change", async function () {
+      const toBeAddedSigner = nonSigner;
       const selector = getSelectorFromName("set_signers");
-      const newSigners = [number.toBN(nonSigner.starknetContract.address)];
+      const newSigners = [
+        number.toBN(toBeAddedSigner.starknetContract.address),
+      ];
       const payload = {
         to: number.toBN(multisig.address),
         function_selector: number.toBN(selector),
@@ -754,7 +751,7 @@ describe("Multisig with single signer", function () {
 
       const eventData: IEventDataEntry[] = [
         { data: ethers.utils.hexValue(1) },
-        { data: nonSigner.address, isAddress: true },
+        { data: toBeAddedSigner.address, isAddress: true },
       ];
 
       assertEvent(receipt, "SignersSet", eventData);
@@ -787,10 +784,11 @@ describe("Multisig with single signer", function () {
     });
 
     it("correct events are emitted for signer and implicit threshold change", async function () {
+      const toBeAddedSigner = nonSigner;
       // First change the list of signers to 2 and threshold to 2
       {
         const selector = getSelectorFromName("set_signers_and_threshold");
-        const newSigners = [account.address, nonSigner.address];
+        const newSigners = [account.address, toBeAddedSigner.address];
         const payload = {
           to: number.toBN(multisig.address),
           function_selector: number.toBN(selector),
@@ -822,7 +820,7 @@ describe("Multisig with single signer", function () {
       await account.invoke(multisig, "confirm_transaction", {
         nonce: 1,
       });
-      await nonSigner.invoke(multisig, "confirm_transaction", {
+      await toBeAddedSigner.invoke(multisig, "confirm_transaction", {
         nonce: 1,
       });
 
@@ -848,12 +846,13 @@ describe("Multisig with single signer", function () {
 
   describe(" - signers and threshold - ", function () {
     it("set_threshold and set_signers_and_threshold work", async function () {
+      const toBeAddedSigner = nonSigner;
       {
         // increase signers so we can later decrease threshold
         const selector = getSelectorFromName("set_signers_and_threshold");
         const newSigners = [
           number.toBN(account.starknetContract.address),
-          number.toBN(nonSigner.starknetContract.address),
+          number.toBN(toBeAddedSigner.starknetContract.address),
         ];
 
         const payload = {
@@ -887,7 +886,7 @@ describe("Multisig with single signer", function () {
         await account.invoke(multisig, "confirm_transaction", {
           nonce: 1,
         });
-        await nonSigner.invoke(multisig, "confirm_transaction", {
+        await toBeAddedSigner.invoke(multisig, "confirm_transaction", {
           nonce: 1,
         });
         await account.invoke(multisig, "execute_transaction", {
@@ -921,10 +920,11 @@ describe("Multisig with single signer", function () {
     });
 
     it("set_signers works", async function () {
+      const toBeAddedSigner = nonSigner;
       const selector = getSelectorFromName("set_signers");
       const newSigners = [
         number.toBN(account.starknetContract.address),
-        number.toBN(nonSigner.starknetContract.address),
+        number.toBN(toBeAddedSigner.starknetContract.address),
       ];
       const payload = {
         to: number.toBN(multisig.address),
@@ -951,10 +951,11 @@ describe("Multisig with single signer", function () {
     });
 
     it("setting an invalid threshold fails", async function () {
+      const toBeAddedSigner = nonSigner;
       const selector = getSelectorFromName("set_signers_and_threshold");
       const newSigners = [
         number.toBN(account.starknetContract.address),
-        number.toBN(nonSigner.starknetContract.address),
+        number.toBN(toBeAddedSigner.starknetContract.address),
       ];
       const payload = {
         to: number.toBN(multisig.address),
@@ -1022,9 +1023,10 @@ describe("Multisig with single signer", function () {
       // Executed set_signers invalidates previous transactions
       const invalidatingNonce = numTxToSpawn;
       const selector = getSelectorFromName("set_signers_and_threshold");
+      const toBeAddedSigner = nonSigner;
       const newSigners = [
         number.toBN(account.starknetContract.address),
-        number.toBN(nonSigner.starknetContract.address),
+        number.toBN(toBeAddedSigner.starknetContract.address),
       ];
       const payload = {
         to: number.toBN(multisig.address),
@@ -1075,9 +1077,10 @@ describe("Multisig with single signer", function () {
 
     it("direct call fails to set_signers", async function () {
       try {
+        const toBeAddedSigner = nonSigner;
         const newSigners = [
           number.toBN(account.starknetContract.address),
-          number.toBN(nonSigner.starknetContract.address),
+          number.toBN(toBeAddedSigner.starknetContract.address),
         ];
         await account.invoke(multisig, "set_signers", { signers: newSigners });
 
@@ -1099,9 +1102,10 @@ describe("Multisig with single signer", function () {
 
     it("direct call fails to set_signers_and_threshold", async function () {
       try {
+        const toBeAddedSigner = nonSigner;
         const newSigners = [
           number.toBN(account.starknetContract.address),
-          number.toBN(nonSigner.starknetContract.address),
+          number.toBN(toBeAddedSigner.starknetContract.address),
         ];
 
         await account.invoke(multisig, "set_signers_and_threshold", {
