@@ -22,7 +22,7 @@ from util import assert_unique_elements
 #
 
 # @dev Event emitted when a new transaction is submitted
-# @param signer: Who created the transaction 
+# @param signer: Creator of the transaction
 # @param nonce: Transaction nonce
 # @param to: Target address
 @event
@@ -30,35 +30,35 @@ func SubmitTransaction(signer : felt, nonce : felt, to : felt):
 end
 
 # @dev Event emitted when a transaction has been confirmed by a signer
-# @param signer: Who confirmed the transaction
+# @param signer: Transaction confirmer
 # @param nonce: Transaction nonce
 @event
 func ConfirmTransaction(signer : felt, nonce : felt):
 end
 
 # @dev Event emitted when a transaction confirmation has been revoked by a signer
-# @param signer: Who revoked the transaction confirmation
+# @param signer: Transaction confirmation revoker
 # @param nonce: Transaction nonce
 @event
 func RevokeConfirmation(signer : felt, nonce : felt):
 end
 
 # @dev Event emitted when a transaction has been executed
-# @param executer: Who executed the transaction
+# @param executer: Transaction executer
 # @param nonce: Transaction nonce
 @event
 func ExecuteTransaction(executer : felt, nonce : felt):
 end
 
 # @dev Event emitted when the multisig's signer array has been changed
-# @param signers_len: How many signers are in the new array
-# @param signers: The new signers
+# @param signers_len: Amount of signers
+# @param signers: An array of the new signers
 @event
 func SignersSet(signers_len : felt, signers : felt*):
 end
 
 # @dev Event emitted when the multisig's threshold has been changed
-# @param threshold: What is the new threshold
+# @param threshold: The new threshold
 @event
 func ThresholdSet(threshold : felt):
 end
