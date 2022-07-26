@@ -13,30 +13,52 @@ from starkware.cairo.common.bool import TRUE, FALSE
 
 from util import assert_unique_elements
 
+# @title A multi-signature contract
+# @author Equilibrium (equilibrium.co)
+#
+
 #
 # Events
 #
 
+# @dev Event emitted when a new transaction is submitted
+# @param signer: Creator of the transaction
+# @param nonce: Transaction nonce
+# @param to: Target address
 @event
 func SubmitTransaction(signer : felt, nonce : felt, to : felt):
 end
 
+# @dev Event emitted when a transaction has been confirmed by a signer
+# @param signer: Transaction confirmer
+# @param nonce: Transaction nonce
 @event
 func ConfirmTransaction(signer : felt, nonce : felt):
 end
 
+# @dev Event emitted when a transaction confirmation has been revoked by a signer
+# @param signer: Transaction confirmation revoker
+# @param nonce: Transaction nonce
 @event
 func RevokeConfirmation(signer : felt, nonce : felt):
 end
 
+# @dev Event emitted when a transaction has been executed
+# @param executer: Transaction executer
+# @param nonce: Transaction nonce
 @event
-func ExecuteTransaction(signer : felt, nonce : felt):
+func ExecuteTransaction(executer : felt, nonce : felt):
 end
 
+# @dev Event emitted when the multisig's signer array has been changed
+# @param signers_len: Amount of signers
+# @param signers: An array of the new signers
 @event
 func SignersSet(signers_len : felt, signers : felt*):
 end
 
+# @dev Event emitted when the multisig's threshold has been changed
+# @param threshold: The new threshold
 @event
 func ThresholdSet(threshold : felt):
 end
@@ -45,6 +67,12 @@ end
 # Storage
 #
 
+# @dev Represents stored transaction basic data inside the multisig
+# @param to: What is the transaction target address
+# @param function_selector: What is the transaction target function
+# @param calldata_len: Length of the calldata
+# @param executed: Has the transaction been executed
+# @param threshold: How many confirmations the transaction has
 struct Transaction:
     member to : felt
     member function_selector : felt
@@ -96,6 +124,7 @@ end
 # Conditions
 #
 
+# @dev Requires that the caller is the a signer
 # Revert if the calling account is not a signer
 func require_signer{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     let (caller) = get_caller_address()
@@ -106,7 +135,8 @@ func require_signer{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_chec
     return ()
 end
 
-# Revert if tx does not exist
+# @dev Requires that the transaction exists. Reverts if the tx doesn't exist
+# @param nonce: Nonce of the transaction in question
 func require_tx_exists{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     nonce : felt
 ):
@@ -117,7 +147,8 @@ func require_tx_exists{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_c
     return ()
 end
 
-# Revert if tx has been executed
+# @dev Requires that the transaction hasn't been executed yet. Reverts if the tx has been executed
+# @param nonce: Nonce of the transaction in question
 func require_not_executed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     nonce : felt
 ):
@@ -128,7 +159,9 @@ func require_not_executed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, rang
     return ()
 end
 
-# Revert if tx has been confirmed for the calling account already
+# @dev Requires that the transaction hasn't been confirmed by the caller already.
+# Reverts if the tx has been confirmed by the caller already
+# @param nonce: Nonce of the transaction in question
 func require_not_confirmed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     nonce : felt
 ):
@@ -140,7 +173,9 @@ func require_not_confirmed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, ran
     return ()
 end
 
-# Revert if tx has not been confirmed for the calling account already
+# @dev Requires that the transaction has been confirmed by the caller already.
+# Reverts if the tx has not been confirmed by the caller already
+# @param nonce: Nonce of the transaction in question
 func require_confirmed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     nonce : felt
 ):
@@ -152,7 +187,10 @@ func require_confirmed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_c
     return ()
 end
 
-# Revert if signers not unique
+# @dev Requires that the given array of signers has only unique entries
+# Reverts if there are duplicate values
+# @param signers_len: How many signers are in the array
+# @param signers: Array of signers
 func require_unique_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     signers_len : felt, signers : felt*
 ):
@@ -163,8 +201,10 @@ func require_unique_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, ra
     return ()
 end
 
-# Require nonce to be greater then the last update of set of signers.
-# Since updating signers invalidates all pending transations
+# @dev Requires that the nonce is greater than the last (possible) invalidated nonce.
+# Updating the list of signers or threshold updates the invalidation nonce.
+# Reverts if the transaction has a nonce which has been invalidated
+# @param nonce: Nonce of the transaction in question
 func require_tx_valid{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(nonce):
     let (tx_valid_since) = _tx_valid_since.read()
 
@@ -175,6 +215,8 @@ func require_tx_valid{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_ch
     return ()
 end
 
+# @dev Requires that caller is the multisig itself
+# Reverts if the caller is not the multisig
 func require_multisig{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     let (caller) = get_caller_address()
     let (contract_address) = get_contract_address()
@@ -186,6 +228,10 @@ func require_multisig{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_ch
     return ()
 end
 
+# @dev Requires that the given threshold is valid based on the amount of signers
+# Reverts if the given threshold is not valid
+# @param threshold: Threshold to check
+# @param signers_len: Amount of signers in the multisig
 func require_valid_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     threshold : felt, signers_len : felt
 ):
@@ -200,6 +246,9 @@ func require_valid_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, r
     return ()
 end
 
+# @dev Requires that the given nonce is valid
+# Reverts if the given nonce is not valid
+# @param nonce: Nonce to check
 func require_valid_nonce{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     nonce : felt
 ):
@@ -215,6 +264,9 @@ end
 # Getters
 #
 
+# @dev Checks whether the given address is a signer
+# @param address: Address to check
+# @return res: 1 if the address is a signer, 0 otherwise
 @view
 func is_signer{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     address : felt
@@ -223,6 +275,8 @@ func is_signer{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
     return (res)
 end
 
+# @dev Gets the amount of signers
+# @return signers_len: Amount of signers
 @view
 func get_signers_len{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
     signers_len : felt
@@ -231,6 +285,9 @@ func get_signers_len{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_che
     return (signers_len=signers_len)
 end
 
+# @dev Gets the array of signers
+# @return signers_len: Amount of signers
+# @return signers: Array of signers
 @view
 func get_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
     signers_len : felt, signers : felt*
@@ -244,6 +301,8 @@ func get_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     return (signers_len=signers_len, signers=signers)
 end
 
+# @dev Gets the current multisig threshold
+# @return threshold: Threshold
 @view
 func get_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
     threshold : felt
@@ -252,6 +311,8 @@ func get_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check
     return (threshold)
 end
 
+# @dev Gets the amount of transactions (executed and non-executed)
+# @return res: Amount of transactions
 @view
 func get_transactions_len{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
     res : felt
@@ -260,6 +321,10 @@ func get_transactions_len{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, rang
     return (res)
 end
 
+# @dev Checks whether the given signer has confirmed the given transaction
+# @param nonce: Transaction nonce to check
+# @param signer: Signer to check
+# @return res: 1 if has confirmed, 0 otherwise
 @view
 func is_confirmed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     nonce : felt, signer : felt
@@ -268,6 +333,9 @@ func is_confirmed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_
     return (res)
 end
 
+# @dev Checks whether the given transaction has been executed
+# @param nonce: Transaction nonce to check
+# @return res: 1 if has executed, 0 otherwise
 @view
 func is_executed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     nonce : felt
@@ -277,6 +345,11 @@ func is_executed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
 end
 
 
+# @dev Gets transaction data
+# @param nonce: Transaction nonce
+# @return tx: Transaction basic data
+# @return tx_calldata_len: Transaction calldata length
+# @return tx_calldata: Transaction calldata
 @view
 func get_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     nonce : felt
@@ -312,6 +385,10 @@ end
 # Actions
 #
 
+# @dev Creates a new multisig contract
+# @param signers_len: How many signers
+# @param signers: Array of signers
+# @param threshold: Multisig threshold
 @constructor
 func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     signers_len : felt, signers : felt*, threshold : felt
@@ -324,6 +401,12 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     return ()
 end
 
+# @dev submits a new transaction for the multisig
+# @param to: What is the transaction target address
+# @param function_selector: What is the transaction target function
+# @param calldata_len: Length of the calldata
+# @param calldata: Calldata array
+# @param nonce: Transaction nonce. Has to be the next non-used nonce
 @external
 func submit_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     to : felt, function_selector : felt, calldata_len : felt, calldata : felt*, nonce : felt
@@ -350,6 +433,8 @@ func submit_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_
     return ()
 end
 
+# @dev Confirms an existing transaction
+# @param nonce: Transaction nonce to confirm
 @external
 func confirm_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     nonce : felt
@@ -369,6 +454,8 @@ func confirm_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     return ()
 end
 
+# @dev Revoke an already given confirmation for a transaction
+# @param nonce: Transaction nonce to revoke a confirmation for
 @external
 func revoke_confirmation{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     nonce : felt
@@ -388,6 +475,8 @@ func revoke_confirmation{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     return ()
 end
 
+# @dev Execute a transaction
+# @param nonce: Transaction nonce to execute
 @external
 func execute_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     nonce : felt
@@ -407,7 +496,7 @@ func execute_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     # Mark as executed
     _transactions.write(nonce=nonce, field=Transaction.executed, value=TRUE)
     let (caller) = get_caller_address()
-    ExecuteTransaction.emit(signer=caller, nonce=nonce)
+    ExecuteTransaction.emit(executer=caller, nonce=nonce)
 
     # Actually execute it
     let response = call_contract(
@@ -419,8 +508,9 @@ func execute_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     return (response_len=response.retdata_size, response=response.retdata)
 end
 
-# Sets threshold. The only way this can be invoked
+# @dev Sets a new threshold. The only way this can be invoked
 # is via a recursive call from execute_transaction -> set_threshold.
+# @param threshold: New threshold
 @external
 func set_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     threshold : felt
@@ -435,9 +525,11 @@ func set_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check
     return ()
 end
 
-# Sets the signers field on the multisig. The only way this can be invoked
+# @dev Sets a new array of signers. The only way this can be invoked
 # is via a recursive call from execute_transaction -> set_signers.
-# Threshold is decreased in case its' larger than number of new signers.
+# Threshold is automatically decreased if it's larger than the new number of signers.
+# @param signers_len: New amount of signers
+# @param signers: New array of signers
 @external
 func set_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     signers_len : felt, signers : felt*
@@ -457,9 +549,11 @@ func set_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     return ()
 end
 
-# Set new signers and threshold.
-# Can be called only via recursively from
-# execute_transaction -> set_signers_and_threshold
+# @dev Sets a new array of signers and a new threshold. The only way this can be invoked
+# is via a recursive call from execute_transaction -> set_signers_and_threshold.
+# @param signers_len: New amount of signers
+# @param signers: New array of signers
+# @param threshold: New threshold
 @external
 func set_signers_and_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     signers_len : felt, signers : felt*, threshold : felt
