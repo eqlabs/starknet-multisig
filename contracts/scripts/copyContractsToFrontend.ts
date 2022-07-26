@@ -2,23 +2,29 @@ import * as fs from "fs";
 
 // Used for copying the contracts artifacts for the frontend
 
-const sourceFolderBase = __dirname + "/../starknet-artifacts/contracts/";
-const targetFolder = __dirname + "/../../frontend/public/";
+async function main() {
+  const sourceFolderBase = __dirname + "/../starknet-artifacts/contracts/";
+  const targetFolder = __dirname + "/../../frontend/public/";
 
-const multisigContract = "Multisig.json";
+  const multisigContract = "Multisig.json";
 
-const copyFile = (sourcePath: string, fileName: string) => {
-  if (!fs.existsSync(targetFolder)) {
-    fs.mkdirSync(targetFolder);
-  }
-
-  const file = sourceFolderBase + sourcePath + fileName;
-  fs.copyFile(file, targetFolder + fileName, (err) => {
-    if (err) {
-      console.error("Problem copying file " + file, err);
-    } else {
-      console.log("Copied file " + file + " to " + targetFolder + fileName);
+  const copyFile = async (sourcePath: string, fileName: string) => {
+    if (!fs.existsSync(targetFolder)) {
+      fs.mkdirSync(targetFolder);
     }
+
+    const file = sourceFolderBase + sourcePath + fileName;
+    await fs.copyFileSync(file, targetFolder + fileName);
+    console.log("Copied file " + file + " to " + targetFolder + fileName);
+  };
+  copyFile("Multisig.cairo/", multisigContract);
+}
+
+// We recommend this pattern to be able to use async/await everywhere
+// and properly handle errors.
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
   });
-};
-copyFile("Multisig.cairo/", multisigContract);
