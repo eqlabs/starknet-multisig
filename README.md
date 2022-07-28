@@ -2,6 +2,8 @@
 
 Multi-signature functionality for [StarkNet](https://starknet.io/what-is-starknet).
 
+Contract npm package: [![npm version](https://badge.fury.io/js/starsign-multisig.svg)](https://badge.fury.io/js/starsign-multisig)
+
 > ## ⚠️ WARNING! ⚠️
 >
 > This repo contains highly experimental code which relies on other highly experimental code.
