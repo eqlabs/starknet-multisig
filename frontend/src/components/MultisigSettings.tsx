@@ -19,6 +19,74 @@ import {
 import { number, stark } from "starknet";
 import { getSelectorFromName, starknetKeccak } from "starknet/dist/utils/hash";
 
+import Paragraph from "~/components/Paragraph";
+import Button from "~/components/Button";
+import { Input, Select } from "~/components/Input";
+
+import { styled } from "../../stitches.config";
+
+const ModeSwitch = styled("div", {
+  display: "flex",
+  padding: "3px",
+  borderRadius: "24px",
+  background: "$text",
+  marginBottom: "$6",
+});
+
+const Switch = styled("input", {
+  position: "absolute",
+  clip: "rect(0, 0, 0, 0)",
+  height: "1px",
+  width: "1px",
+
+  "&:checked + label": {
+    background: "$background",
+    color: "$text",
+    opacity: "1",
+  },
+});
+
+const SwitchLabel = styled("label", {
+  textAlign: "center",
+  padding: "$3 $4",
+  flex: 1,
+  color: "$background",
+  transition: "opacity .3s",
+  opacity: "0.6",
+  borderRadius: "24px",
+  textTransform: "uppercase",
+  fontSize: "$sm",
+  "&:hover": {
+    opacity: 1,
+    cursor: "pointer",
+  },
+});
+
+const Fieldset = styled("fieldset", {
+  padding: "$1 0",
+  border: 0,
+  margin: 0,
+});
+
+const Legend = styled("legend", {
+  margin: 0,
+  padding: 0,
+});
+
+const Signer = styled("div", {
+  margin: "$4 0",
+  display: "block",
+});
+
+const Label = styled("label", {
+  marginBottom: "$2",
+  display: "block",
+});
+
+const Threshold = styled("div", {
+  padding: "0 0 $4",
+});
+
 export function MultisigSettings() {
   const { account } = useStarknet();
 
@@ -172,29 +240,70 @@ export function MultisigSettings() {
 
   return (
     <div>
-      <div>
-        <input
+      <ModeSwitch>
+        <Switch
           type="radio"
+          id="create-multisig"
           checked={createNewMultisig}
           onChange={() => {
             setCreateNewMultisig(true);
             setDeployedMultisigAddress("");
           }}
-        ></input>{" "}
-        Create a new multisig
-        <input
+        ></Switch>{" "}
+        <SwitchLabel htmlFor="create-multisig">
+          Create a new multisig
+        </SwitchLabel>
+        <Switch
           type="radio"
+          id="use-existing-multisig"
           checked={!createNewMultisig}
           onChange={() => setCreateNewMultisig(false)}
-        ></input>{" "}
-        Use an existing multisig
-      </div>
+        ></Switch>{" "}
+        <SwitchLabel htmlFor="use-existing-multisig">
+          Use an existing multisig
+        </SwitchLabel>
+      </ModeSwitch>
+
       {createNewMultisig && (
-        <fieldset>
-          <legend>Multisig creation</legend>
-          <div>
-            Threshold:{" "}
-            <select
+        <Fieldset>
+          <Legend as="h2">Add Signers</Legend>
+          <Paragraph css={{ color: "$textMuted" }}>
+            Your contract will have one or more owners. We have prefilled the
+            first owner with your connected wallet details, but you are free to
+            change this to a different owner.
+          </Paragraph>
+          {owners.map((owner, i) => {
+            return (
+              <Signer key={i}>
+                <Label>Signer {i + 1} address:</Label>
+                <Input
+                  type="text"
+                  onChange={(e) => onOwnerChange(e.target.value, i)}
+                  value={owner}
+                ></Input>
+              </Signer>
+            );
+          })}
+
+          <hr />
+          <Paragraph css={{ color: "$textMuted" }}>
+            Specify how many of them have to confirm a transaction before it
+            gets executed. In general, the more confirmations required, the more
+            secure your contract is
+          </Paragraph>
+          <Threshold>
+            <Paragraph
+              css={{
+                fontWeight: "500",
+                marginBottom: "$3",
+              }}
+            >
+              Transaction requires the confirmation of
+            </Paragraph>
+            <Select
+              css={{
+                margin: "0 $2 0 0",
+              }}
               onChange={(e) => {
                 onThresholdChange(e.target.value);
               }}
@@ -203,9 +312,12 @@ export function MultisigSettings() {
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
-            </select>{" "}
-            of total:{" "}
-            <select
+            </Select>{" "}
+            of total{" "}
+            <Select
+              css={{
+                margin: "0 $2",
+              }}
               onChange={(e) => {
                 onTotalAmountChange(e.target.value);
               }}
@@ -214,31 +326,22 @@ export function MultisigSettings() {
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
-            </select>
-          </div>
-          {owners.map((owner, i) => {
-            return (
-              <div key={i}>
-                Signer {i + 1} address:
-                <input
-                  type="text"
-                  onChange={(e) => onOwnerChange(e.target.value, i)}
-                  value={owner}
-                ></input>
-              </div>
-            );
-          })}
-          <div></div>
-          <button onClick={onDeploy}>Deploy multisig contract</button>
-        </fieldset>
+            </Select>{" "}
+            signers{" "}
+          </Threshold>
+
+          <Button fullWidth onClick={onDeploy}>
+            Deploy multisig contract
+          </Button>
+        </Fieldset>
       )}
       {!createNewMultisig && (
         <div>
           Existing multisig contract address:{" "}
-          <input
+          <Input
             type="text"
             onChange={(e) => setDeployedMultisigAddress(e.target.value)}
-          ></input>
+          ></Input>
         </div>
       )}
 
@@ -260,11 +363,11 @@ export function MultisigSettings() {
                 <legend>Transaction creation</legend>
                 <div>
                   Target contract address:{" "}
-                  <input
+                  <Input
                     type="text"
                     value={targetAddress}
                     onChange={(e) => setTargetAddress(e.target.value)}
-                  ></input>{" "}
+                  ></Input>{" "}
                   {targetAddress && (
                     <a href={targetLink} target="_blank">
                       Voyager link
@@ -273,19 +376,19 @@ export function MultisigSettings() {
                 </div>
                 <div>
                   Target function name:{" "}
-                  <input
+                  <Input
                     type="text"
                     value={targetFunctionName}
                     onChange={(e) => setTargetFunctionName(e.target.value)}
-                  ></input>
+                  ></Input>
                 </div>
                 <div>
                   Target function parameters:{" "}
-                  <input
+                  <Input
                     type="text"
                     value={targetParameters}
                     onChange={(e) => setTargetParameters(e.target.value)}
-                  ></input>
+                  ></Input>
                 </div>
                 <button onClick={submit}>Submit a new transaction</button>
               </fieldset>
@@ -315,12 +418,12 @@ export function MultisigSettings() {
                       </fieldset>
                     </div>
                   </div>
-                  <button onClick={confirm}>
+                  <Button onClick={confirm}>
                     Confirm the latest transaction
-                  </button>
-                  <button onClick={execute}>
+                  </Button>
+                  <Button onClick={execute}>
                     Execute the latest transaction
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
