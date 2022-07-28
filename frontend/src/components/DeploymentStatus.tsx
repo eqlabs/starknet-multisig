@@ -56,7 +56,7 @@ const DeploymentStatus = ({status}: Props) => {
   }, [status])
 
   return <>
-    <StyledProgress value={progress} max={1}>
+    <StyledProgress value={progress} max={100}>
       <StyledIndicator style={{ transform: `translateX(-${100 - progress}%)` }} />
     </StyledProgress>
     

@@ -3,5 +3,6 @@
   "editor.formatOnSaveTimeout": 1500,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
-  }
+  },
+  "cairols.venvCommand": ". ~/cairo_venv/bin/activate"
 }

@@ -6,13 +6,13 @@ export type SSRProps = {
 };
 
 export type MultisigTransaction = {
-  txId: number;
+  nonce: number;
   to: string;
   function_selector: string;
   calldata_len: number;
   calldata: string[];
   executed: boolean;
-  num_confirmations: number;
+  threshold: number;
 };
 
 export enum TransactionStatus {

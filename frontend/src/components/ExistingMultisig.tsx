@@ -50,7 +50,7 @@ const StyledTrigger = styled(Tabs.Trigger, {
 
 export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
   const { account } = useStarknet();
-  const { contract: multisigContract, status, loading, owners, threshold, transactions } = useMultisigContract(
+  const { contract: multisigContract, status, loading, signers, threshold, transactions } = useMultisigContract(
     contractAddress
   );
   const { multisigs } = useSnapshot(state)
@@ -83,8 +83,8 @@ export const ExistingMultisig = ({ contractAddress }: MultisigProps) => {
     <>
       {!pendingStatus ? (<>
         <Legend as="h2"><Link href={contractLink}>Multisig Contract</Link></Legend>
-        {loading ? <SkeletonLoader /> : <div>{account && owners.includes(validateAndParseAddress(account)) ? "You are an owner of this wallet." : "You cannot sign transactions in this wallet."}</div>}
-        {loading ? <SkeletonLoader /> : <div>Required signers: {threshold + "/" + owners.length}</div>}
+        {loading ? <SkeletonLoader /> : <div>{account && signers.includes(validateAndParseAddress(account)) ? "You are a signer of this multisig contract." : "You cannot sign transactions in this multisig contract."}</div>}
+        {loading ? <SkeletonLoader /> : <div>Required signers: {threshold + "/" + signers.length}</div>}
 
         {transactions.length > 0 && (
           <>

@@ -13,8 +13,12 @@ const Erc20Transaction = ({multisigContract}: {multisigContract?: Contract}) => 
   const [amount, setAmount] = useState<string>("");
   
   const submit = async () => {
-    const bigNumberizedParameters = [toBN(receiver), toBN(amount)];
-    await multisigContract?.submit_transaction(targetAddress, targetFunctionSelector, bigNumberizedParameters);
+    if (multisigContract) {
+      const bigNumberizedParameters = [toBN(receiver), toBN(amount)];
+      const { res: nonce } = await multisigContract?.get_transactions_len();
+      console.log(multisigContract?.submit_transaction)
+      await multisigContract?.submit_transaction(targetAddress, targetFunctionSelector, bigNumberizedParameters, nonce);
+    }
   };
   
   /* TODO: Fetch token info

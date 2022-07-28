@@ -21,8 +21,12 @@ const ArbitraryTransaction = ({multisigContract}: {multisigContract?: Contract})
   }, [targetFunctionName]);
 
   const submit = async () => {
-    const bigNumberizedParameters = targetParameters.split(" ").map((p) => toBN(p));
-    await multisigContract?.submit_transaction(targetAddress, targetFunctionSelector, bigNumberizedParameters);
+    if (multisigContract) {
+      const bigNumberizedParameters = targetParameters.split(" ").map((p) => toBN(p));
+      const { res: nonce } = await multisigContract.get_transactions_len();
+      console.log(multisigContract, multisigContract?.submit_transaction)
+      await multisigContract.submit_transaction(targetAddress, targetFunctionSelector, bigNumberizedParameters,bigNumberizedParameters.length,  nonce);
+    }
   };
 
   return (

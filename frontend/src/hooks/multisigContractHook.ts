@@ -20,7 +20,7 @@ export const useMultisigContract = (
   contract: Contract | undefined;
   status: TransactionStatus;
   loading: boolean;
-  owners: string[];
+  signers: string[];
   threshold: number;
   transactionCount: number;
   transactions: MultisigTransaction[];
@@ -32,7 +32,7 @@ export const useMultisigContract = (
   const [status, send] = useTransactionStatus();
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [owners, setOwners] = useState<string[]>([]);
+  const [signers, setSigners] = useState<string[]>([]);
   const [threshold, setThreshold] = useState<number>(0);
   const [transactionCount, setTransactionCount] = useState<number>(0);
   const [transactions, setTransactions] = useState<MultisigTransaction[]>([]);
@@ -82,7 +82,7 @@ export const useMultisigContract = (
           cachedMultisig.transactionHash
         );
         tx_status = response.tx_status as TransactionStatus;
-        if (compareStatuses(tx_status, TransactionStatus.ACCEPTED_ON_L2) > 0) {
+        if (compareStatuses(tx_status, TransactionStatus.ACCEPTED_ON_L1) >= 0) {
           clearInterval(heartbeat);
         }
       }
@@ -146,20 +146,20 @@ export const useMultisigContract = (
           status.value &&
           !pendingStatuses.includes(status.value as TransactionStatus)
         ) {
-          const { owners: ownersResponse } = (await contract?.get_owners()) || {
-            owners: [],
-          };
-          const owners = ownersResponse.map(toHex).map(sanitizeHex);
-          const { confirmations_required: threshold } =
-            (await contract?.get_confirmations_required()) || {
-              confirmations_required: toBN(0),
+          const { signers: signersResponse } =
+            (await contract?.get_signers()) || {
+              signers: [],
             };
+          const signers = signersResponse.map(toHex).map(sanitizeHex);
+          const { threshold } = (await contract?.get_threshold()) || {
+            threshold: toBN(0),
+          };
           const { res: transactionCount } =
             (await contract?.get_transactions_len()) || {
               transactions_len: toBN(0),
             };
 
-          setOwners(owners.map(validateAndParseAddress));
+          setSigners(signers.map(validateAndParseAddress));
           setThreshold(threshold.toNumber());
           transactionCount && setTransactionCount(transactionCount.toNumber());
         }
@@ -172,7 +172,7 @@ export const useMultisigContract = (
     contract !== undefined && fetchInfo();
 
     return () => {
-      setOwners([]);
+      setSigners([]);
       setThreshold(0);
       setTransactionCount(0);
     };
@@ -190,7 +190,7 @@ export const useMultisigContract = (
             const { tx: transaction, tx_calldata: calldata } =
               await contract.get_transaction(currentTransactionIndex);
             const parsedTransaction: MultisigTransaction = {
-              txId: currentTransactionIndex,
+              nonce: currentTransactionIndex,
               to: toHex(transaction.to),
               function_selector: mapTargetHashToText(
                 transaction.function_selector.toString()
@@ -198,13 +198,13 @@ export const useMultisigContract = (
               calldata: calldata.toString().split(","),
               calldata_len: transaction.calldata_len.toNumber(),
               executed: transaction.executed.toNumber() === 1,
-              num_confirmations: transaction.num_confirmations.toNumber(),
+              threshold: transaction.threshold.toNumber(),
             };
 
             transactions.push(parsedTransaction);
             currentTransactionIndex -= 1;
           }
-
+          console.log(transactions);
           setTransactions(transactions);
         }
       } catch (error) {
@@ -224,7 +224,7 @@ export const useMultisigContract = (
     contract,
     status: status.value as TransactionStatus,
     loading,
-    owners,
+    signers,
     threshold,
     transactionCount,
     transactions,
