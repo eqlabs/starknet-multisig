@@ -1,6 +1,5 @@
 import { styled } from "@stitches/react";
 import { Contract } from "starknet";
-import { toFelt } from "starknet/utils/number";
 import { MultisigTransaction } from "~/types";
 import { StyledButton } from "./Button";
 
@@ -26,9 +25,6 @@ const TransactionInfo = styled("div", {
 const MultisigTransactionList = ({multisigContract, threshold, transactions}: {multisigContract?: Contract, threshold: number, transactions: MultisigTransaction[]}) => {
   const confirm = async (nonce: number) => {
     try {
-      const { res: isConfirmed } = await multisigContract?.is_confirmed(nonce, "0x01D0C9b75d6bE0Ed6206C73b2E7657bc92a9Be66c2b5B9D241E9Fa6f47dE3743")
-      const { threshold } = await multisigContract?.get_threshold()
-      console.log(isConfirmed.toString(), threshold.toString(), toFelt(isConfirmed), toFelt(threshold))
       await multisigContract?.confirm_transaction(nonce)
     } catch (error) {
       console.error(error)
@@ -37,10 +33,6 @@ const MultisigTransactionList = ({multisigContract, threshold, transactions}: {m
 
   const execute = async (nonce: number) => {
     try {
-      const { res: isConfirmed } = await multisigContract?.is_confirmed(nonce, "0x01D0C9b75d6bE0Ed6206C73b2E7657bc92a9Be66c2b5B9D241E9Fa6f47dE3743")
-      const { threshold } = await multisigContract?.get_threshold()
-      const response = await multisigContract?.get_transaction(nonce)
-      console.log(response, isConfirmed.toString(), threshold.toString(), toFelt(isConfirmed), toFelt(threshold))
       await multisigContract?.execute_transaction(nonce)
     } catch (error) {
       console.error(error)

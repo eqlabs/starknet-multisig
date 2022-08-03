@@ -1,3 +1,4 @@
+import { ChangeEvent, ChangeEventHandler, useCallback, useState } from "react";
 import { styled } from "../../stitches.config";
 
 export const Input = styled("input", {
@@ -297,3 +298,24 @@ export const Select = styled("select", {
     size: "md",
   },
 });
+
+export type InputProps = {
+  validationFunction: (event: ChangeEvent<HTMLInputElement>) => boolean;
+  value?: string;
+  onChange?: ChangeEventHandler<HTMLInputElement>;
+  type?: string;
+  size?: "sm" | "md" | "lg" | undefined;
+  variant?: "ghost" | "deep" | undefined;
+  state?: "invalid" | "valid" | undefined;
+  cursor?: "text" | "default" | undefined;
+}
+
+export const ValidatedInput = (props: InputProps) => {
+  const [overriddenState, overrideState] = useState<"invalid" | "valid" | undefined>(undefined)
+  const validate = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const validationResult = props.validationFunction(event)
+    overrideState(validationResult ? "valid" : "invalid")
+    props.onChange && props.onChange(event)
+  }, [props])
+  return <Input {...props} state={overriddenState} onChange={(event) => validate(event)}/>
+}

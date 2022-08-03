@@ -15,7 +15,8 @@ import Source from "../../public/Multisig.json";
 import { useTransactionStatus } from "./transactionStatus";
 
 export const useMultisigContract = (
-  address: string
+  address: string,
+  polling?: false | number
 ): {
   contract: Contract | undefined;
   status: TransactionStatus;
@@ -25,6 +26,8 @@ export const useMultisigContract = (
   transactionCount: number;
   transactions: MultisigTransaction[];
 } => {
+  const pollingInterval = polling || 2000;
+
   const { multisigs } = useSnapshot(state);
 
   const { library: provider } = useStarknet();
@@ -71,7 +74,7 @@ export const useMultisigContract = (
   );
 
   useEffect(() => {
-    let heartbeat: NodeJS.Timer;
+    let heartbeat: NodeJS.Timer | false;
 
     const getLatestStatus = async () => {
       let tx_status;
@@ -83,7 +86,7 @@ export const useMultisigContract = (
         );
         tx_status = response.tx_status as TransactionStatus;
         if (compareStatuses(tx_status, TransactionStatus.ACCEPTED_ON_L1) >= 0) {
-          clearInterval(heartbeat);
+          heartbeat && clearInterval(heartbeat);
         }
       }
 
@@ -93,10 +96,10 @@ export const useMultisigContract = (
     getLatestStatus();
     setLoading(false);
 
-    heartbeat = setInterval(getLatestStatus, 2000);
+    heartbeat = !!polling && setInterval(getLatestStatus, pollingInterval);
 
     return () => {
-      clearInterval(heartbeat);
+      heartbeat && clearInterval(heartbeat);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getMultisigFromCache, provider]);
@@ -204,7 +207,6 @@ export const useMultisigContract = (
             transactions.push(parsedTransaction);
             currentTransactionIndex -= 1;
           }
-          console.log(transactions);
           setTransactions(transactions);
         }
       } catch (error) {
