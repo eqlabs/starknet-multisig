@@ -11,3 +11,5 @@ export const defaultProvider = new Provider({
   feederGatewayUrl: "feeder_gateway",
   gatewayUrl: "gateway",
 });
+
+export const voyagerBaseUrl = "https://goerli.voyager.online/";

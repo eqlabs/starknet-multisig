@@ -1,6 +1,9 @@
 import { styled } from "@stitches/react";
 import { Contract } from "starknet";
+import { uint256ToBN } from "starknet/dist/utils/uint256";
+import { toBN, toHex } from "starknet/utils/number";
 import { MultisigTransaction } from "~/types";
+import { formatAmount, getVoyagerContractLink, truncateAddress } from "~/utils";
 import { StyledButton } from "./Button";
 
 const Transaction = styled("li", {
@@ -44,8 +47,17 @@ const MultisigTransactionList = ({multisigContract, threshold, transactions}: {m
         <Transaction key={`multisigTransaction-${transaction.nonce}`}>
           <TransactionInfo>
             <small>Nonce: {transaction.nonce}</small>
-            <small>{transaction.function_selector}</small>
+            <small>Function: {transaction.function_selector}</small>
           </TransactionInfo>
+
+          <TransactionInfo>
+          <small>Target: <a href={getVoyagerContractLink(transaction.to)} rel="noreferrer noopener" target="_blank">{truncateAddress(transaction.to)}</a></small>
+          {transaction.function_selector === "transfer" && <small>Amount: {formatAmount(uint256ToBN({ low: transaction.calldata[1], high: transaction.calldata[2] }).toString(), 18)}</small>}
+          </TransactionInfo>
+
+          {transaction.function_selector === "transfer" && <TransactionInfo>
+          <small>Recipient: <a href={getVoyagerContractLink(toHex(toBN(transaction.calldata[0])))} rel="noreferrer noopener" target="_blank">{truncateAddress(toHex(toBN(transaction.calldata[0])))}</a></small>
+          </TransactionInfo>}
 
           <TransactionInfo>
             <span>Confirmations: {transaction.threshold + "/" + threshold}</span>

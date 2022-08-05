@@ -1,6 +1,8 @@
 import { InjectedConnector } from "@starknet-react/core";
+import { validateAndParseAddress } from "starknet";
 import { BigNumberish, toBN } from "starknet/utils/number";
 import { ComparisonRange, TransactionStatus } from "~/types";
+import { voyagerBaseUrl } from "./config";
 
 export const shortStringFeltToStr = (felt: bigint): string => {
   const newStrB = Buffer.from(felt.toString(16), "hex");
@@ -107,4 +109,28 @@ export const parseAmount = (amount: string, decimals: number): BigNumberish => {
   }
 
   return toBN(parsed);
+};
+
+export const truncateAddress = (address: string): string => {
+  let validatedAddress = address;
+  try {
+    validatedAddress = validateAndParseAddress(address);
+  } catch (_e) {
+    console.warn(_e);
+  }
+  return [
+    validatedAddress.substring(0, 4),
+    validatedAddress.substring(
+      validatedAddress.length - 4,
+      validatedAddress.length
+    ),
+  ].join("…");
+};
+
+export const getVoyagerTransactionLink = (txHash: string): string => {
+  return voyagerBaseUrl + "tx/" + txHash;
+};
+
+export const getVoyagerContractLink = (contractAddress: string): string => {
+  return voyagerBaseUrl + "contract/" + contractAddress;
 };
