@@ -1,10 +1,16 @@
 {
-  "name": "starknet_multisig",
-  "version": "1.0.0",
-  "main": "index.js",
-  "author": "Equilibrium",
+  "name": "starsign-multisig",
+  "version": "0.2.1",
+  "author": "Equilibrium (www.equilibrium.co)",
   "license": "MIT",
   "private": false,
+  "homepage": "https://github.com/eqlabs/starknet-multisig",
+  "keywords": [
+    "multisig",
+    "starknet"
+  ],
+  "description": "A multi-signature contract for StarkNet",
+  "repository": "github:eqlabs/starknet-multisig",
   "scripts": {
     "compile": "npx hardhat starknet-compile contracts && npx hardhat run scripts/copyContractsToFrontend.ts",
     "deploy:multisig": "npx hardhat starknet-deploy --starknet-network devnet ./starknet-artifacts/contracts/Multisig.cairo --inputs \"1 0x5aca08c8e5e5bccfe3a83df289887c619eebbececa111f4ef79d9419fd16bcf 1\"",
@@ -13,19 +19,19 @@
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
-    "@shardlabs/starknet-hardhat-plugin": "0.6.1",
+    "@shardlabs/starknet-hardhat-plugin": "0.6.2",
+    "@toruslabs/starkware-crypto": "^1.0.0",
     "@types/chai": "^4.2.22",
     "@types/elliptic": "^6.4.14",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.11.10",
     "chai": "^4.3.4",
     "ethers": "^5.4.6",
+    "hardhat": "2.9.0",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.2"
   },
   "dependencies": {
-    "@toruslabs/starkware-crypto": "^1.0.0",
-    "hardhat": "2.9.0",
     "starknet": "^3.5.1"
   }
 }
