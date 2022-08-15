@@ -2,7 +2,7 @@
 
 This page contains information about the used StarkNet Cairo contracts.
 
-These instructions are only needed if you want to develop on top of the project - normal users don't need to touch this part.
+These instructions are only needed if you want to develop on top of the project - regular users don't need to touch this part. For more information, you can check the [main README](https://github.com/eqlabs/starknet-multisig/blob/main/README.md).
 
 ## Contracts
 
