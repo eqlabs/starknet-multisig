@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
-    "@shardlabs/starknet-hardhat-plugin": "0.6.2",
+    "@shardlabs/starknet-hardhat-plugin": "0.6.3",
     "@toruslabs/starkware-crypto": "^1.0.0",
     "@types/chai": "^4.2.22",
     "@types/elliptic": "^6.4.14",

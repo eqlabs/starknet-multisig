@@ -37,7 +37,7 @@ After that, inside the virtual environment:
 - Run the devnet: `npm run local`
 - Open another venv tab and run the unit tests with `npx hardhat test`
 
-Tested to be working at least with devnet version 0.2.6.
+Tested to be working at least with devnet version 0.2.10.
 
 ## Acknowledgements
 
