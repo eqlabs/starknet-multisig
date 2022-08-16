@@ -30,8 +30,6 @@ describe("Multisig with single signer", function () {
   let account: Account;
   let nonSigner: Account;
   let accountAddress: string;
-  let privateKey: string;
-  let publicKey: string;
 
   before(async function () {
     //starknet.devnet.restart(); // disabled until https://github.com/Shard-Labs/starknet-devnet/issues/221 is fixed
@@ -40,10 +38,8 @@ describe("Multisig with single signer", function () {
     nonSigner = await starknet.deployAccount("OpenZeppelin");
 
     accountAddress = account.starknetContract.address;
-    privateKey = account.privateKey;
-    publicKey = account.publicKey;
 
-    let multisigFactory = await starknet.getContractFactory("Multisig");
+    const multisigFactory = await starknet.getContractFactory("Multisig");
     multisig = await multisigFactory.deploy({
       signers: [number.toBN(accountAddress)],
       threshold: 1,
@@ -84,7 +80,7 @@ describe("Multisig with single signer", function () {
       });
 
       const signers = await newMultisig.call("get_signers");
-      const signers_length = await newMultisig.call("get_signers_len");
+      const signersLength = await newMultisig.call("get_signers_len");
       const isSignerValid1 = await newMultisig.call("is_signer", {
         address: number.toBN(account.starknetContract.address),
       });
@@ -103,7 +99,7 @@ describe("Multisig with single signer", function () {
       expect(signers.signers[1].toString()).to.equal(
         number.toBN(toBeAddedSigner.starknetContract.address).toString()
       );
-      expect(signers_length.signers_len).to.equal(2n);
+      expect(signersLength.signers_len).to.equal(2n);
       expect(isSignerValid1.res).to.equal(1n);
       expect(isSignerValid2.res).to.equal(1n);
       expect(isSignerInvalid.res).to.equal(0n);
@@ -156,12 +152,12 @@ describe("Multisig with single signer", function () {
 
       await account.invoke(multisig, "submit_transaction", payload);
 
-      const tran_len = await multisig.call("get_transactions_len");
+      const tranLen = await multisig.call("get_transactions_len");
       const res = await multisig.call("get_transaction", {
         nonce: 0,
       });
 
-      expect(tran_len.res).to.equal(1n);
+      expect(tranLen.res).to.equal(1n);
       expect(res.tx.to.toString()).to.equal(target.toString());
       expect(res.tx.function_selector.toString()).to.equal(selector.toString());
       expect(res.tx.calldata_len).to.equal(1n);
@@ -1109,7 +1105,6 @@ describe("Multisig with single signer", function () {
         ];
 
         await account.invoke(multisig, "set_signers_and_threshold", {
-          //signers_len: newSigners.length,
           signers: newSigners,
           threshold: 2,
         });
@@ -1173,7 +1168,7 @@ describe("Multisig with multiple signers", function () {
     account2 = await starknet.deployAccount("OpenZeppelin");
     account3 = await starknet.deployAccount("OpenZeppelin");
 
-    let multisigFactory = await starknet.getContractFactory("Multisig");
+    const multisigFactory = await starknet.getContractFactory("Multisig");
     multisig = await multisigFactory.deploy({
       signers: [
         number.toBN(account1.starknetContract.address),
