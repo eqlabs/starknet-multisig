@@ -26,28 +26,28 @@ from util import assert_unique_elements
 # @param nonce: Transaction nonce
 # @param to: Target address
 @event
-func SubmitTransaction(signer : felt, nonce : felt, to : felt):
+func TransactionSubmitted(signer : felt, nonce : felt, to : felt):
 end
 
 # @dev Event emitted when a transaction has been confirmed by a signer
 # @param signer: Transaction confirmer
 # @param nonce: Transaction nonce
 @event
-func ConfirmTransaction(signer : felt, nonce : felt):
+func TransactionConfirmed(signer : felt, nonce : felt):
 end
 
 # @dev Event emitted when a transaction confirmation has been revoked by a signer
 # @param signer: Transaction confirmation revoker
 # @param nonce: Transaction nonce
 @event
-func RevokeConfirmation(signer : felt, nonce : felt):
+func ConfirmationRevoked(signer : felt, nonce : felt):
 end
 
 # @dev Event emitted when a transaction has been executed
 # @param executer: Transaction executer
 # @param nonce: Transaction nonce
 @event
-func ExecuteTransaction(executer : felt, nonce : felt):
+func TransactionExecuted(executer : felt, nonce : felt):
 end
 
 # @dev Event emitted when the multisig's signer array has been changed
@@ -427,7 +427,7 @@ func submit_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_
 
     # Emit event & update tx count
     let (caller) = get_caller_address()
-    SubmitTransaction.emit(signer=caller, nonce=nonce, to=to)
+    TransactionSubmitted.emit(signer=caller, nonce=nonce, to=to)
     _next_nonce.write(value=nonce + 1)
 
     return ()
@@ -450,7 +450,7 @@ func confirm_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     let (caller) = get_caller_address()
     _is_confirmed.write(nonce=nonce, signer=caller, value=TRUE)
 
-    ConfirmTransaction.emit(signer=caller, nonce=nonce)
+    TransactionConfirmed.emit(signer=caller, nonce=nonce)
     return ()
 end
 
@@ -471,7 +471,7 @@ func revoke_confirmation{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     let (caller) = get_caller_address()
     _is_confirmed.write(nonce=nonce, signer=caller, value=FALSE)
 
-    RevokeConfirmation.emit(signer=caller, nonce=nonce)
+    ConfirmationRevoked.emit(signer=caller, nonce=nonce)
     return ()
 end
 
@@ -496,7 +496,7 @@ func execute_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     # Mark as executed
     _transactions.write(nonce=nonce, field=Transaction.executed, value=TRUE)
     let (caller) = get_caller_address()
-    ExecuteTransaction.emit(executer=caller, nonce=nonce)
+    TransactionExecuted.emit(executer=caller, nonce=nonce)
 
     # Actually execute it
     let response = call_contract(
