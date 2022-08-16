@@ -32,7 +32,7 @@ describe("Multisig with single signer", function () {
   let accountAddress: string;
 
   before(async function () {
-    //starknet.devnet.restart(); // disabled until https://github.com/Shard-Labs/starknet-devnet/issues/221 is fixed
+    starknet.devnet.restart();
 
     account = await starknet.deployAccount("OpenZeppelin");
     nonSigner = await starknet.deployAccount("OpenZeppelin");
@@ -55,7 +55,6 @@ describe("Multisig with single signer", function () {
     );
 
     await starknet.devnet.dump(dumpFile);
-    await new Promise((f) => setTimeout(f, 1000)); // to allow the dump to complete
   });
 
   beforeEach(async function () {
@@ -1162,7 +1161,7 @@ describe("Multisig with multiple signers", function () {
   let account3: Account;
 
   before(async function () {
-    //starknet.devnet.restart(); // disabled until https://github.com/Shard-Labs/starknet-devnet/issues/221 is fixed
+    starknet.devnet.restart();
 
     account1 = await starknet.deployAccount("OpenZeppelin");
     account2 = await starknet.deployAccount("OpenZeppelin");
@@ -1187,7 +1186,6 @@ describe("Multisig with multiple signers", function () {
     console.log("Account3: " + account3.starknetContract.address);
 
     await starknet.devnet.dump(dumpFile);
-    await new Promise((f) => setTimeout(f, 1000)); // to allow the dump to complete
   });
 
   beforeEach(async function () {
