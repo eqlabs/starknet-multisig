@@ -162,7 +162,7 @@ describe("Multisig with single signer", function () {
       expect(res.tx.function_selector.toString()).to.equal(selector.toString());
       expect(res.tx.calldata_len).to.equal(1n);
       expect(res.tx.executed).to.equal(0n);
-      expect(res.tx.threshold).to.equal(0n);
+      expect(res.tx.confirmations).to.equal(0n);
       expect(res.tx_calldata_len).to.equal(1n);
       expect(res.tx_calldata[0]).to.equal(5n);
     });
