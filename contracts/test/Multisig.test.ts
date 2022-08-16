@@ -34,7 +34,7 @@ describe("Multisig with single signer", function () {
   let publicKey: string;
 
   before(async function () {
-    starknet.devnet.restart();
+    //starknet.devnet.restart(); // disabled until https://github.com/Shard-Labs/starknet-devnet/issues/221 is fixed
 
     account = await starknet.deployAccount("OpenZeppelin");
     nonSigner = await starknet.deployAccount("OpenZeppelin");
@@ -699,9 +699,9 @@ describe("Multisig with single signer", function () {
         { data: ethers.utils.hexValue(0) },
       ];
 
-      assertEvent(receiptSubmit, "SubmitTransaction", eventDataSubmit);
-      assertEvent(receiptConfirm, "ConfirmTransaction", eventDataConfirm);
-      assertEvent(receiptExecute, "ExecuteTransaction", eventDataExecute);
+      assertEvent(receiptSubmit, "TransactionSubmitted", eventDataSubmit);
+      assertEvent(receiptConfirm, "TransactionConfirmed", eventDataConfirm);
+      assertEvent(receiptExecute, "TransactionExecuted", eventDataExecute);
     });
 
     it("correct events are emitted for revoke", async function () {
@@ -721,7 +721,7 @@ describe("Multisig with single signer", function () {
         { data: ethers.utils.hexValue(0) },
       ];
 
-      assertEvent(receipt, "RevokeConfirmation", eventData);
+      assertEvent(receipt, "ConfirmationRevoked", eventData);
     });
 
     it("correct events are emitted for signer change", async function () {
@@ -1167,7 +1167,7 @@ describe("Multisig with multiple signers", function () {
   let account3: Account;
 
   before(async function () {
-    starknet.devnet.restart();
+    //starknet.devnet.restart(); // disabled until https://github.com/Shard-Labs/starknet-devnet/issues/221 is fixed
 
     account1 = await starknet.deployAccount("OpenZeppelin");
     account2 = await starknet.deployAccount("OpenZeppelin");
