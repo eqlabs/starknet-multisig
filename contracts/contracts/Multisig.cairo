@@ -297,7 +297,7 @@ func get_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     let (signers_len) = _signers_len.read()
 
     # Recursively add signers from storage to the signers array
-    _get_signers(signers_index=0, signers_len=signers_len, signers=signers)
+    _get_signers_range(signers_index=0, signers_len=signers_len, signers=signers)
     return (signers_len=signers_len, signers=signers)
 end
 
@@ -375,7 +375,7 @@ func get_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_che
     end
 
     # Recursively get more calldata args and add them to the list
-    _get_transaction_calldata(
+    _get_transaction_calldata_range(
         nonce=nonce, calldata_index=0, calldata_len=calldata_len, calldata=calldata
     )
     return (tx=tx, tx_calldata_len=calldata_len, tx_calldata=calldata)
@@ -421,7 +421,7 @@ func submit_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_
     _transactions.write(nonce=nonce, field=Transaction.calldata_len, value=calldata_len)
 
     # Recursively store the tx calldata
-    _set_transaction_calldata(
+    _set_transaction_calldata_range(
         nonce=nonce, calldata_index=0, calldata_len=calldata_len, calldata=calldata
     )
 
@@ -571,7 +571,7 @@ end
 # Storage Helpers
 #
 
-func _get_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func _get_signers_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     signers_index : felt, signers_len : felt, signers : felt*
 ):
     if signers_index == signers_len:
@@ -581,7 +581,7 @@ func _get_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_
     let (signer) = _signers.read(index=signers_index)
     assert signers[signers_index] = signer
 
-    _get_signers(signers_index=signers_index + 1, signers_len=signers_len, signers=signers)
+    _get_signers_range(signers_index=signers_index + 1, signers_len=signers_len, signers=signers)
     return ()
 end
 
@@ -624,7 +624,7 @@ func _set_signers_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_
     return ()
 end
 
-func _set_transaction_calldata{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func _set_transaction_calldata_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     nonce : felt, calldata_index : felt, calldata_len : felt, calldata : felt*
 ):
     if calldata_index == calldata_len:
@@ -635,7 +635,7 @@ func _set_transaction_calldata{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
     _transaction_calldata.write(nonce=nonce, calldata_index=calldata_index, value=[calldata])
 
     # Recursively write the rest
-    _set_transaction_calldata(
+    _set_transaction_calldata_range(
         nonce=nonce,
         calldata_index=calldata_index + 1,
         calldata_len=calldata_len,
@@ -659,7 +659,7 @@ func _clean_signers_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, rang
 end
 
 
-func _get_transaction_calldata{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func _get_transaction_calldata_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     nonce : felt, calldata_index : felt, calldata_len : felt, calldata : felt*
 ):
     if calldata_index == calldata_len:
@@ -669,7 +669,7 @@ func _get_transaction_calldata{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
     let (calldata_arg) = _transaction_calldata.read(nonce=nonce, calldata_index=calldata_index)
     assert calldata[calldata_index] = calldata_arg
 
-    _get_transaction_calldata(
+    _get_transaction_calldata_range(
         nonce=nonce, calldata_index=calldata_index + 1, calldata_len=calldata_len, calldata=calldata
     )
     return ()
