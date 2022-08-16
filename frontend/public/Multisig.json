@@ -31850,14 +31850,14 @@
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 38,
+                                        "end_col": 44,
                                         "end_line": 574,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 76,
+                                                "end_col": 82,
                                                 "end_line": 300,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -31867,7 +31867,7 @@
                                             },
                                             "While trying to retrieve the implicit argument 'syscall_ptr' in:"
                                         ],
-                                        "start_col": 19,
+                                        "start_col": 25,
                                         "start_line": 574
                                     },
                                     "While expanding the reference 'syscall_ptr' in:"
@@ -31904,14 +31904,14 @@
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 67,
+                                        "end_col": 73,
                                         "end_line": 574,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 76,
+                                                "end_col": 82,
                                                 "end_line": 300,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -31921,7 +31921,7 @@
                                             },
                                             "While trying to retrieve the implicit argument 'pedersen_ptr' in:"
                                         ],
-                                        "start_col": 40,
+                                        "start_col": 46,
                                         "start_line": 574
                                     },
                                     "While expanding the reference 'pedersen_ptr' in:"
@@ -31958,14 +31958,14 @@
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 84,
+                                        "end_col": 90,
                                         "end_line": 574,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 76,
+                                                "end_col": 82,
                                                 "end_line": 300,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -31975,7 +31975,7 @@
                                             },
                                             "While trying to retrieve the implicit argument 'range_check_ptr' in:"
                                         ],
-                                        "start_col": 69,
+                                        "start_col": 75,
                                         "start_line": 574
                                     },
                                     "While expanding the reference 'range_check_ptr' in:"
@@ -31998,12 +31998,12 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 33,
+                        "end_col": 39,
                         "end_line": 300,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
-                        "start_col": 32,
+                        "start_col": 38,
                         "start_line": 300
                     }
                 },
@@ -32030,12 +32030,12 @@
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 58,
+                                        "end_col": 64,
                                         "end_line": 300,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                         },
-                                        "start_col": 47,
+                                        "start_col": 53,
                                         "start_line": 300
                                     },
                                     "While expanding the reference 'signers_len' in:"
@@ -32072,12 +32072,12 @@
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 75,
+                                        "end_col": 81,
                                         "end_line": 300,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                         },
-                                        "start_col": 68,
+                                        "start_col": 74,
                                         "start_line": 300
                                     },
                                     "While expanding the reference 'signers' in:"
@@ -32100,7 +32100,7 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 76,
+                        "end_col": 82,
                         "end_line": 300,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -40214,7 +40214,7 @@
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 51,
+                                        "end_col": 57,
                                         "end_line": 662,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -40231,7 +40231,7 @@
                                             },
                                             "While trying to retrieve the implicit argument 'syscall_ptr' in:"
                                         ],
-                                        "start_col": 32,
+                                        "start_col": 38,
                                         "start_line": 662
                                     },
                                     "While expanding the reference 'syscall_ptr' in:"
@@ -40268,7 +40268,7 @@
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 80,
+                                        "end_col": 86,
                                         "end_line": 662,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -40285,7 +40285,7 @@
                                             },
                                             "While trying to retrieve the implicit argument 'pedersen_ptr' in:"
                                         ],
-                                        "start_col": 53,
+                                        "start_col": 59,
                                         "start_line": 662
                                     },
                                     "While expanding the reference 'pedersen_ptr' in:"
@@ -40322,7 +40322,7 @@
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 97,
+                                        "end_col": 103,
                                         "end_line": 662,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -40339,7 +40339,7 @@
                                             },
                                             "While trying to retrieve the implicit argument 'range_check_ptr' in:"
                                         ],
-                                        "start_col": 82,
+                                        "start_col": 88,
                                         "start_line": 662
                                     },
                                     "While expanding the reference 'range_check_ptr' in:"
@@ -44642,7 +44642,7 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 51,
+                        "end_col": 57,
                         "end_line": 627,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -44683,7 +44683,7 @@
                             },
                             "While trying to update the implicit return value 'syscall_ptr' in:"
                         ],
-                        "start_col": 32,
+                        "start_col": 38,
                         "start_line": 627
                     }
                 },
@@ -44780,7 +44780,7 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 97,
+                        "end_col": 103,
                         "end_line": 627,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -44833,7 +44833,7 @@
                             },
                             "While trying to update the implicit return value 'range_check_ptr' in:"
                         ],
-                        "start_col": 82,
+                        "start_col": 88,
                         "start_line": 627
                     }
                 },
@@ -45020,7 +45020,7 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 80,
+                        "end_col": 86,
                         "end_line": 627,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -45061,7 +45061,7 @@
                             },
                             "While trying to update the implicit return value 'pedersen_ptr' in:"
                         ],
-                        "start_col": 53,
+                        "start_col": 59,
                         "start_line": 627
                     }
                 },
@@ -58484,7 +58484,7 @@
                 "2036": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -58501,7 +58501,7 @@
                 "2037": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -58518,19 +58518,19 @@
                 "2039": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 38,
+                        "end_col": 44,
                         "end_line": 574,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 38,
+                                "end_col": 44,
                                 "end_line": 574,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -58547,31 +58547,31 @@
                                     },
                                     "While trying to retrieve the implicit argument 'syscall_ptr' in:"
                                 ],
-                                "start_col": 19,
+                                "start_col": 25,
                                 "start_line": 574
                             },
                             "While expanding the reference 'syscall_ptr' in:"
                         ],
-                        "start_col": 19,
+                        "start_col": 25,
                         "start_line": 574
                     }
                 },
                 "2040": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 67,
+                        "end_col": 73,
                         "end_line": 574,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 67,
+                                "end_col": 73,
                                 "end_line": 574,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -58588,31 +58588,31 @@
                                     },
                                     "While trying to retrieve the implicit argument 'pedersen_ptr' in:"
                                 ],
-                                "start_col": 40,
+                                "start_col": 46,
                                 "start_line": 574
                             },
                             "While expanding the reference 'pedersen_ptr' in:"
                         ],
-                        "start_col": 40,
+                        "start_col": 46,
                         "start_line": 574
                     }
                 },
                 "2041": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 84,
+                        "end_col": 90,
                         "end_line": 574,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 84,
+                                "end_col": 90,
                                 "end_line": 574,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -58629,19 +58629,19 @@
                                     },
                                     "While trying to retrieve the implicit argument 'range_check_ptr' in:"
                                 ],
-                                "start_col": 69,
+                                "start_col": 75,
                                 "start_line": 574
                             },
                             "While expanding the reference 'range_check_ptr' in:"
                         ],
-                        "start_col": 69,
+                        "start_col": 75,
                         "start_line": 574
                     }
                 },
                 "2042": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -58658,12 +58658,12 @@
                 "2043": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 38,
+                        "end_col": 44,
                         "end_line": 574,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -58692,19 +58692,19 @@
                             },
                             "While expanding the reference 'syscall_ptr' in:"
                         ],
-                        "start_col": 19,
+                        "start_col": 25,
                         "start_line": 574
                     }
                 },
                 "2044": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 67,
+                        "end_col": 73,
                         "end_line": 574,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -58733,19 +58733,19 @@
                             },
                             "While expanding the reference 'pedersen_ptr' in:"
                         ],
-                        "start_col": 40,
+                        "start_col": 46,
                         "start_line": 574
                     }
                 },
                 "2045": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 84,
+                        "end_col": 90,
                         "end_line": 574,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -58774,14 +58774,14 @@
                             },
                             "While expanding the reference 'range_check_ptr' in:"
                         ],
-                        "start_col": 69,
+                        "start_col": 75,
                         "start_line": 574
                     }
                 },
                 "2046": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -58810,7 +58810,7 @@
                 "2047": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -58827,7 +58827,7 @@
                 "2049": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -58844,7 +58844,7 @@
                 "2050": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -58861,7 +58861,7 @@
                 "2051": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -58880,14 +58880,14 @@
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 38,
+                                        "end_col": 44,
                                         "end_line": 574,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 92,
+                                                "end_col": 98,
                                                 "end_line": 584,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -58897,7 +58897,7 @@
                                             },
                                             "While trying to retrieve the implicit argument 'syscall_ptr' in:"
                                         ],
-                                        "start_col": 19,
+                                        "start_col": 25,
                                         "start_line": 574
                                     },
                                     "While expanding the reference 'syscall_ptr' in:"
@@ -58914,7 +58914,7 @@
                 "2052": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -58933,14 +58933,14 @@
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 67,
+                                        "end_col": 73,
                                         "end_line": 574,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 92,
+                                                "end_col": 98,
                                                 "end_line": 584,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -58950,7 +58950,7 @@
                                             },
                                             "While trying to retrieve the implicit argument 'pedersen_ptr' in:"
                                         ],
-                                        "start_col": 40,
+                                        "start_col": 46,
                                         "start_line": 574
                                     },
                                     "While expanding the reference 'pedersen_ptr' in:"
@@ -58967,7 +58967,7 @@
                 "2053": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -58986,14 +58986,14 @@
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 84,
+                                        "end_col": 90,
                                         "end_line": 574,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 92,
+                                                "end_col": 98,
                                                 "end_line": 584,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -59003,7 +59003,7 @@
                                             },
                                             "While trying to retrieve the implicit argument 'range_check_ptr' in:"
                                         ],
-                                        "start_col": 69,
+                                        "start_col": 75,
                                         "start_line": 574
                                     },
                                     "While expanding the reference 'range_check_ptr' in:"
@@ -59020,24 +59020,24 @@
                 "2054": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 49,
+                        "end_col": 55,
                         "end_line": 584,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
-                        "start_col": 32,
+                        "start_col": 38,
                         "start_line": 584
                     }
                 },
                 "2056": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -59049,12 +59049,12 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 74,
+                                "end_col": 80,
                                 "end_line": 584,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                 },
-                                "start_col": 63,
+                                "start_col": 69,
                                 "start_line": 584
                             },
                             "While expanding the reference 'signers_len' in:"
@@ -59066,7 +59066,7 @@
                 "2057": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -59078,12 +59078,12 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 91,
+                                "end_col": 97,
                                 "end_line": 584,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                 },
-                                "start_col": 84,
+                                "start_col": 90,
                                 "start_line": 584
                             },
                             "While expanding the reference 'signers' in:"
@@ -59095,12 +59095,12 @@
                 "2058": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 92,
+                        "end_col": 98,
                         "end_line": 584,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -59112,7 +59112,7 @@
                 "2060": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_signers"
+                        "__main__._get_signers_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -60745,7 +60745,7 @@
                 "2131": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -60762,7 +60762,7 @@
                 "2132": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -60779,19 +60779,19 @@
                 "2134": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 51,
+                        "end_col": 57,
                         "end_line": 627,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 51,
+                                "end_col": 57,
                                 "end_line": 627,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -60808,31 +60808,31 @@
                                     },
                                     "While trying to retrieve the implicit argument 'syscall_ptr' in:"
                                 ],
-                                "start_col": 32,
+                                "start_col": 38,
                                 "start_line": 627
                             },
                             "While expanding the reference 'syscall_ptr' in:"
                         ],
-                        "start_col": 32,
+                        "start_col": 38,
                         "start_line": 627
                     }
                 },
                 "2135": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 80,
+                        "end_col": 86,
                         "end_line": 627,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 80,
+                                "end_col": 86,
                                 "end_line": 627,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -60849,31 +60849,31 @@
                                     },
                                     "While trying to retrieve the implicit argument 'pedersen_ptr' in:"
                                 ],
-                                "start_col": 53,
+                                "start_col": 59,
                                 "start_line": 627
                             },
                             "While expanding the reference 'pedersen_ptr' in:"
                         ],
-                        "start_col": 53,
+                        "start_col": 59,
                         "start_line": 627
                     }
                 },
                 "2136": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 97,
+                        "end_col": 103,
                         "end_line": 627,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 97,
+                                "end_col": 103,
                                 "end_line": 627,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -60890,19 +60890,19 @@
                                     },
                                     "While trying to retrieve the implicit argument 'range_check_ptr' in:"
                                 ],
-                                "start_col": 82,
+                                "start_col": 88,
                                 "start_line": 627
                             },
                             "While expanding the reference 'range_check_ptr' in:"
                         ],
-                        "start_col": 82,
+                        "start_col": 88,
                         "start_line": 627
                     }
                 },
                 "2137": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -60919,12 +60919,12 @@
                 "2138": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 51,
+                        "end_col": 57,
                         "end_line": 627,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -60953,19 +60953,19 @@
                             },
                             "While expanding the reference 'syscall_ptr' in:"
                         ],
-                        "start_col": 32,
+                        "start_col": 38,
                         "start_line": 627
                     }
                 },
                 "2139": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 80,
+                        "end_col": 86,
                         "end_line": 627,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -60994,19 +60994,19 @@
                             },
                             "While expanding the reference 'pedersen_ptr' in:"
                         ],
-                        "start_col": 53,
+                        "start_col": 59,
                         "start_line": 627
                     }
                 },
                 "2140": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 97,
+                        "end_col": 103,
                         "end_line": 627,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -61035,14 +61035,14 @@
                             },
                             "While expanding the reference 'range_check_ptr' in:"
                         ],
-                        "start_col": 82,
+                        "start_col": 88,
                         "start_line": 627
                     }
                 },
                 "2141": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -61071,7 +61071,7 @@
                 "2142": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -61100,7 +61100,7 @@
                 "2143": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -61117,7 +61117,7 @@
                 "2144": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -61134,7 +61134,7 @@
                 "2146": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -61163,7 +61163,7 @@
                 "2147": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -61180,7 +61180,7 @@
                 "2149": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -61209,7 +61209,7 @@
                 "2150": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -61226,7 +61226,7 @@
                 "2152": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -61243,7 +61243,7 @@
                 "2154": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._set_transaction_calldata"
+                        "__main__._set_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -61780,7 +61780,7 @@
                 "2183": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -61797,7 +61797,7 @@
                 "2184": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -61814,19 +61814,19 @@
                 "2186": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 51,
+                        "end_col": 57,
                         "end_line": 662,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 51,
+                                "end_col": 57,
                                 "end_line": 662,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -61843,31 +61843,31 @@
                                     },
                                     "While trying to retrieve the implicit argument 'syscall_ptr' in:"
                                 ],
-                                "start_col": 32,
+                                "start_col": 38,
                                 "start_line": 662
                             },
                             "While expanding the reference 'syscall_ptr' in:"
                         ],
-                        "start_col": 32,
+                        "start_col": 38,
                         "start_line": 662
                     }
                 },
                 "2187": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 80,
+                        "end_col": 86,
                         "end_line": 662,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 80,
+                                "end_col": 86,
                                 "end_line": 662,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -61884,31 +61884,31 @@
                                     },
                                     "While trying to retrieve the implicit argument 'pedersen_ptr' in:"
                                 ],
-                                "start_col": 53,
+                                "start_col": 59,
                                 "start_line": 662
                             },
                             "While expanding the reference 'pedersen_ptr' in:"
                         ],
-                        "start_col": 53,
+                        "start_col": 59,
                         "start_line": 662
                     }
                 },
                 "2188": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 97,
+                        "end_col": 103,
                         "end_line": 662,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
                         "parent_location": [
                             {
-                                "end_col": 97,
+                                "end_col": 103,
                                 "end_line": 662,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -61925,19 +61925,19 @@
                                     },
                                     "While trying to retrieve the implicit argument 'range_check_ptr' in:"
                                 ],
-                                "start_col": 82,
+                                "start_col": 88,
                                 "start_line": 662
                             },
                             "While expanding the reference 'range_check_ptr' in:"
                         ],
-                        "start_col": 82,
+                        "start_col": 88,
                         "start_line": 662
                     }
                 },
                 "2189": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -61954,12 +61954,12 @@
                 "2190": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 51,
+                        "end_col": 57,
                         "end_line": 662,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -61988,19 +61988,19 @@
                             },
                             "While expanding the reference 'syscall_ptr' in:"
                         ],
-                        "start_col": 32,
+                        "start_col": 38,
                         "start_line": 662
                     }
                 },
                 "2191": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 80,
+                        "end_col": 86,
                         "end_line": 662,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -62029,19 +62029,19 @@
                             },
                             "While expanding the reference 'pedersen_ptr' in:"
                         ],
-                        "start_col": 53,
+                        "start_col": 59,
                         "start_line": 662
                     }
                 },
                 "2192": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 97,
+                        "end_col": 103,
                         "end_line": 662,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -62070,14 +62070,14 @@
                             },
                             "While expanding the reference 'range_check_ptr' in:"
                         ],
-                        "start_col": 82,
+                        "start_col": 88,
                         "start_line": 662
                     }
                 },
                 "2193": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -62106,7 +62106,7 @@
                 "2194": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -62135,7 +62135,7 @@
                 "2195": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -62152,7 +62152,7 @@
                 "2197": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -62169,7 +62169,7 @@
                 "2198": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -62186,7 +62186,7 @@
                 "2199": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -62205,7 +62205,7 @@
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 51,
+                                        "end_col": 57,
                                         "end_line": 662,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -62222,7 +62222,7 @@
                                             },
                                             "While trying to retrieve the implicit argument 'syscall_ptr' in:"
                                         ],
-                                        "start_col": 32,
+                                        "start_col": 38,
                                         "start_line": 662
                                     },
                                     "While expanding the reference 'syscall_ptr' in:"
@@ -62239,7 +62239,7 @@
                 "2200": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -62258,7 +62258,7 @@
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 80,
+                                        "end_col": 86,
                                         "end_line": 662,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -62275,7 +62275,7 @@
                                             },
                                             "While trying to retrieve the implicit argument 'pedersen_ptr' in:"
                                         ],
-                                        "start_col": 53,
+                                        "start_col": 59,
                                         "start_line": 662
                                     },
                                     "While expanding the reference 'pedersen_ptr' in:"
@@ -62292,7 +62292,7 @@
                 "2201": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -62311,7 +62311,7 @@
                                 },
                                 "parent_location": [
                                     {
-                                        "end_col": 97,
+                                        "end_col": 103,
                                         "end_line": 662,
                                         "input_file": {
                                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -62328,7 +62328,7 @@
                                             },
                                             "While trying to retrieve the implicit argument 'range_check_ptr' in:"
                                         ],
-                                        "start_col": 82,
+                                        "start_col": 88,
                                         "start_line": 662
                                     },
                                     "While expanding the reference 'range_check_ptr' in:"
@@ -62345,7 +62345,7 @@
                 "2202": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -62374,7 +62374,7 @@
                 "2203": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -62391,7 +62391,7 @@
                 "2205": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -62420,7 +62420,7 @@
                 "2206": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -62449,7 +62449,7 @@
                 "2207": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -62466,7 +62466,7 @@
                 "2209": {
                     "accessible_scopes": [
                         "__main__",
-                        "__main__._get_transaction_calldata"
+                        "__main__._get_transaction_calldata_range"
                     ],
                     "flow_tracking_data": null,
                     "hints": [],
@@ -64579,13 +64579,13 @@
                 "type": "const",
                 "value": 0
             },
-            "__main__._get_signers": {
+            "__main__._get_signers_range": {
                 "decorators": [],
                 "pc": 2036,
                 "type": "function"
             },
-            "__main__._get_signers.Args": {
-                "full_name": "__main__._get_signers.Args",
+            "__main__._get_signers_range.Args": {
+                "full_name": "__main__._get_signers_range.Args",
                 "members": {
                     "signers": {
                         "cairo_type": "felt*",
@@ -64603,8 +64603,8 @@
                 "size": 3,
                 "type": "struct"
             },
-            "__main__._get_signers.ImplicitArgs": {
-                "full_name": "__main__._get_signers.ImplicitArgs",
+            "__main__._get_signers_range.ImplicitArgs": {
+                "full_name": "__main__._get_signers_range.ImplicitArgs",
                 "members": {
                     "pedersen_ptr": {
                         "cairo_type": "starkware.cairo.common.cairo_builtins.HashBuiltin*",
@@ -64622,21 +64622,21 @@
                 "size": 3,
                 "type": "struct"
             },
-            "__main__._get_signers.Return": {
+            "__main__._get_signers_range.Return": {
                 "cairo_type": "()",
                 "type": "type_definition"
             },
-            "__main__._get_signers.SIZEOF_LOCALS": {
+            "__main__._get_signers_range.SIZEOF_LOCALS": {
                 "type": "const",
                 "value": 0
             },
-            "__main__._get_transaction_calldata": {
+            "__main__._get_transaction_calldata_range": {
                 "decorators": [],
                 "pc": 2183,
                 "type": "function"
             },
-            "__main__._get_transaction_calldata.Args": {
-                "full_name": "__main__._get_transaction_calldata.Args",
+            "__main__._get_transaction_calldata_range.Args": {
+                "full_name": "__main__._get_transaction_calldata_range.Args",
                 "members": {
                     "calldata": {
                         "cairo_type": "felt*",
@@ -64658,8 +64658,8 @@
                 "size": 4,
                 "type": "struct"
             },
-            "__main__._get_transaction_calldata.ImplicitArgs": {
-                "full_name": "__main__._get_transaction_calldata.ImplicitArgs",
+            "__main__._get_transaction_calldata_range.ImplicitArgs": {
+                "full_name": "__main__._get_transaction_calldata_range.ImplicitArgs",
                 "members": {
                     "pedersen_ptr": {
                         "cairo_type": "starkware.cairo.common.cairo_builtins.HashBuiltin*",
@@ -64677,11 +64677,11 @@
                 "size": 3,
                 "type": "struct"
             },
-            "__main__._get_transaction_calldata.Return": {
+            "__main__._get_transaction_calldata_range.Return": {
                 "cairo_type": "()",
                 "type": "type_definition"
             },
-            "__main__._get_transaction_calldata.SIZEOF_LOCALS": {
+            "__main__._get_transaction_calldata_range.SIZEOF_LOCALS": {
                 "type": "const",
                 "value": 0
             },
@@ -65340,13 +65340,13 @@
                 "type": "const",
                 "value": 0
             },
-            "__main__._set_transaction_calldata": {
+            "__main__._set_transaction_calldata_range": {
                 "decorators": [],
                 "pc": 2131,
                 "type": "function"
             },
-            "__main__._set_transaction_calldata.Args": {
-                "full_name": "__main__._set_transaction_calldata.Args",
+            "__main__._set_transaction_calldata_range.Args": {
+                "full_name": "__main__._set_transaction_calldata_range.Args",
                 "members": {
                     "calldata": {
                         "cairo_type": "felt*",
@@ -65368,8 +65368,8 @@
                 "size": 4,
                 "type": "struct"
             },
-            "__main__._set_transaction_calldata.ImplicitArgs": {
-                "full_name": "__main__._set_transaction_calldata.ImplicitArgs",
+            "__main__._set_transaction_calldata_range.ImplicitArgs": {
+                "full_name": "__main__._set_transaction_calldata_range.ImplicitArgs",
                 "members": {
                     "pedersen_ptr": {
                         "cairo_type": "starkware.cairo.common.cairo_builtins.HashBuiltin*",
@@ -65387,11 +65387,11 @@
                 "size": 3,
                 "type": "struct"
             },
-            "__main__._set_transaction_calldata.Return": {
+            "__main__._set_transaction_calldata_range.Return": {
                 "cairo_type": "()",
                 "type": "type_definition"
             },
-            "__main__._set_transaction_calldata.SIZEOF_LOCALS": {
+            "__main__._set_transaction_calldata_range.SIZEOF_LOCALS": {
                 "type": "const",
                 "value": 0
             },
