@@ -23,7 +23,7 @@
                     "type": "felt"
                 },
                 {
-                    "name": "threshold",
+                    "name": "confirmations",
                     "offset": 4,
                     "type": "felt"
                 }
@@ -39303,12 +39303,12 @@
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 83,
+                                                "end_col": 91,
                                                 "end_line": 363,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                                 },
-                                                "start_col": 23,
+                                                "start_col": 27,
                                                 "start_line": 363
                                             },
                                             "While trying to retrieve the implicit argument 'syscall_ptr' in:"
@@ -39357,12 +39357,12 @@
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 83,
+                                                "end_col": 91,
                                                 "end_line": 363,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                                 },
-                                                "start_col": 23,
+                                                "start_col": 27,
                                                 "start_line": 363
                                             },
                                             "While trying to retrieve the implicit argument 'pedersen_ptr' in:"
@@ -39411,12 +39411,12 @@
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 83,
+                                                "end_col": 91,
                                                 "end_line": 363,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                                 },
-                                                "start_col": 23,
+                                                "start_col": 27,
                                                 "start_line": 363
                                             },
                                             "While trying to retrieve the implicit argument 'range_check_ptr' in:"
@@ -39451,12 +39451,12 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 53,
+                                "end_col": 57,
                                 "end_line": 363,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                 },
-                                "start_col": 48,
+                                "start_col": 52,
                                 "start_line": 363
                             },
                             "While expanding the reference 'nonce' in:"
@@ -39474,12 +39474,12 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 82,
+                        "end_col": 90,
                         "end_line": 363,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
-                        "start_col": 61,
+                        "start_col": 65,
                         "start_line": 363
                     }
                 },
@@ -39492,12 +39492,12 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 83,
+                        "end_col": 91,
                         "end_line": 363,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
-                        "start_col": 23,
+                        "start_col": 27,
                         "start_line": 363
                     }
                 },
@@ -39733,7 +39733,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 83,
+                                "end_col": 91,
                                 "end_line": 363,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -39762,7 +39762,7 @@
                                     },
                                     "While expanding the reference 'syscall_ptr' in:"
                                 ],
-                                "start_col": 23,
+                                "start_col": 27,
                                 "start_line": 363
                             },
                             "While trying to update the implicit return value 'syscall_ptr' in:"
@@ -39787,7 +39787,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 83,
+                                "end_col": 91,
                                 "end_line": 363,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -39816,7 +39816,7 @@
                                     },
                                     "While expanding the reference 'pedersen_ptr' in:"
                                 ],
-                                "start_col": 23,
+                                "start_col": 27,
                                 "start_line": 363
                             },
                             "While trying to update the implicit return value 'pedersen_ptr' in:"
@@ -39841,7 +39841,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 83,
+                                "end_col": 91,
                                 "end_line": 363,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -39870,7 +39870,7 @@
                                     },
                                     "While expanding the reference 'range_check_ptr' in:"
                                 ],
-                                "start_col": 23,
+                                "start_col": 27,
                                 "start_line": 363
                             },
                             "While trying to update the implicit return value 'range_check_ptr' in:"
@@ -40207,7 +40207,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 83,
+                                "end_col": 91,
                                 "end_line": 363,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -40236,7 +40236,7 @@
                                     },
                                     "While expanding the reference 'syscall_ptr' in:"
                                 ],
-                                "start_col": 23,
+                                "start_col": 27,
                                 "start_line": 363
                             },
                             "While trying to update the implicit return value 'syscall_ptr' in:"
@@ -40261,7 +40261,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 83,
+                                "end_col": 91,
                                 "end_line": 363,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -40290,7 +40290,7 @@
                                     },
                                     "While expanding the reference 'pedersen_ptr' in:"
                                 ],
-                                "start_col": 23,
+                                "start_col": 27,
                                 "start_line": 363
                             },
                             "While trying to update the implicit return value 'pedersen_ptr' in:"
@@ -40315,7 +40315,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 83,
+                                "end_col": 91,
                                 "end_line": 363,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -40344,7 +40344,7 @@
                                     },
                                     "While expanding the reference 'range_check_ptr' in:"
                                 ],
-                                "start_col": 23,
+                                "start_col": 27,
                                 "start_line": 363
                             },
                             "While trying to update the implicit return value 'range_check_ptr' in:"
@@ -46829,12 +46829,12 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 53,
+                                "end_col": 57,
                                 "end_line": 448,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                 },
-                                "start_col": 48,
+                                "start_col": 52,
                                 "start_line": 448
                             },
                             "While expanding the reference 'nonce' in:"
@@ -46852,12 +46852,12 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 82,
+                        "end_col": 90,
                         "end_line": 448,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
-                        "start_col": 61,
+                        "start_col": 65,
                         "start_line": 448
                     }
                 },
@@ -46870,12 +46870,12 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 83,
+                        "end_col": 91,
                         "end_line": 448,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
-                        "start_col": 23,
+                        "start_col": 27,
                         "start_line": 448
                     }
                 },
@@ -46895,7 +46895,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 83,
+                                "end_col": 91,
                                 "end_line": 448,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -46909,7 +46909,7 @@
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 87,
+                                                "end_col": 95,
                                                 "end_line": 449,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -46924,7 +46924,7 @@
                                     },
                                     "While expanding the reference 'syscall_ptr' in:"
                                 ],
-                                "start_col": 23,
+                                "start_col": 27,
                                 "start_line": 448
                             },
                             "While trying to update the implicit return value 'syscall_ptr' in:"
@@ -46949,7 +46949,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 83,
+                                "end_col": 91,
                                 "end_line": 448,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -46963,7 +46963,7 @@
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 87,
+                                                "end_col": 95,
                                                 "end_line": 449,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -46978,7 +46978,7 @@
                                     },
                                     "While expanding the reference 'pedersen_ptr' in:"
                                 ],
-                                "start_col": 23,
+                                "start_col": 27,
                                 "start_line": 448
                             },
                             "While trying to update the implicit return value 'pedersen_ptr' in:"
@@ -47003,7 +47003,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 83,
+                                "end_col": 91,
                                 "end_line": 448,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -47017,7 +47017,7 @@
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 87,
+                                                "end_col": 95,
                                                 "end_line": 449,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -47032,7 +47032,7 @@
                                     },
                                     "While expanding the reference 'range_check_ptr' in:"
                                 ],
-                                "start_col": 23,
+                                "start_col": 27,
                                 "start_line": 448
                             },
                             "While trying to update the implicit return value 'range_check_ptr' in:"
@@ -47080,7 +47080,7 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 65,
+                        "end_col": 69,
                         "end_line": 449,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -47098,12 +47098,12 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 86,
+                        "end_col": 94,
                         "end_line": 449,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
-                        "start_col": 73,
+                        "start_col": 77,
                         "start_line": 449
                     }
                 },
@@ -47116,7 +47116,7 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 87,
+                        "end_col": 95,
                         "end_line": 449,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -47141,7 +47141,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 87,
+                                "end_col": 95,
                                 "end_line": 449,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -47267,7 +47267,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 87,
+                                "end_col": 95,
                                 "end_line": 449,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -47321,7 +47321,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 87,
+                                "end_col": 95,
                                 "end_line": 449,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -48932,12 +48932,12 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 53,
+                                "end_col": 57,
                                 "end_line": 469,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                                 },
-                                "start_col": 48,
+                                "start_col": 52,
                                 "start_line": 469
                             },
                             "While expanding the reference 'nonce' in:"
@@ -48955,12 +48955,12 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 82,
+                        "end_col": 90,
                         "end_line": 469,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
-                        "start_col": 61,
+                        "start_col": 65,
                         "start_line": 469
                     }
                 },
@@ -48973,12 +48973,12 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 83,
+                        "end_col": 91,
                         "end_line": 469,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
-                        "start_col": 23,
+                        "start_col": 27,
                         "start_line": 469
                     }
                 },
@@ -48998,7 +48998,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 83,
+                                "end_col": 91,
                                 "end_line": 469,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -49012,7 +49012,7 @@
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 87,
+                                                "end_col": 95,
                                                 "end_line": 470,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -49027,7 +49027,7 @@
                                     },
                                     "While expanding the reference 'syscall_ptr' in:"
                                 ],
-                                "start_col": 23,
+                                "start_col": 27,
                                 "start_line": 469
                             },
                             "While trying to update the implicit return value 'syscall_ptr' in:"
@@ -49052,7 +49052,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 83,
+                                "end_col": 91,
                                 "end_line": 469,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -49066,7 +49066,7 @@
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 87,
+                                                "end_col": 95,
                                                 "end_line": 470,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -49081,7 +49081,7 @@
                                     },
                                     "While expanding the reference 'pedersen_ptr' in:"
                                 ],
-                                "start_col": 23,
+                                "start_col": 27,
                                 "start_line": 469
                             },
                             "While trying to update the implicit return value 'pedersen_ptr' in:"
@@ -49106,7 +49106,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 83,
+                                "end_col": 91,
                                 "end_line": 469,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -49120,7 +49120,7 @@
                                         },
                                         "parent_location": [
                                             {
-                                                "end_col": 87,
+                                                "end_col": 95,
                                                 "end_line": 470,
                                                 "input_file": {
                                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -49135,7 +49135,7 @@
                                     },
                                     "While expanding the reference 'range_check_ptr' in:"
                                 ],
-                                "start_col": 23,
+                                "start_col": 27,
                                 "start_line": 469
                             },
                             "While trying to update the implicit return value 'range_check_ptr' in:"
@@ -49183,7 +49183,7 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 65,
+                        "end_col": 69,
                         "end_line": 470,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -49201,12 +49201,12 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 86,
+                        "end_col": 94,
                         "end_line": 470,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
                         },
-                        "start_col": 73,
+                        "start_col": 77,
                         "start_line": 470
                     }
                 },
@@ -49219,7 +49219,7 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 87,
+                        "end_col": 95,
                         "end_line": 470,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -49244,7 +49244,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 87,
+                                "end_col": 95,
                                 "end_line": 470,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -49370,7 +49370,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 87,
+                                "end_col": 95,
                                 "end_line": 470,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -49424,7 +49424,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 87,
+                                "end_col": 95,
                                 "end_line": 470,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -51190,7 +51190,7 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 42,
+                        "end_col": 46,
                         "end_line": 493,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -51208,7 +51208,7 @@
                     "flow_tracking_data": null,
                     "hints": [],
                     "inst": {
-                        "end_col": 43,
+                        "end_col": 47,
                         "end_line": 493,
                         "input_file": {
                             "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -51341,7 +51341,7 @@
                         },
                         "parent_location": [
                             {
-                                "end_col": 43,
+                                "end_col": 47,
                                 "end_line": 493,
                                 "input_file": {
                                     "filename": "/home/laurip/src/eqlabs/starknet-multisig/contracts/contracts/Multisig.cairo"
@@ -64262,6 +64262,10 @@
                         "cairo_type": "felt",
                         "offset": 2
                     },
+                    "confirmations": {
+                        "cairo_type": "felt",
+                        "offset": 4
+                    },
                     "executed": {
                         "cairo_type": "felt",
                         "offset": 3
@@ -64269,10 +64273,6 @@
                     "function_selector": {
                         "cairo_type": "felt",
                         "offset": 1
-                    },
-                    "threshold": {
-                        "cairo_type": "felt",
-                        "offset": 4
                     },
                     "to": {
                         "cairo_type": "felt",

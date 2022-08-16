@@ -72,13 +72,13 @@ end
 # @param function_selector: What is the transaction target function
 # @param calldata_len: Length of the calldata
 # @param executed: Has the transaction been executed
-# @param threshold: How many confirmations the transaction has
+# @param confirmations: How many confirmations the transaction has
 struct Transaction:
     member to : felt
     member function_selector : felt
     member calldata_len : felt
     member executed : felt
-    member threshold : felt
+    member confirmations : felt
 end
 
 @storage_var
@@ -360,13 +360,13 @@ func get_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_che
     let (function_selector) = _transactions.read(nonce=nonce, field=Transaction.function_selector)
     let (calldata_len) = _transactions.read(nonce=nonce, field=Transaction.calldata_len)
     let (executed) = _transactions.read(nonce=nonce, field=Transaction.executed)
-    let (threshold) = _transactions.read(nonce=nonce, field=Transaction.threshold)
+    let (confirmations) = _transactions.read(nonce=nonce, field=Transaction.confirmations)
     let tx = Transaction(
         to=to,
         function_selector=function_selector,
         calldata_len=calldata_len,
         executed=executed,
-        threshold=threshold,
+        confirmations=confirmations,
     )
 
     let (calldata) = alloc()
@@ -445,8 +445,8 @@ func confirm_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     require_not_executed(nonce=nonce)
     require_not_confirmed(nonce=nonce)
 
-    let (threshold) = _transactions.read(nonce=nonce, field=Transaction.threshold)
-    _transactions.write(nonce=nonce, field=Transaction.threshold, value=threshold + 1)
+    let (confirmations) = _transactions.read(nonce=nonce, field=Transaction.confirmations)
+    _transactions.write(nonce=nonce, field=Transaction.confirmations, value=confirmations + 1)
     let (caller) = get_caller_address()
     _is_confirmed.write(nonce=nonce, signer=caller, value=TRUE)
 
@@ -466,8 +466,8 @@ func revoke_confirmation{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     require_not_executed(nonce=nonce)
     require_confirmed(nonce=nonce)
 
-    let (threshold) = _transactions.read(nonce=nonce, field=Transaction.threshold)
-    _transactions.write(nonce=nonce, field=Transaction.threshold, value=threshold - 1)
+    let (confirmations) = _transactions.read(nonce=nonce, field=Transaction.confirmations)
+    _transactions.write(nonce=nonce, field=Transaction.confirmations, value=confirmations - 1)
     let (caller) = get_caller_address()
     _is_confirmed.write(nonce=nonce, signer=caller, value=FALSE)
 
@@ -490,7 +490,7 @@ func execute_transaction{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     # Require minimum configured threshold
     let (threshold) = _threshold.read()
     with_attr error_message("More confirmations required"):
-        assert_le(threshold, tx.threshold)
+        assert_le(threshold, tx.confirmations)
     end
 
     # Mark as executed
