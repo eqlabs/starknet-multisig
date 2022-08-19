@@ -137,9 +137,7 @@ end
 
 # @dev Requires that the transaction exists. Reverts if the tx doesn't exist
 # @param nonce: Nonce of the transaction in question
-func require_tx_exists{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    nonce : felt
-):
+func require_tx_exists{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(nonce : felt):
     let (next_nonce) = _next_nonce.read()
     with_attr error_message("Transaction does not exist"):
         assert_lt(nonce, next_nonce)

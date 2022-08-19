@@ -1081,7 +1081,7 @@ describe("Multisig with single signer", function () {
 
         expect.fail("Should have failed");
       } catch (err: any) {
-        assertErrorMsg(err.message, "No direct invocations allowed");
+        assertErrorMsg(err.message, "Access denied - only multisig allowed");
       }
     });
 
@@ -1091,7 +1091,7 @@ describe("Multisig with single signer", function () {
 
         expect.fail("Should have failed");
       } catch (err: any) {
-        assertErrorMsg(err.message, "No direct invocations allowed");
+        assertErrorMsg(err.message, "Access denied - only multisig allowed");
       }
     });
 
@@ -1110,7 +1110,7 @@ describe("Multisig with single signer", function () {
 
         expect.fail("Should have failed");
       } catch (err: any) {
-        assertErrorMsg(err.message, "No direct invocations allowed");
+        assertErrorMsg(err.message, "Access denied - only multisig allowed");
       }
     });
 
