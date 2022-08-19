@@ -221,7 +221,7 @@ func require_multisig{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_ch
     let (caller) = get_caller_address()
     let (contract_address) = get_contract_address()
 
-    with_attr error_message("No direct invocations allowed"):
+    with_attr error_message("Access denied - only multisig allowed"):
         assert caller = contract_address
     end
 

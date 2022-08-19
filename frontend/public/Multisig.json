@@ -595,7 +595,7 @@
                 },
                 "name": "error_message",
                 "start_pc": 1107,
-                "value": "No direct invocations allowed"
+                "value": "Access denied - only multisig allowed"
             },
             {
                 "accessible_scopes": [
