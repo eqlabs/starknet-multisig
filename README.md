@@ -2,12 +2,11 @@
 
 Multi-signature functionality for [StarkNet](https://starknet.io/what-is-starknet).
 
-Contract npm package: [![npm version](https://badge.fury.io/js/starsign-multisig.svg)](https://badge.fury.io/js/starsign-multisig)
+Latest npm package: [![npm version](https://badge.fury.io/js/starsign-multisig.svg)](https://badge.fury.io/js/starsign-multisig)
 
 > ## ⚠️ WARNING! ⚠️
 >
-> This repo contains highly experimental code which relies on other highly experimental code.
-> Expect rapid iteration.
+> This repo contains unaudited code. Expect rapid iteration.
 > **Do not use in production.**
 
 ## Current version
@@ -17,7 +16,7 @@ The current version contains all basic multisig functionality. This version cons
 - Cairo contract code
 - Unit tests for testing all the multisig functionality
 
-The current version supports only on-chain multi-signatures. The multisig is a separate contract, which is called through your regular account contract (wallet).
+The current version supports on-chain multi-signatures. The multisig is a separate contract, which is called through your regular account contract (wallet).
 
 ## Functionality
 
@@ -72,7 +71,7 @@ Only signers can change the threshold and the amount of signers. These actions n
 
 The contract code **has not been audited**. An audit is scheduled for September 2022.
 
-# Future development
+## Future development
 
 In near future we'll get here:
 
@@ -80,7 +79,7 @@ In near future we'll get here:
 - Possibly an option to use an account contract as multisig
 - Possibly off-chain signatures
 
-## Multisig implementation options
+### Multisig implementation options
 
 The current implementation uses Option 1 in the following image. Option 2 is in our roadmap for near future.
 
@@ -94,12 +93,12 @@ The contracts are:
 - util.cairo: various helper functionality
 - Target.cairo: a mock of the target contract for the multisig, used in testing
 
-## Used components
+### Used components
 
 - [Starknet Hardhat plugin](https://github.com/Shard-Labs/starknet-hardhat-plugin)
 - [Starknet devnet](https://github.com/Shard-Labs/starknet-devnet), a local Starknet instance
 
-## Usage
+### Usage
 
 Recommended operating system is Ubuntu. If on Windows, use WSL2.
 
@@ -115,17 +114,17 @@ Follow the [Cairo installation instructions](https://www.cairo-lang.org/docs/qui
 After that, inside the virtual environment:
 
 - Install Cairo devnet (local blockchain) `python -m pip install starknet-devnet`
-- Compile the contracts: `npm run compile`
+- Compile the contracts: `npx hardhat starknet-compile contracts`
 - Run the devnet: `npm run local`
 - Open another venv tab and run the unit tests with `npx hardhat test`
 
 Tested to be working at least with devnet version 0.2.10.
 
-## Acknowledgements
+### Acknowledgements
 
 Thanks to Sam Barnes for creating the [initial multisig code](https://github.com/sambarnes/cairo-multisig) and offering it available.
 
-# Fluffy stuff
+## Fluffy stuff
 
 Created by [Equilibrium](https://equilibrium.co).
 

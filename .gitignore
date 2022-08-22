@@ -1,3 +1,15 @@
+node_modules
+.env
 
-contracts/test/unittest-dump.dmp
-.DS_Store
+#Hardhat files
+cache
+artifacts
+
+#Python artifacts
+__pycache__
+.pytest_cache
+.venv
+.python-version
+
+#Starknet plugin
+starknet-artifacts
