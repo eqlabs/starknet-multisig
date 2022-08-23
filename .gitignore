@@ -10,6 +10,3 @@ __pycache__
 .pytest_cache
 .venv
 .python-version
-
-#Starknet plugin
-starknet-artifacts
