@@ -8,14 +8,7 @@ const config: HardhatUserConfig = {
   starknet: {
     venv: "active",
     network: "devnet",
-    wallets: {
-      OpenZeppelin: {
-        accountName: "OpenZeppelin",
-        modulePath:
-          "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
-        accountPath: "~/.starknet_accounts",
-      },
-    },
+    wallets: {},
   },
   networks: {
     devnet: {
