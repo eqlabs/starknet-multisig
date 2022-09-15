@@ -519,7 +519,7 @@ describe("Multisig with single signer", function () {
       expect(bal3.res).to.equal(BigInt(19));
     });
 
-    it.only("transaction to burn multisig", async function () {
+    it("transaction to burn multisig", async function () {
       const numTxToSpawn = 3;
       for (let i = 0; i < numTxToSpawn; i++) {
         let payload = defaultPayload(targetContract.address, 2 * i, i);
