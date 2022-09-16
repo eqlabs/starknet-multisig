@@ -519,6 +519,45 @@ describe("Multisig with single signer", function () {
       expect(bal3.res).to.equal(BigInt(19));
     });
 
+    it("transaction to burn multisig", async function () {
+      const numTxToSpawn = 3;
+      for (let i = 0; i < numTxToSpawn; i++) {
+        let payload = defaultPayload(targetContract.address, 2 * i, i);
+        await account.invoke(multisig, "submit_transaction", payload);
+      }
+
+      const selector = getSelectorFromName("set_signers");
+      const payload = {
+        to: number.toBN(multisig.address),
+        function_selector: number.toBN(selector),
+        calldata: [0],
+        nonce: numTxToSpawn,
+      };
+
+      await account.invoke(multisig, "submit_transaction", payload);
+      await account.invoke(multisig, "confirm_transaction", {
+        nonce: numTxToSpawn,
+      });
+      await account.invoke(multisig, "execute_transaction", {
+        nonce: numTxToSpawn,
+      });
+
+      // new submissions shall fail
+      try {
+        const nonce = numTxToSpawn + 1;
+        const payload = defaultPayload(
+          targetContract.address,
+          2 * nonce,
+          nonce
+        );
+        await account.invoke(multisig, "submit_transaction", payload);
+
+        expect.fail("Should have failed");
+      } catch (err: any) {
+        assertErrorMsg(err.message, "Invalid signer");
+      }
+    });
+
     it("transaction with complex arguments work", async function () {
       const selector = number.toBN(getSelectorFromName("complex_inputs"));
       const target = number.toBN(targetContract.address);

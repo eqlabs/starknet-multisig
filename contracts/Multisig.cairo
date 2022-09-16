@@ -3,7 +3,7 @@
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import assert_le, assert_lt, assert_in_range, assert_not_zero
-from starkware.cairo.common.math_cmp import is_le
+from starkware.cairo.common.math_cmp import is_le, is_not_zero
 from starkware.starknet.common.syscalls import (
     call_contract,
     get_caller_address,
@@ -237,6 +237,14 @@ func require_valid_threshold{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, r
 ):
     const lower_bound = 1
 
+    # we allow threshold to be 0
+    # if and only if signers_len is 0
+    let (x) = is_not_zero(threshold)
+    let (y) = is_not_zero(signers_len)
+    if x + y == 0:
+        return ()
+    end
+
     # will throw if signers_len is 0 and if threshold
     # is not in range [1, signers_len]
     with_attr error_message("Invalid threshold"):
@@ -343,7 +351,6 @@ func is_executed{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     let (res) = _transactions.read(nonce=nonce, field=Transaction.executed)
     return (res)
 end
-
 
 # @dev Gets transaction data
 # @param nonce: Transaction nonce
@@ -542,6 +549,7 @@ func set_signers{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     let (local threshold) = _threshold.read()
     let (lt) = is_le(signers_len, threshold - 1)  # signers_len < threshold
     if lt == TRUE:
+        require_valid_threshold(signers_len, signers_len)
         _set_threshold(signers_len)
         return ()
     end
@@ -624,9 +632,9 @@ func _set_signers_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_
     return ()
 end
 
-func _set_transaction_calldata_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    nonce : felt, calldata_index : felt, calldata_len : felt, calldata : felt*
-):
+func _set_transaction_calldata_range{
+    syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
+}(nonce : felt, calldata_index : felt, calldata_len : felt, calldata : felt*):
     if calldata_index == calldata_len:
         return ()
     end
@@ -658,10 +666,9 @@ func _clean_signers_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, rang
     return _clean_signers_range(signers_index + 1, signers_len)
 end
 
-
-func _get_transaction_calldata_range{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    nonce : felt, calldata_index : felt, calldata_len : felt, calldata : felt*
-):
+func _get_transaction_calldata_range{
+    syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
+}(nonce : felt, calldata_index : felt, calldata_len : felt, calldata : felt*):
     if calldata_index == calldata_len:
         return ()
     end
