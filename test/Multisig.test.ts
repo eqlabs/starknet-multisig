@@ -926,7 +926,7 @@ describe("Multisig with single signer", function () {
         await account.invoke(multisig, "execute_transaction", {
           nonce: 1,
         });
-        const res = await account.call(multisig, "get_threshold");
+        const res = await multisig.call("get_threshold");
         expect(res.threshold).to.equal(1n);
       }
       {
@@ -948,7 +948,7 @@ describe("Multisig with single signer", function () {
           nonce: 2,
         });
 
-        const res = await account.call(multisig, "get_threshold");
+        const res = await multisig.call("get_threshold");
         expect(res.threshold).to.equal(2n);
       }
     });
@@ -1096,12 +1096,12 @@ describe("Multisig with single signer", function () {
       }
 
       {
-        const res = await account.call(multisig, "get_threshold");
+        const res = await multisig.call("get_threshold");
         expect(res.threshold).to.equal(2n);
       }
 
       {
-        const res = await account.call(multisig, "get_signers");
+        const res = await multisig.call("get_signers");
         expect(res.signers_len).to.equal(2n);
         expect(res.signers.map((address: any) => address.toString())).to.eql(
           newSigners.map((address) => address.toString())
@@ -1352,7 +1352,7 @@ describe("Multisig with multiple signers", function () {
       nonce: 0,
     });
 
-    const res = await account2.call(multisig, "get_signers");
+    const res = await multisig.call("get_signers");
     expect(res.signers_len).to.equal(1n);
     expect(res.signers.map((address: any) => address.toString())).to.eql(
       newSigners.map((address) => address.toString())

@@ -101,12 +101,13 @@ The contracts are:
 ### Usage
 
 Recommended operating system is Ubuntu. If on Windows, use WSL2.
+Requires Python 3.8 or later.
 
 Installation:
 
 ```
 yarn
-python3.7 -m venv .venv
+python -m venv .venv
 source ./.venv/bin/activate
 ```
 
