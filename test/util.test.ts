@@ -8,13 +8,16 @@ import {
   randomIntegerFromRange,
   assertErrorMsg,
 } from "./utils";
+import { Account } from "hardhat/types/runtime";
 
 describe("Test utilities", () => {
   let targetContract: StarknetContract;
+  let account: Account;
 
   before(async () => {
     const targetContractFactory = await starknet.getContractFactory("Target");
     targetContract = await targetContractFactory.deploy();
+    account = await starknet.deployAccount("OpenZeppelin");
   });
 
   describe("assert_unique_elements tests", function () {
@@ -64,7 +67,7 @@ describe("Test utilities", () => {
 
     it("pass duplicates", async () => {
       try {
-        await targetContract.invoke("assert_unique_elements_wrapper", {
+        await account.invoke(targetContract, "assert_unique_elements_wrapper", {
           data: [1, 1],
         });
         expect.fail("Should have failed");
@@ -75,7 +78,7 @@ describe("Test utilities", () => {
 
     it("multiple duplicates", async () => {
       try {
-        await targetContract.invoke("assert_unique_elements_wrapper", {
+        await account.invoke(targetContract, "assert_unique_elements_wrapper", {
           data: [1, 0, 2, 3, 1, 2, 7],
         });
         expect.fail("Should have failed");
@@ -87,7 +90,7 @@ describe("Test utilities", () => {
     it("duplicate adresses", async () => {
       try {
         const address = number.toBN(targetContract.address);
-        await targetContract.invoke("assert_unique_elements_wrapper", {
+        await account.invoke(targetContract, "assert_unique_elements_wrapper", {
           data: [1, 0, address, 20, address],
         });
         expect.fail("Should have failed");

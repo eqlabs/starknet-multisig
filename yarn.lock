@@ -562,10 +562,10 @@
     "@sentry/types" "5.30.0"
     tslib "^1.9.3"
 
-"@shardlabs/starknet-hardhat-plugin@0.6.3":
-  version "0.6.3"
-  resolved "https://registry.yarnpkg.com/@shardlabs/starknet-hardhat-plugin/-/starknet-hardhat-plugin-0.6.3.tgz#1fea5672a4b4d58943b56631e0271399c1a5225f"
-  integrity sha512-c8utit5fvJbzY2e8qym7L9gWlMCLrmdLhZoLkmPA5NsExXSuIJZEWmQe6DsLv/yWLjyMAfb2ny3uGZ8cjGAcbQ==
+"@shardlabs/starknet-hardhat-plugin@0.6.6-alpha.2":
+  version "0.6.6-alpha.2"
+  resolved "https://registry.yarnpkg.com/@shardlabs/starknet-hardhat-plugin/-/starknet-hardhat-plugin-0.6.6-alpha.2.tgz#38b36f3748d84997131e716f04f271e288263e9c"
+  integrity sha512-neTtkkngbYzMS+OU9B5yJcADx4M1xH5LlL6k4yh8TFRbCVrr4JDJgQUgv8bxq2axcKGjpVG6VENfGyoCmfLo+w==
   dependencies:
     "@nomiclabs/hardhat-docker" "^2.0.2"
     axios "^0.24.0"
