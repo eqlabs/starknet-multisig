@@ -1,4 +1,4 @@
-# Starknet multisig
+# Starsign multisig
 
 Multi-signature functionality for [StarkNet](https://starknet.io/what-is-starknet).
 
