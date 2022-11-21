@@ -6,7 +6,7 @@ Latest npm package: [![npm version](https://badge.fury.io/js/starsign-multisig.s
 
 > ## ⚠️ WARNING! ⚠️
 >
-> This repo contains unaudited code. Expect rapid iteration.
+> Projects using this repository's code will be deleted in the next Regenesis. Read more below.
 > **Do not use in production.**
 
 ## Current version
@@ -17,6 +17,26 @@ The current version contains all basic multisig functionality. This version cons
 - Unit tests for testing all the multisig functionality
 
 The current version supports on-chain multi-signatures. The multisig is a separate contract, which is called through your regular account contract (wallet).
+
+## Regenesis breaks this project
+
+StarkNet will have a [regenesis event](https://medium.com/starkware/starknet-regenesis-the-plan-bd0219843ef4) around the end of 2022.
+
+The regenesis will break any deployments of this contract's code. Therefore the regenesis will basically destroy any deployed Starsign contracts.
+
+It is therefore **imperative** that you do not use this repository's code before:
+
+1. Regenesis event has passed
+1. The code has been updated to Cairo version 1.0
+1. This README is updated accordingly
+
+We regret the situation but there isn't much we could do about it. Any non-upgradeable contract will get destroyed in the regenesis. There is little point in making our contracts upgradeable just to accommodate the regenesis.
+
+## Audit
+
+The contracts pre-1.0 version has been audited by Trail of Bits. The report can be found [here](/audits/Equilibrium%20Multisig%20Final%20Report.pdf).
+
+The audit report only audited a snapshot of the repository and does not include information about implemented fixes to the code. Issues 1-3 mentioned in the report have been fixed, informational issue 4 resulted in a disagreement and ended up as not addressed.
 
 ## Functionality
 
@@ -66,10 +86,6 @@ There exist three functions for changing the signers and threshold:
 - `set_signers_and_threshold`
 
 Only signers can change the threshold and the amount of signers. These actions need to go through the multisig itself, so you have to go through the `submit_transaction` function (setting the multisig contract itself as the transaction target).
-
-## Audit
-
-The contract code **has not been audited**. An audit is scheduled for September 2022.
 
 ## Future development
 
