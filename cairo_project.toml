@@ -1,2 +1,2 @@
 [crate_roots]
-multisig = "src"
+starsign = "src"
