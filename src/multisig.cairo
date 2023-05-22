@@ -6,10 +6,10 @@ impl TCopy: Copy<T>,
 impl TDrop: Drop<T>,
 impl TPartialEq: PartialEq<T>,
 >(
-    a: @Array::<T>
+    arr: @Array::<T>
 ) {
-    let len = a.len();
-    _assert_unique_values_loop(a, len, 0_usize, 1_usize);
+    let len = arr.len();
+    _assert_unique_values_loop(arr, len, 0_usize, 1_usize);
 }
 
 fn _assert_unique_values_loop<T,
@@ -17,21 +17,21 @@ impl TCopy: Copy<T>,
 impl TDrop: Drop<T>,
 impl TPartialEq: PartialEq<T>,
 >(
-    a: @Array::<T>, len: usize, j: usize, k: usize
+    arr: @Array::<T>, len: usize, j: usize, k: usize
 ) {
     if j >= len {
         return ();
     }
     if k >= len {
         gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
-        _assert_unique_values_loop(a, len, j + 1_usize, j + 2_usize);
+        _assert_unique_values_loop(arr, len, j + 1_usize, j + 2_usize);
         return ();
     }
-    let j_val = *a.at(j);
-    let k_val = *a.at(k);
-    assert(j_val != k_val, 'duplicate values');
+
+    assert(*arr.at(j) != *arr.at(k), 'duplicate values');
+    
     gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
-    _assert_unique_values_loop(a, len, j, k + 1_usize);
+    _assert_unique_values_loop(arr, len, j, k + 1_usize);
 }
 
 
