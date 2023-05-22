@@ -1,3 +1,4 @@
 mod multisig;
 
-mod test;
+#[cfg(test)]
+mod tests;
