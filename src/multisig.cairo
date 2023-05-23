@@ -1,5 +1,60 @@
 use array::ArrayTrait;
 use option::OptionTrait;
+use starknet::ContractAddress;
+
+#[abi]
+trait IMultisig {
+    #[view]
+    fn is_signer(address: ContractAddress) -> bool;
+
+    #[view]
+    fn get_signers_len() -> usize;
+
+    #[view]
+    fn get_signers() -> Array<ContractAddress>;
+
+    #[view]
+    fn get_threshold() -> usize;
+
+    #[view]
+    fn get_transactions_len() -> u128;
+
+    #[view]
+    fn is_confirmed(nonce: u128, signer: ContractAddress) -> bool;
+
+    #[view]
+    fn is_executed(nonce: u128) -> bool;
+
+    #[view]
+    fn get_transaction(nonce: u128) -> (Multisig::Transaction, Array::<felt252>);
+
+    #[view]
+    fn type_and_version() -> felt252;
+
+    #[external]
+    fn submit_transaction(
+        to: ContractAddress, function_selector: felt252, calldata: Array<felt252>, nonce: u128
+    );
+
+    #[external]
+    fn confirm_transaction(nonce: u128);
+
+    #[external]
+    fn revoke_confirmation(nonce: u128);
+
+    #[external]
+    fn execute_transaction(nonce: u128) -> Array<felt252>;
+
+    #[external]
+    fn set_threshold(threshold: usize);
+
+    #[external]
+    fn set_signers(signers: Array<ContractAddress>);
+
+    #[external]
+    fn set_signers_and_threshold(signers: Array<ContractAddress>, threshold: usize);
+}
+
 
 fn assert_unique_values<T,
 impl TCopy: Copy<T>,
@@ -78,15 +133,6 @@ mod Multisig {
     #[event]
     fn ThresholdSet(threshold: usize) {}
 
-    #[derive(Copy, Drop, Serde)]
-    struct Transaction {
-        to: ContractAddress,
-        function_selector: felt252,
-        calldata_len: usize,
-        executed: bool,
-        confirmations: usize,
-    }
-
     impl TransactionStorageAccess of StorageAccess<Transaction> {
         fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult::<Transaction> {
             Result::Ok(
@@ -145,6 +191,15 @@ mod Multisig {
                 value.confirmations.into()
             )
         }
+    }
+
+    #[derive(Copy, Drop, Serde)]
+    struct Transaction {
+        to: ContractAddress,
+        function_selector: felt252,
+        calldata_len: usize,
+        executed: bool,
+        confirmations: usize,
     }
 
     struct Storage {
