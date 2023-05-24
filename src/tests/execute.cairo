@@ -14,7 +14,6 @@ use starknet::get_caller_address;
 use starknet::call_contract_syscall;
 
 use integer::u32_try_from_felt252;
-//use starknet::hash;
 
 use traits::Into;
 use traits::TryInto;
@@ -24,16 +23,6 @@ use option::OptionTrait;
 use result::ResultTrait;
 
 use debug::PrintTrait;
-
-fn sample_calldata() -> Array::<felt252> {
-    
-    let mut calldata = ArrayTrait::new();
-    calldata.append(1);
-    calldata.append(2);
-    calldata.append(3);
-    calldata
-}
-
 
 fn get_multisig() -> (IMultisigDispatcher, ITargetDispatcher, ContractAddress) {
     let signer1 = contract_address_const::<10>();    
@@ -49,10 +38,11 @@ fn get_multisig() -> (IMultisigDispatcher, ITargetDispatcher, ContractAddress) {
     let (targetAddr, _) = deploy_syscall(Target::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false).unwrap();
     let (multisigAddr, _)  = deploy_syscall(Multisig::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false).unwrap();
 
-   // let targ : ITargetDispatcher = ITargetDispatcher{ contract_address: targetAddr };
-   // targ.increase_balance(6_felt252);
-
     (IMultisigDispatcher{ contract_address: multisigAddr }, ITargetDispatcher{ contract_address: targetAddr }, signer1)
+}
+
+fn getnum(num: felt252) -> u32 {
+    u32_try_from_felt252(num).unwrap()
 }
 
 #[test]
@@ -64,11 +54,7 @@ fn test_execute_transaction() {
     let balanceIncrease = 123_felt252;
     calldata.append(balanceIncrease);
 
-    let function_selector : felt252 = 1530486729947006463063166157847785599120665941190480211966374137237989315360; // increase_balance
-    //let function_selector : felt252 = 719168919277503865715616387323460779478755286155257338662333893870409807111; // increase_one
-    
-    //let function_selector : felt252 = 'increase_balance';
-     
+    let function_selector : felt252 = 1530486729947006463063166157847785599120665941190480211966374137237989315360; // increase_balance     
 
     let mut serializedCalldata = ArrayTrait::<felt252>::new(); 
     calldata.serialize(ref serializedCalldata);
@@ -81,24 +67,8 @@ fn test_execute_transaction() {
 
     let newBalance = target.get_balance();
 
-newBalance.print();
-//let newu32 = u32_try_from_felt252(oldBalance).unwrap();
-//let oldu32 = u32_try_from_felt252(newBalance).unwrap();
-
-
-let incu32 = u32_try_from_felt252(balanceIncrease);
-//let aaa : u32 = 
-//(u32_try_from_felt252(newBalance).unwrap() + 5_u32).print();
-
-//    assert((u32_try_from_felt252(oldBalance).unwrap()) + (u32_try_from_felt252(balanceIncrease).unwrap()) == u32_try_from_felt252(newBalance).unwrap(), 'hmm');
-
-    //newBalance.print();
-
-    //target.contract_address.print();
-
-    // let response = call_contract_syscall(
-    //         target.contract_address, function_selector, calldata.span()
-    //     );
+    // FIXME use the variable when this is fixed: https://github.com/starkware-libs/cairo/issues/3237
+    assert(getnum(oldBalance) + getnum(123_felt252) == getnum(newBalance), 'hmm');
 }
 
 // #[test]
