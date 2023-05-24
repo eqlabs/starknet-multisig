@@ -55,37 +55,13 @@ fn get_multisig() -> (IMultisigDispatcher, ITargetDispatcher, ContractAddress) {
     (IMultisigDispatcher{ contract_address: multisigAddr }, ITargetDispatcher{ contract_address: targetAddr }, signer1)
 }
 
-// #[test]
-// #[available_gas(2000000)]
-// fn test_temp() {
-//     let (multisig, target, signer1) = get_multisig();
-    
-//     let mut calldata = ArrayTrait::<felt252>::new(); 
-//     calldata.append(55_felt252);
-
-//     let function_selector : felt252 = 277939729603607724037470380663048476038328356497803262363779379079077575526; // doit
-
-     
-
-//     let mut serializedCalldata = ArrayTrait::<felt252>::new(); 
-//     calldata.serialize(ref serializedCalldata);
-//     // 8_felt252.print();
-//      (*serializedCalldata.at(0)).print();
-//      (*serializedCalldata.at(1)).print();
-    
-
-//     //target.contract_address.print();
-
-//     target.doit(calldata: serializedCalldata);
-// }
-
 #[test]
 #[available_gas(2000000)]
 fn test_execute_transaction() {
     let (multisig, target, signer1) = get_multisig();
-    
+
     let mut calldata = ArrayTrait::<felt252>::new(); 
-    let balanceIncrease = 59_felt252;
+    let balanceIncrease = 123_felt252;
     calldata.append(balanceIncrease);
 
     let function_selector : felt252 = 1530486729947006463063166157847785599120665941190480211966374137237989315360; // increase_balance
@@ -105,10 +81,16 @@ fn test_execute_transaction() {
 
     let newBalance = target.get_balance();
 
+newBalance.print();
+//let newu32 = u32_try_from_felt252(oldBalance).unwrap();
+//let oldu32 = u32_try_from_felt252(newBalance).unwrap();
 
 
-//
-    //assert(oldBalance.try_into() + balanceIncrease == newBalance.try_into().unwrap(), 'hmm');
+let incu32 = u32_try_from_felt252(balanceIncrease);
+//let aaa : u32 = 
+//(u32_try_from_felt252(newBalance).unwrap() + 5_u32).print();
+
+//    assert((u32_try_from_felt252(oldBalance).unwrap()) + (u32_try_from_felt252(balanceIncrease).unwrap()) == u32_try_from_felt252(newBalance).unwrap(), 'hmm');
 
     //newBalance.print();
 
