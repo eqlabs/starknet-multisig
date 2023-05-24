@@ -12,6 +12,8 @@ use starknet::testing::set_caller_address;
 use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::get_caller_address;
 use starknet::call_contract_syscall;
+
+use integer::u32_try_from_felt252;
 //use starknet::hash;
 
 use traits::Into;
@@ -47,11 +49,35 @@ fn get_multisig() -> (IMultisigDispatcher, ITargetDispatcher, ContractAddress) {
     let (targetAddr, _) = deploy_syscall(Target::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false).unwrap();
     let (multisigAddr, _)  = deploy_syscall(Multisig::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false).unwrap();
 
-    let targ : ITargetDispatcher = ITargetDispatcher{ contract_address: targetAddr };
-    targ.increase_balance(6_felt252);
+   // let targ : ITargetDispatcher = ITargetDispatcher{ contract_address: targetAddr };
+   // targ.increase_balance(6_felt252);
 
     (IMultisigDispatcher{ contract_address: multisigAddr }, ITargetDispatcher{ contract_address: targetAddr }, signer1)
 }
+
+// #[test]
+// #[available_gas(2000000)]
+// fn test_temp() {
+//     let (multisig, target, signer1) = get_multisig();
+    
+//     let mut calldata = ArrayTrait::<felt252>::new(); 
+//     calldata.append(55_felt252);
+
+//     let function_selector : felt252 = 277939729603607724037470380663048476038328356497803262363779379079077575526; // doit
+
+     
+
+//     let mut serializedCalldata = ArrayTrait::<felt252>::new(); 
+//     calldata.serialize(ref serializedCalldata);
+//     // 8_felt252.print();
+//      (*serializedCalldata.at(0)).print();
+//      (*serializedCalldata.at(1)).print();
+    
+
+//     //target.contract_address.print();
+
+//     target.doit(calldata: serializedCalldata);
+// }
 
 #[test]
 #[available_gas(2000000)]
@@ -59,7 +85,8 @@ fn test_execute_transaction() {
     let (multisig, target, signer1) = get_multisig();
     
     let mut calldata = ArrayTrait::<felt252>::new(); 
-    calldata.append(5_felt252);
+    let balanceIncrease = 59_felt252;
+    calldata.append(balanceIncrease);
 
     let function_selector : felt252 = 1530486729947006463063166157847785599120665941190480211966374137237989315360; // increase_balance
     //let function_selector : felt252 = 719168919277503865715616387323460779478755286155257338662333893870409807111; // increase_one
@@ -69,18 +96,21 @@ fn test_execute_transaction() {
 
     let mut serializedCalldata = ArrayTrait::<felt252>::new(); 
     calldata.serialize(ref serializedCalldata);
-    8_felt252.print();
-    (*serializedCalldata.at(0)).print();
-    (*serializedCalldata.at(1)).print();
-    multisig.submit_transaction(to: target.contract_address, :function_selector, calldata: serializedCalldata, nonce: 0);
+
+    multisig.submit_transaction(to: target.contract_address, function_selector: function_selector, function_calldata: serializedCalldata, nonce: 0);
 
     let oldBalance = target.get_balance();
 
     multisig.execute_transaction(0_u128);
 
     let newBalance = target.get_balance();
-    4_felt252.print();
-    newBalance.print();
+
+
+
+//
+    //assert(oldBalance.try_into() + balanceIncrease == newBalance.try_into().unwrap(), 'hmm');
+
+    //newBalance.print();
 
     //target.contract_address.print();
 

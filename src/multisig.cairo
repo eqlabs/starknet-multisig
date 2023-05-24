@@ -33,7 +33,7 @@ trait IMultisig {
 
     #[external]
     fn submit_transaction(
-        to: ContractAddress, function_selector: felt252, calldata: Array<felt252>, nonce: u128
+        to: ContractAddress, function_selector: felt252, function_calldata: Array<felt252>, nonce: u128
     );
 
     #[external]
@@ -269,11 +269,11 @@ mod Multisig {
     fn get_transaction(nonce: u128) -> (Transaction, Array::<felt252>) {
         let transaction = _transactions::read(nonce);
 
-        let mut calldata = ArrayTrait::new();
+        let mut function_calldata = ArrayTrait::new();
         let calldata_len = transaction.calldata_len;
-        _get_transaction_calldata_range(nonce, 0_usize, calldata_len, ref calldata);
+        _get_transaction_calldata_range(nonce, 0_usize, calldata_len, ref function_calldata);
 
-        (transaction, calldata)
+        (transaction, function_calldata)
     }
 
     #[view]
@@ -291,15 +291,12 @@ mod Multisig {
 
     #[external]
     fn submit_transaction(
-        to: ContractAddress, function_selector: felt252, calldata: Array<felt252>, nonce: u128
+        to: ContractAddress, function_selector: felt252, function_calldata: Array<felt252>, nonce: u128
     ) {
        // _require_signer();
         _require_valid_nonce(nonce);
 
-        let calldata_len = calldata.len();
-        81_felt252.print();
-        (*calldata.at(0)).print();
-        (*calldata.at(1)).print();
+        let calldata_len = function_calldata.len();
 
         let transaction = Transaction {
             to: to,
@@ -310,7 +307,7 @@ mod Multisig {
         };
         _transactions::write(nonce, transaction);
 
-        _set_transaction_calldata_range(nonce, 0_usize, calldata_len, @calldata);
+        _set_transaction_calldata_range(nonce, 0_usize, calldata_len, @function_calldata);
 
         let caller = get_caller_address();
         TransactionSubmitted(caller, nonce, to);
@@ -366,11 +363,10 @@ mod Multisig {
         let threshold = _threshold::read();
        // assert(threshold <= transaction.confirmations, 'more confirmations required');
 
-        let mut calldata = ArrayTrait::new();
+        let mut function_calldata = ArrayTrait::new();
         let calldata_len = transaction.calldata_len;
-        8_felt252.print();
-        calldata_len.print();
-        _get_transaction_calldata_range(nonce, 0_usize, calldata_len, ref calldata);
+
+        _get_transaction_calldata_range(nonce, 0_usize, calldata_len, ref function_calldata);
 
         transaction.executed = true;
         _transactions::write(nonce, transaction);
@@ -378,26 +374,8 @@ mod Multisig {
         let caller = get_caller_address();
         TransactionExecuted(caller, nonce);
 
-        
-
-        //let mut deserializedCalldata = ArrayTrait::<felt252>::new(); 
-        let mut bb = calldata.span();
-        let deserializedCalldata = serde::ArraySerde::<felt252>::deserialize(ref bb).unwrap();
-
-        // signers.serialize(ref calldata);
-
-        // transaction.to.print();
-        // function_selector.print();
-
-        // let aaa = pedersen(function_selector, 0_felt252);
-        // aaa.print();
-        7448_felt252.print();
-        calldata.len().print();
-        deserializedCalldata.len().print();
-        (*calldata.at(1)).print();
-        (*deserializedCalldata.at(0)).print();
-        transaction.to.print();
-        transaction.function_selector.print();
+        let mut calldata_span = function_calldata.span();
+        let deserializedCalldata = serde::ArraySerde::<felt252>::deserialize(ref calldata_span).unwrap();
 
         let response = call_contract_syscall(
             transaction.to, transaction.function_selector, deserializedCalldata.span()
@@ -504,23 +482,21 @@ mod Multisig {
     }
 
     fn _set_transaction_calldata_range(
-        nonce: u128, index: usize, len: usize, calldata: @Array<felt252>
+        nonce: u128, index: usize, len: usize, function_calldata: @Array<felt252>
     ) {
         if index >= len {
             return ();
         }
 
-        let calldata_arg = *calldata.at(index);
-        99_felt252.print();
-        calldata_arg.print();
+        let calldata_arg = *function_calldata.at(index);
         _transaction_calldata::write((nonce, index), calldata_arg);
 
         gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
-        _set_transaction_calldata_range(nonce, index + 1_usize, len, calldata);
+        _set_transaction_calldata_range(nonce, index + 1_usize, len, function_calldata);
     }
 
     fn _get_transaction_calldata_range(
-        nonce: u128, index: usize, len: usize, ref calldata: Array<felt252>
+        nonce: u128, index: usize, len: usize, ref function_calldata: Array<felt252>
     ) {
         if index >= len {
             return ();
@@ -528,10 +504,10 @@ mod Multisig {
 
         let calldata_arg = _transaction_calldata::read((nonce, index));
         
-        calldata.append(calldata_arg);
+        function_calldata.append(calldata_arg);
 
         gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
-        _get_transaction_calldata_range(nonce, index + 1_usize, len, ref calldata);
+        _get_transaction_calldata_range(nonce, index + 1_usize, len, ref function_calldata);
     }
 
     fn _set_threshold(threshold: usize) {
@@ -541,7 +517,6 @@ mod Multisig {
 
     fn _require_signer() {
         let caller = get_caller_address();
-        //caller.print();
         let is_signer = _is_signer::read(caller);
         assert(is_signer, 'invalid signer');
     }
