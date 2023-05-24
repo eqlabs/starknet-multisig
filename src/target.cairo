@@ -1,3 +1,12 @@
+#[abi]
+trait ITarget {
+    #[view]
+    fn get_balance() -> felt252;
+
+    #[external]
+    fn increase_balance(amount: felt252);
+}
+
 #[contract]
 mod Target {
 

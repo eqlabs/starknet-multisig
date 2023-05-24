@@ -96,10 +96,10 @@ mod Multisig {
 
     use traits::Into;
     use traits::TryInto;
-    use zeroable::Zeroable;
     use array::ArrayTrait;
     use array::ArrayTCloneImpl;
     use option::OptionTrait;
+    use serde::Serde;
 
     use starknet::ContractAddress;
     use starknet::ContractAddressIntoFelt252;
@@ -113,7 +113,9 @@ mod Multisig {
     use starknet::storage_address_from_base_and_offset;
     use starknet::storage_read_syscall;
     use starknet::storage_write_syscall;
-    use starknet::class_hash::ClassHash;
+    
+
+    use debug::PrintTrait;
 
     #[event]
     fn TransactionSubmitted(signer: ContractAddress, nonce: u128, to: ContractAddress) {}
@@ -291,10 +293,13 @@ mod Multisig {
     fn submit_transaction(
         to: ContractAddress, function_selector: felt252, calldata: Array<felt252>, nonce: u128
     ) {
-        _require_signer();
+       // _require_signer();
         _require_valid_nonce(nonce);
 
         let calldata_len = calldata.len();
+        81_felt252.print();
+        (*calldata.at(0)).print();
+        (*calldata.at(1)).print();
 
         let transaction = Transaction {
             to: to,
@@ -359,10 +364,12 @@ mod Multisig {
         let mut transaction = _transactions::read(nonce);
 
         let threshold = _threshold::read();
-        assert(threshold <= transaction.confirmations, 'more confirmations required');
+       // assert(threshold <= transaction.confirmations, 'more confirmations required');
 
         let mut calldata = ArrayTrait::new();
         let calldata_len = transaction.calldata_len;
+        8_felt252.print();
+        calldata_len.print();
         _get_transaction_calldata_range(nonce, 0_usize, calldata_len, ref calldata);
 
         transaction.executed = true;
@@ -371,8 +378,29 @@ mod Multisig {
         let caller = get_caller_address();
         TransactionExecuted(caller, nonce);
 
+        
+
+        //let mut deserializedCalldata = ArrayTrait::<felt252>::new(); 
+        let mut bb = calldata.span();
+        let deserializedCalldata = serde::ArraySerde::<felt252>::deserialize(ref bb).unwrap();
+
+        // signers.serialize(ref calldata);
+
+        // transaction.to.print();
+        // function_selector.print();
+
+        // let aaa = pedersen(function_selector, 0_felt252);
+        // aaa.print();
+        7448_felt252.print();
+        calldata.len().print();
+        deserializedCalldata.len().print();
+        (*calldata.at(1)).print();
+        (*deserializedCalldata.at(0)).print();
+        transaction.to.print();
+        transaction.function_selector.print();
+
         let response = call_contract_syscall(
-            transaction.to, transaction.function_selector, calldata.span()
+            transaction.to, transaction.function_selector, deserializedCalldata.span()
         ).unwrap_syscall();
 
         // TODO: this shouldn't be necessary. call_contract_syscall returns a Span<felt252>, which
@@ -483,6 +511,8 @@ mod Multisig {
         }
 
         let calldata_arg = *calldata.at(index);
+        99_felt252.print();
+        calldata_arg.print();
         _transaction_calldata::write((nonce, index), calldata_arg);
 
         gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
@@ -497,6 +527,7 @@ mod Multisig {
         }
 
         let calldata_arg = _transaction_calldata::read((nonce, index));
+        
         calldata.append(calldata_arg);
 
         gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
@@ -510,6 +541,7 @@ mod Multisig {
 
     fn _require_signer() {
         let caller = get_caller_address();
+        //caller.print();
         let is_signer = _is_signer::read(caller);
         assert(is_signer, 'invalid signer');
     }

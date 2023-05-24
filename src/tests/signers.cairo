@@ -58,3 +58,5 @@ fn test_get_threshold() {
     Multisig::constructor(:signers, threshold: 1);
     assert(Multisig::get_threshold() == 1, 'should equal threshold of 1');
 }
+
+// TODO set signers and thresholds
