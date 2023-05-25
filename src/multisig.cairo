@@ -293,7 +293,7 @@ mod Multisig {
     fn submit_transaction(
         to: ContractAddress, function_selector: felt252, function_calldata: Array<felt252>, nonce: u128
     ) {
-       // _require_signer();
+        _require_signer();
         _require_valid_nonce(nonce);
 
         let calldata_len = function_calldata.len();
@@ -361,7 +361,7 @@ mod Multisig {
         let mut transaction = _transactions::read(nonce);
 
         let threshold = _threshold::read();
-       // assert(threshold <= transaction.confirmations, 'more confirmations required');
+        assert(threshold <= transaction.confirmations, 'more confirmations required');
 
         let mut function_calldata = ArrayTrait::new();
         let calldata_len = transaction.calldata_len;

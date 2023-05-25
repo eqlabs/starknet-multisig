@@ -9,6 +9,7 @@ use starknet::syscalls::deploy_syscall;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing::set_caller_address;
+use starknet::testing::set_contract_address;
 use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::get_caller_address;
 use starknet::call_contract_syscall;
@@ -46,7 +47,7 @@ fn getnum(num: felt252) -> u32 {
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_execute_transaction() {
     let (multisig, target, signer1) = get_multisig();
 
@@ -59,16 +60,19 @@ fn test_execute_transaction() {
     let mut serializedCalldata = ArrayTrait::<felt252>::new(); 
     calldata.serialize(ref serializedCalldata);
 
+    set_contract_address(signer1);
+
     multisig.submit_transaction(to: target.contract_address, function_selector: function_selector, function_calldata: serializedCalldata, nonce: 0);
 
-    let oldBalance = target.get_balance();
+    let oldBalance = target.get_balance();    
 
+    multisig.confirm_transaction(0_u128);
     multisig.execute_transaction(0_u128);
 
     let newBalance = target.get_balance();
 
     // FIXME use the variable when this is fixed: https://github.com/starkware-libs/cairo/issues/3237
-    assert(getnum(oldBalance) + getnum(123_felt252) == getnum(newBalance), 'hmm');
+    assert(getnum(oldBalance) + getnum(123_felt252) == getnum(newBalance), 'invalid result');
 }
 
 // #[test]
