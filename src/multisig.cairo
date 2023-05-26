@@ -374,9 +374,6 @@ mod Multisig {
         let caller = get_caller_address();
         TransactionExecuted(caller, nonce);
 
-        let mut calldata_span = function_calldata.span();
-        let deserializedCalldata = serde::ArraySerde::<felt252>::deserialize(ref calldata_span).unwrap();
-
         let response = call_contract_syscall(
             transaction.to, transaction.function_selector, function_calldata.span()
         ).unwrap_syscall();
