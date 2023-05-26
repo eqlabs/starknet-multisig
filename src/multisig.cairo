@@ -378,7 +378,7 @@ mod Multisig {
         let deserializedCalldata = serde::ArraySerde::<felt252>::deserialize(ref calldata_span).unwrap();
 
         let response = call_contract_syscall(
-            transaction.to, transaction.function_selector, deserializedCalldata.span()
+            transaction.to, transaction.function_selector, function_calldata.span()
         ).unwrap_syscall();
 
         // TODO: this shouldn't be necessary. call_contract_syscall returns a Span<felt252>, which
