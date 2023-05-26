@@ -20,6 +20,7 @@ use traits::Into;
 use traits::TryInto;
 use serde::Serde;
 use array::ArrayTrait;
+use array::SpanTrait;
 use option::OptionTrait;
 use result::ResultTrait;
 
@@ -48,15 +49,6 @@ fn get_multisig() -> (IMultisigDispatcher, ITargetDispatcher, ContractAddress) {
 
 fn getnum(num: felt252) -> u32 {
     u32_try_from_felt252(num).unwrap()
-}
-
-fn getCalldata(increase : felt252) -> Array<felt252> {
-    let mut calldata = ArrayTrait::<felt252>::new(); 
-    calldata.append(increase);
-
-    let mut serializedCalldata = ArrayTrait::<felt252>::new(); 
-    calldata.serialize(ref serializedCalldata);
-    serializedCalldata
 }
 
 #[test]
@@ -190,13 +182,18 @@ fn test_execute_fails_without_signers() {
     let (multisig, target, signer1) = get_multisig();
     set_contract_address(signer1);
 
-    let serializedCalldata0 = getCalldata(12_felt252);
-    let serializedCalldata1 = getCalldata(13_felt252);
-    let serializedCalldata2 = getCalldata(14_felt252);    
+    let mut calldata0 = ArrayTrait::<felt252>::new();
+    calldata0.append(12_felt252);
 
-    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: serializedCalldata0, nonce: 0);
-    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: serializedCalldata1, nonce: 1);
-    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: serializedCalldata2, nonce: 2);     
+    let mut calldata1 = ArrayTrait::<felt252>::new();
+    calldata1.append(13_felt252);
+
+    let mut calldata2 = ArrayTrait::<felt252>::new();
+    calldata2.append(14_felt252);    
+
+    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata0, nonce: 0);
+    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata1, nonce: 1);
+    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata2, nonce: 2);     
 
     let mut signers = ArrayTrait::<felt252>::new();
     let mut serializedSigners = ArrayTrait::<felt252>::new();
@@ -218,11 +215,12 @@ fn test_execute_fails_without_signers() {
 fn test_execute_fails_too_few_confirmations() {
     let (multisig, target, signer1) = get_multisig();
 
-    let serializedCalldata = getCalldata(12_felt252);
+    let mut calldata = ArrayTrait::<felt252>::new();
+    calldata.append(12_felt252);
 
     set_contract_address(signer1);
 
-    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: serializedCalldata, nonce: 0);
+    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata, nonce: 0);
 
     multisig.execute_transaction(0_u128);
 }
