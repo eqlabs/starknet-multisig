@@ -81,38 +81,70 @@ fn test_works() {
     }
 }
 
-// #[test]
-// #[available_gas(2000000)]
-// #[should_panic]
-// fn test_submit_transaction_not_signer() {
-//     let signer = contract_address_const::<1>();
-//     let mut signers = ArrayTrait::new();
-//     signers.append(signer);
-//     Multisig::constructor(:signers, threshold: 1);
+#[test]
+#[available_gas(2000000)]
+fn test_empty_values_works() {
+    let (multisig, signer1) = get_multisig();
+    set_contract_address(signer1);
 
-//     set_caller_address(contract_address_const::<3>());
-//     Multisig::submit_transaction(
-//         to: contract_address_const::<42>(),
-//         function_selector: 10,
-//         calldata: sample_calldata(),
-//         nonce: 0
-//     );
-// }
+    let mut calldata = ArrayTrait::<felt252>::new();
+    
+    let function_selector = 0;
+    let dummyAddress = contract_address_const::<0>(); 
+    multisig.submit_transaction(to: dummyAddress, :function_selector, function_calldata: calldata, nonce: 0);
 
-// #[test]
-// #[available_gas(2000000)]
-// #[should_panic]
-// fn test_submit_transaction_invalid_nonce() {
-//     let signer = contract_address_const::<1>();
-//     let mut signers = ArrayTrait::new();
-//     signers.append(signer);
-//     Multisig::constructor(:signers, threshold: 1);
+    let (transaction, retrievedCalldata) = multisig.get_transaction(0);
 
-//     set_caller_address(signer);
-//     Multisig::submit_transaction(
-//         to: contract_address_const::<42>(),
-//         function_selector: 10,
-//         calldata: sample_calldata(),
-//         nonce: 1
-//     );
-// }
+    assert(transaction.to == dummyAddress, 'should match target address');
+    assert(transaction.function_selector == function_selector, 'should match function selector');
+    assert(transaction.calldata_len == 0, 'should match calldata length');
+    assert(!transaction.executed, 'should not be executed');
+    assert(transaction.confirmations == 0, 'should not have confirmations');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('invalid nonce','ENTRYPOINT_FAILED'))]
+fn test_too_big_nonce_fails() {
+    let (multisig, signer1) = get_multisig();
+    set_contract_address(signer1);
+
+    let mut calldata = ArrayTrait::<felt252>::new();
+    calldata.append(1_felt252);
+    
+    let function_selector = 100;
+    multisig.submit_transaction(to: multisig.contract_address, :function_selector, function_calldata: calldata, nonce: 1);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('invalid nonce','ENTRYPOINT_FAILED'))]
+fn test_too_small_nonce_fails() {
+    let (multisig, signer1) = get_multisig();
+    set_contract_address(signer1);
+
+    let mut calldata = ArrayTrait::<felt252>::new();
+    calldata.append(1_felt252);
+
+    let mut calldata2 = ArrayTrait::<felt252>::new();
+    calldata2.append(1_felt252);
+    
+    let function_selector = 100;
+    multisig.submit_transaction(to: multisig.contract_address, :function_selector, function_calldata: calldata, nonce: 0);
+    multisig.submit_transaction(to: multisig.contract_address, :function_selector, function_calldata: calldata2, nonce: 0);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('invalid signer','ENTRYPOINT_FAILED'))]
+fn test_non_signer_submit_fails() {
+    let (multisig, signer1) = get_multisig();
+    let user2 = contract_address_const::<20>();   
+    set_contract_address(user2);
+
+    let mut calldata = ArrayTrait::<felt252>::new();
+    calldata.append(1_felt252);
+    
+    let function_selector = 100;
+    multisig.submit_transaction(to: multisig.contract_address, :function_selector, function_calldata: calldata, nonce: 0);
+}
