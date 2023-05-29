@@ -13,6 +13,7 @@ use traits::Into;
 use traits::TryInto;
 use serde::Serde;
 use array::ArrayTrait;
+use array::SpanTrait;
 use option::OptionTrait;
 use result::ResultTrait;
 
@@ -47,18 +48,37 @@ fn get_multisig() -> (IMultisigDispatcher, ContractAddress) {
 fn test_works() {
     let (multisig, signer1) = get_multisig();
     set_contract_address(signer1);
+
+    let mut used_calldata = ArrayTrait::<felt252>::new();
+    used_calldata.append(1_felt252);
+    used_calldata.append(2_felt252);
+    used_calldata.append(3_felt252);
+
+    let calldata_span = used_calldata.span();
     
     let function_selector = 100;
-    multisig.submit_transaction(to: multisig.contract_address, :function_selector, function_calldata: sample_calldata(), nonce: 0);
+    multisig.submit_transaction(to: multisig.contract_address, :function_selector, function_calldata: used_calldata, nonce: 0);
 
-    let (transaction, calldata) = multisig.get_transaction(0);
+    let (transaction, retrievedCalldata) = multisig.get_transaction(0);
 
-    // assert(transaction.to == multisig.contract_address, 'should match target address');
-    // assert(transaction.function_selector == function_selector, 'should match function selector');
-    // assert(transaction.calldata_len == sample_calldata().len(), 'should match calldata length');
-    // assert(!transaction.executed, 'should not be executed');
-    // assert(transaction.confirmations == 0, 'should not have confirmations');
-// TODO: compare calldata when loops are supported
+    assert(transaction.to == multisig.contract_address, 'should match target address');
+    assert(transaction.function_selector == function_selector, 'should match function selector');
+    assert(transaction.calldata_len == sample_calldata().len(), 'should match calldata length');
+    assert(!transaction.executed, 'should not be executed');
+    assert(transaction.confirmations == 0, 'should not have confirmations');
+     
+    assert(calldata_span.len() == retrievedCalldata.len(), 'invalid calldata length') ;
+
+    // check calldata
+    let mut i : usize = 0;
+    loop {
+        if (i == retrievedCalldata.len()) {
+            break ();
+        }
+        assert(*calldata_span.at(i) == *retrievedCalldata.at(i), 'invalid calldata');
+
+        i = i + 1_usize;
+    }
 }
 
 // #[test]
