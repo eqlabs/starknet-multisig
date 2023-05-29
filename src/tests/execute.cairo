@@ -178,40 +178,31 @@ fn test_execute__and_confirm_in_arbitrary_order() {
 
 #[test]
 #[available_gas(20000000)]
+#[should_panic(expected: ('invalid signer','ENTRYPOINT_FAILED'))]
 fn test_execute_fails_without_signers() {
     let (multisig, target, signer1) = get_multisig();
     set_contract_address(signer1);
-
-    let mut calldata0 = ArrayTrait::<felt252>::new();
-    calldata0.append(12_felt252);
-
-    let mut calldata1 = ArrayTrait::<felt252>::new();
-    calldata1.append(13_felt252);
-
-    let mut calldata2 = ArrayTrait::<felt252>::new();
-    calldata2.append(14_felt252);    
-
-    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata0, nonce: 0);
-    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata1, nonce: 1);
-    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata2, nonce: 2);     
 
     let mut signers = ArrayTrait::<felt252>::new();
     let mut serializedSigners = ArrayTrait::<felt252>::new();
 
     signers.serialize(ref serializedSigners);
 
-    multisig.submit_transaction(to: multisig.contract_address, function_selector: FUNCTION_SELECTOR_SET_SIGNERS, function_calldata: serializedSigners, nonce: 3);     
+    multisig.submit_transaction(to: multisig.contract_address, function_selector: FUNCTION_SELECTOR_SET_SIGNERS, function_calldata: serializedSigners, nonce: 0);     
 
-    multisig.confirm_transaction(3_u128);
-    multisig.execute_transaction(3_u128);
-    
-    // TODO: asserts
+    multisig.confirm_transaction(0_u128);
+    multisig.execute_transaction(0_u128);
+
+    // Unable to submit further transactions
+    let mut calldata0 = ArrayTrait::<felt252>::new();
+    calldata0.append(12_felt252);
+    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata0, nonce: 1);
 }
 
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic]
+#[should_panic(expected: ('more confirmations required','ENTRYPOINT_FAILED'))]
 fn test_execute_fails_too_few_confirmations() {
     let (multisig, target, signer1) = get_multisig();
 
@@ -224,5 +215,6 @@ fn test_execute_fails_too_few_confirmations() {
 
     multisig.execute_transaction(0_u128);
 }
+
 
 // TODO: rest of the tests
