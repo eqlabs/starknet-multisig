@@ -334,6 +334,3 @@ fn test_execute_fails_too_few_confirmations() {
 
     multisig.execute_transaction(0_u128);
 }
-
-
-// TODO: rest of the tests

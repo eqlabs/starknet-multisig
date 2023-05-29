@@ -5,7 +5,7 @@ use starsign::multisig::IMultisigDispatcherTrait;
 use starknet::syscalls::deploy_syscall;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
-use starknet::testing::set_caller_address;
+use starknet::testing::set_contract_address;
 use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::get_caller_address;
 
@@ -44,19 +44,14 @@ fn get_multisig() -> (IMultisigDispatcher, ContractAddress) {
 
 #[test]
 #[available_gas(2000000)]
-fn test_submit_transaction() {
+fn test_works() {
     let (multisig, signer1) = get_multisig();
-set_caller_address(signer1);
-
-    signer1.print();
-    let a : ContractAddress = get_caller_address();
-    a.print();
-
+    set_contract_address(signer1);
     
     let function_selector = 100;
-    multisig.submit_transaction(to: multisig.contract_address, :function_selector, calldata: sample_calldata(), nonce: 0);
+    multisig.submit_transaction(to: multisig.contract_address, :function_selector, function_calldata: sample_calldata(), nonce: 0);
 
-    // let (transaction, calldata) = multisig.get_transaction(0);
+    let (transaction, calldata) = multisig.get_transaction(0);
 
     // assert(transaction.to == multisig.contract_address, 'should match target address');
     // assert(transaction.function_selector == function_selector, 'should match function selector');
