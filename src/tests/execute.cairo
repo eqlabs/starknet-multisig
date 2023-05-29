@@ -4,6 +4,7 @@ use starsign::multisig::IMultisigDispatcherTrait;
 use starsign::target::Target;
 use starsign::target::ITargetDispatcher;
 use starsign::target::ITargetDispatcherTrait;
+use starsign::target::Something;
 
 use starknet::syscalls::deploy_syscall;
 use starknet::ContractAddress;
@@ -29,6 +30,7 @@ use debug::PrintTrait;
 // Calculated with https://www.stark-utils.xyz/converter
 const FUNCTION_SELECTOR : felt252 = 1530486729947006463063166157847785599120665941190480211966374137237989315360; // increase_balance     
 const FUNCTION_SELECTOR_SET_SIGNERS : felt252 = 667654066930288457060622961440209991290119613176827951904429854971730312982; // set_signers
+const FUNCTION_SELECTOR_COMPLEX_INPUTS : felt252 = 1248215369616729131475520150826638084531676903739261877583237611528878977339; // complex_inputs
 
 fn get_multisig() -> (IMultisigDispatcher, ITargetDispatcher, ContractAddress) {
     let signer1 = contract_address_const::<10>();    
@@ -197,6 +199,59 @@ fn test_execute_fails_without_signers() {
     let mut calldata0 = ArrayTrait::<felt252>::new();
     calldata0.append(12_felt252);
     multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata0, nonce: 1);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_execute_complex_arguments() {
+    let (multisig, target, signer1) = get_multisig();
+    set_contract_address(signer1);
+
+    let mut first = ArrayTrait::<usize>::new();
+    first.append(1_usize);
+    first.append(2_usize);
+    first.append(3_usize);
+
+    let mut second = ArrayTrait::<Something>::new();
+    second.append(Something { first: 4_usize, second: 5_usize });
+    second.append(Something { first: 6_usize, second: 7_usize });
+
+    let mut serializedFirst = ArrayTrait::<felt252>::new();
+    first.serialize(ref serializedFirst);
+
+    let mut serializedSecond = ArrayTrait::<felt252>::new();
+    second.serialize(ref serializedSecond);
+
+    let mut serializedCalldata = ArrayTrait::<felt252>::new();
+
+    // Concatenate the arrays into one
+
+    let mut i : usize = 0;
+    loop {
+        
+        if (i == serializedFirst.len()) {
+            break ();
+        }
+        serializedCalldata.append(*serializedFirst.at(i));
+        i = i + 1_usize;
+    };
+
+    i = 0;
+    loop {
+        
+        if (i == serializedSecond.len()) {
+            break ();
+        }
+        serializedCalldata.append(*serializedSecond.at(i));
+        i = i + 1_usize;
+    };
+
+    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR_COMPLEX_INPUTS, function_calldata: serializedCalldata, nonce: 0);
+    multisig.confirm_transaction(0_u128);
+    multisig.execute_transaction(0_u128);
+
+    let arraySum = target.get_arraySum();  
+    assert(arraySum == 28_usize, 'Invalid complex sum');
 }
 
 
