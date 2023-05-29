@@ -29,8 +29,6 @@ use debug::PrintTrait;
 
 // Calculated with https://www.stark-utils.xyz/converter
 const FUNCTION_SELECTOR : felt252 = 1530486729947006463063166157847785599120665941190480211966374137237989315360; // increase_balance     
-const FUNCTION_SELECTOR_SET_SIGNERS : felt252 = 667654066930288457060622961440209991290119613176827951904429854971730312982; // set_signers
-const FUNCTION_SELECTOR_COMPLEX_INPUTS : felt252 = 1248215369616729131475520150826638084531676903739261877583237611528878977339; // complex_inputs
 
 fn get_multisig() -> (IMultisigDispatcher, ITargetDispatcher, ContractAddress) {
     let signer1 = contract_address_const::<10>();    
@@ -55,7 +53,7 @@ fn getnum(num: felt252) -> u32 {
 
 #[test]
 #[available_gas(20000000)]
-fn test_execute_transaction() {
+fn test_works() {
     let (multisig, target, signer1) = get_multisig();
     set_contract_address(signer1);
 
@@ -76,7 +74,7 @@ fn test_execute_transaction() {
 
 #[test]
 #[available_gas(20000000)]
-fn test_execute_transaction_by_nonsigner() {
+fn test_nonsigner_can_execute() {
     let (multisig, target, signer1) = get_multisig();
     set_contract_address(signer1);
 
@@ -100,7 +98,7 @@ fn test_execute_transaction_by_nonsigner() {
 
 #[test]
 #[available_gas(20000000)]
-fn test_execute_transaction_for_subsequent_transactions() {
+fn test_subsequent_transactions_work() {
     let (multisig, target, signer1) = get_multisig();
 
     let mut calldata = ArrayTrait::<felt252>::new();
@@ -133,7 +131,7 @@ fn test_execute_transaction_for_subsequent_transactions() {
 
 #[test]
 #[available_gas(20000000)]
-fn test_execute__and_confirm_in_arbitrary_order() {
+fn test_execute_and_confirm_in_arbitrary_order() {
     // - submit all transactions
     // - confirm tx 2 and tx 0
     // - execute tx 2
@@ -180,32 +178,11 @@ fn test_execute__and_confirm_in_arbitrary_order() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('invalid signer','ENTRYPOINT_FAILED'))]
-fn test_execute_fails_without_signers() {
-    let (multisig, target, signer1) = get_multisig();
-    set_contract_address(signer1);
-
-    let mut signers = ArrayTrait::<felt252>::new();
-    let mut serializedSigners = ArrayTrait::<felt252>::new();
-
-    signers.serialize(ref serializedSigners);
-
-    multisig.submit_transaction(to: multisig.contract_address, function_selector: FUNCTION_SELECTOR_SET_SIGNERS, function_calldata: serializedSigners, nonce: 0);     
-
-    multisig.confirm_transaction(0_u128);
-    multisig.execute_transaction(0_u128);
-
-    // Unable to submit further transactions
-    let mut calldata0 = ArrayTrait::<felt252>::new();
-    calldata0.append(12_felt252);
-    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata0, nonce: 1);
-}
-
-#[test]
-#[available_gas(20000000)]
 fn test_execute_complex_arguments() {
     let (multisig, target, signer1) = get_multisig();
     set_contract_address(signer1);
+
+    let selector : felt252 = 1248215369616729131475520150826638084531676903739261877583237611528878977339; // complex_inputs
 
     let mut first = ArrayTrait::<usize>::new();
     first.append(1_usize);
@@ -246,12 +223,99 @@ fn test_execute_complex_arguments() {
         i = i + 1_usize;
     };
 
-    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR_COMPLEX_INPUTS, function_calldata: serializedCalldata, nonce: 0);
+    multisig.submit_transaction(to: target.contract_address, function_selector: selector, function_calldata: serializedCalldata, nonce: 0);
     multisig.confirm_transaction(0_u128);
     multisig.execute_transaction(0_u128);
 
     let arraySum = target.get_arraySum();  
     assert(arraySum == 28_usize, 'Invalid complex sum');
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('invalid signer','ENTRYPOINT_FAILED'))]
+fn test_execute_fails_without_signers() {
+    let (multisig, target, signer1) = get_multisig();
+    set_contract_address(signer1);
+
+    let selector : felt252 = 667654066930288457060622961440209991290119613176827951904429854971730312982; // set_signers
+
+    let mut signers = ArrayTrait::<felt252>::new();
+    let mut serializedSigners = ArrayTrait::<felt252>::new();
+
+    signers.serialize(ref serializedSigners);
+
+    multisig.submit_transaction(to: multisig.contract_address, function_selector: selector, function_calldata: serializedSigners, nonce: 0);     
+
+    multisig.confirm_transaction(0_u128);
+    multisig.execute_transaction(0_u128);
+
+    // Unable to submit further transactions
+    let mut calldata0 = ArrayTrait::<felt252>::new();
+    calldata0.append(12_felt252);
+    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata0, nonce: 1);
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('Index out of bounds', 'ENTRYPOINT_FAILED', 'ENTRYPOINT_FAILED'))]
+fn test_failing_transaction() {
+    let (multisig, target, signer1) = get_multisig();
+    set_contract_address(signer1);
+
+    let selector : felt252 = 1302092863696476078013404308903096127447218704794151222339362679185439823229; // 'revertFunc'
+
+    let mut calldata = ArrayTrait::<felt252>::new();
+
+    multisig.submit_transaction(to: target.contract_address, function_selector: selector, function_calldata: calldata, nonce: 0);
+
+    multisig.confirm_transaction(0_u128);
+    multisig.execute_transaction(0_u128);
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ( 'ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
+fn test_nonexistent_function_fails() {
+    let (multisig, target, signer1) = get_multisig();
+    set_contract_address(signer1);
+
+    let selector : felt252 = 1575552251618309165000590323396181269166558562949911024421340397165687612001; // 'nonExisting'
+
+    let mut calldata = ArrayTrait::<felt252>::new();
+
+    multisig.submit_transaction(to: target.contract_address, function_selector: selector, function_calldata: calldata, nonce: 0);
+
+    multisig.confirm_transaction(0_u128);
+    multisig.execute_transaction(0_u128);
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ( 'transaction does not exist', 'ENTRYPOINT_FAILED'))]
+fn test_nonexistent_transaction_fails() {
+    let (multisig, target, signer1) = get_multisig();
+    set_contract_address(signer1);
+
+    multisig.execute_transaction(0_u128);
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('transaction already executed','ENTRYPOINT_FAILED'))]
+fn test_reexecution_fails() {
+    let (multisig, target, signer1) = get_multisig();
+    set_contract_address(signer1);
+
+    let mut calldata = ArrayTrait::<felt252>::new();
+    calldata.append(12_felt252);
+
+    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata, nonce: 0);
+
+    multisig.confirm_transaction(0_u128);
+    multisig.execute_transaction(0_u128);
+
+    multisig.execute_transaction(0_u128);
 }
 
 

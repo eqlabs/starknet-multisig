@@ -111,4 +111,10 @@ mod Target {
         };
         arraySum::write(totalSum);
     }
+
+    #[external]
+    fn revertFunc() {
+        let mut arr = ArrayTrait::<usize>::new();
+        arr.at(10);
+    }
 }
