@@ -1,8 +1,8 @@
 // mod test;
 // mod unique_values;
 // mod signers;
-mod submit;
+// mod submit;
 // mod confirm;
 // mod revoke;
 // mod execute;
-// mod deploy;
+ mod deploy;

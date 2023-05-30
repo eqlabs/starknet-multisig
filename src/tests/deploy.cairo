@@ -1,3 +1,8 @@
+use starsign::multisig::assert_unique_values;
+use starsign::multisig::Multisig;
+use starsign::multisig::IMultisigDispatcher;
+use starsign::multisig::IMultisigDispatcherTrait;
+
 use starknet::contract_address_const;
 use starknet::testing::set_caller_address;
 use starknet::class_hash::class_hash_const;
@@ -13,11 +18,7 @@ use traits::TryInto;
 use option::OptionTrait;
 use result::ResultTrait;
 
-use starsign::multisig::assert_unique_values;
-use starsign::multisig::Multisig;
-
-use starsign::multisig::IMultisigDispatcher;
-use starsign::multisig::IMultisigDispatcherTrait;
+use debug::PrintTrait;
 
 fn get_multisig() -> (IMultisigDispatcher, ContractAddress) {
     let signer1 = contract_address_const::<10>();    
@@ -77,4 +78,52 @@ fn test_unique_deployment_addresses() {
     let (multisig2, _) = get_multisig();
 
     assert(multisig1.contract_address != multisig2.contract_address, 'Non-unique addresses');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_deploy_with_too_large_threshold_fails() {
+    let signer1 = contract_address_const::<10>();    
+
+    let mut signers = ArrayTrait::<felt252>::new();
+    let mut calldata = ArrayTrait::<felt252>::new(); 
+
+    signers.append(signer1.into());
+    signers.serialize(ref calldata);
+
+    calldata.append(3_felt252); // threshold
+
+    let mut err = deploy_syscall(Multisig::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false).unwrap_err();
+    assert(err.pop_front().unwrap() == 'invalid threshold, too large', 'threshold should be too large');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_deploy_with_too_small_threshold_fails() {
+    let signer1 = contract_address_const::<10>();    
+
+    let mut signers = ArrayTrait::<felt252>::new();
+    let mut calldata = ArrayTrait::<felt252>::new(); 
+
+    signers.append(signer1.into());
+    signers.serialize(ref calldata);
+
+    calldata.append(0_felt252); // threshold
+
+    let mut err = deploy_syscall(Multisig::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false).unwrap_err();
+    assert(err.pop_front().unwrap() == 'invalid threshold, too small', 'threshold should be too small');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_deploy_with_zero_signers_fails() {
+    let mut signers = ArrayTrait::<felt252>::new();
+    let mut calldata = ArrayTrait::<felt252>::new(); 
+
+    signers.serialize(ref calldata);
+
+    calldata.append(1_felt252); // threshold
+
+    let mut err = deploy_syscall(Multisig::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false).unwrap_err();
+    assert(err.pop_front().unwrap() == 'invalid threshold, too large', 'threshold should be too small');
 }
