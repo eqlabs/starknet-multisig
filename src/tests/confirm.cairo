@@ -68,6 +68,44 @@ fn test_works() {
 }
 
 #[test]
+#[available_gas(20000000)]
+fn test_confirm_in_arbitrary_order_works() {
+    let (multisig, target, signer1, signer2) = get_multisig();
+    set_contract_address(signer1);
+
+    let mut calldata0 = ArrayTrait::<felt252>::new();
+    calldata0.append(12_felt252);
+
+    let mut calldata1 = ArrayTrait::<felt252>::new();
+    calldata1.append(13_felt252);
+
+    let mut calldata2 = ArrayTrait::<felt252>::new();
+    calldata2.append(14_felt252);   
+
+    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata0, nonce: 0);
+    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata1, nonce: 1);
+    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata2, nonce: 2);     
+
+    multisig.confirm_transaction(2_u128);
+
+    assert(!multisig.is_confirmed(0, signer1), 'should not be confirmed');
+    assert(!multisig.is_confirmed(1, signer1), 'should not be confirmed');
+    assert(multisig.is_confirmed(2, signer1), 'should be confirmed');
+
+    multisig.confirm_transaction(0_u128);
+    
+    assert(multisig.is_confirmed(0, signer1), 'should be confirmed');
+    assert(!multisig.is_confirmed(1, signer1), 'should not be confirmed');
+    assert(multisig.is_confirmed(2, signer1), 'should be confirmed');
+
+    multisig.confirm_transaction(1_u128);
+
+    assert(multisig.is_confirmed(0, signer1), 'should be confirmed');
+    assert(multisig.is_confirmed(1, signer1), 'should be confirmed');
+    assert(multisig.is_confirmed(2, signer1), 'should be confirmed');
+}
+
+#[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('invalid signer','ENTRYPOINT_FAILED'))]
 fn test_nonsigner_confirming_fails() {

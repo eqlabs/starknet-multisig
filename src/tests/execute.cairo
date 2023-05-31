@@ -131,7 +131,7 @@ fn test_subsequent_transactions_work() {
 
 #[test]
 #[available_gas(20000000)]
-fn test_execute_and_confirm_in_arbitrary_order() {
+fn test_execute_in_arbitrary_order() {
     // - submit all transactions
     // - confirm tx 2 and tx 0
     // - execute tx 2
@@ -155,15 +155,15 @@ fn test_execute_and_confirm_in_arbitrary_order() {
     multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata1, nonce: 1);
     multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata2, nonce: 2);     
 
-    multisig.confirm_transaction(2_u128);
     multisig.confirm_transaction(0_u128);
+    multisig.confirm_transaction(1_u128);
+    multisig.confirm_transaction(2_u128);    
 
     let startBalance = target.get_balance();  
     
     multisig.execute_transaction(2_u128);
     let middleBalance1 = target.get_balance();  
 
-    multisig.confirm_transaction(1_u128);
     multisig.execute_transaction(0_u128);
     let middleBalance2 = target.get_balance();
 
@@ -334,5 +334,3 @@ fn test_execute_fails_too_few_confirmations() {
 
     multisig.execute_transaction(0_u128);
 }
-
-// TODO: try executing out-of-order nonce
