@@ -407,6 +407,7 @@ mod Multisig {
 
         let threshold = _threshold::read();
 
+        // If less signers than threshold, lower the threshold automatically
         if signers_len < threshold {
             _require_valid_threshold(signers_len, signers_len);
             _set_threshold(signers_len);
