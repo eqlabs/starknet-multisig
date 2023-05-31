@@ -22,7 +22,7 @@ fn test_assert_unique_values_no_duplicates() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic]
+#[should_panic(expected: ('duplicate values',))]
 fn test_assert_unique_values_with_duplicate() {
     let mut a = ArrayTrait::new();
     a.append(1);
