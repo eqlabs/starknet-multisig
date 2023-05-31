@@ -1,15 +1,70 @@
 use array::ArrayTrait;
 use option::OptionTrait;
+use starknet::ContractAddress;
+
+#[abi]
+trait IMultisig {
+    #[view]
+    fn is_signer(address: ContractAddress) -> bool;
+
+    #[view]
+    fn get_signers_len() -> usize;
+
+    #[view]
+    fn get_signers() -> Array<ContractAddress>;
+
+    #[view]
+    fn get_threshold() -> usize;
+
+    #[view]
+    fn get_transactions_len() -> u128;
+
+    #[view]
+    fn is_confirmed(nonce: u128, signer: ContractAddress) -> bool;
+
+    #[view]
+    fn is_executed(nonce: u128) -> bool;
+
+    #[view]
+    fn get_transaction(nonce: u128) -> (Multisig::Transaction, Array::<felt252>);
+
+    #[view]
+    fn type_and_version() -> felt252;
+
+    #[external]
+    fn submit_transaction(
+        to: ContractAddress, function_selector: felt252, function_calldata: Array<felt252>, nonce: u128
+    );
+
+    #[external]
+    fn confirm_transaction(nonce: u128);
+
+    #[external]
+    fn revoke_confirmation(nonce: u128);
+
+    #[external]
+    fn execute_transaction(nonce: u128) -> Array<felt252>;
+
+    #[external]
+    fn set_threshold(threshold: usize);
+
+    #[external]
+    fn set_signers(signers: Array<ContractAddress>);
+
+    #[external]
+    fn set_signers_and_threshold(signers: Array<ContractAddress>, threshold: usize);
+}
+
 
 fn assert_unique_values<T,
 impl TCopy: Copy<T>,
 impl TDrop: Drop<T>,
 impl TPartialEq: PartialEq<T>,
 >(
-    a: @Array::<T>
+    arr: @Array::<T>
 ) {
-    let len = a.len();
-    _assert_unique_values_loop(a, len, 0_usize, 1_usize);
+    let len = arr.len();
+    _assert_unique_values_loop(arr, len, 0_usize, 1_usize);
 }
 
 fn _assert_unique_values_loop<T,
@@ -17,21 +72,21 @@ impl TCopy: Copy<T>,
 impl TDrop: Drop<T>,
 impl TPartialEq: PartialEq<T>,
 >(
-    a: @Array::<T>, len: usize, j: usize, k: usize
+    arr: @Array::<T>, len: usize, j: usize, k: usize
 ) {
     if j >= len {
         return ();
     }
     if k >= len {
         gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
-        _assert_unique_values_loop(a, len, j + 1_usize, j + 2_usize);
+        _assert_unique_values_loop(arr, len, j + 1_usize, j + 2_usize);
         return ();
     }
-    let j_val = *a.at(j);
-    let k_val = *a.at(k);
-    assert(j_val != k_val, 'duplicate values');
+
+    assert(*arr.at(j) != *arr.at(k), 'duplicate values');
+    
     gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
-    _assert_unique_values_loop(a, len, j, k + 1_usize);
+    _assert_unique_values_loop(arr, len, j, k + 1_usize);
 }
 
 
@@ -41,10 +96,10 @@ mod Multisig {
 
     use traits::Into;
     use traits::TryInto;
-    use zeroable::Zeroable;
     use array::ArrayTrait;
     use array::ArrayTCloneImpl;
     use option::OptionTrait;
+    use serde::Serde;
 
     use starknet::ContractAddress;
     use starknet::ContractAddressIntoFelt252;
@@ -58,7 +113,9 @@ mod Multisig {
     use starknet::storage_address_from_base_and_offset;
     use starknet::storage_read_syscall;
     use starknet::storage_write_syscall;
-    use starknet::class_hash::ClassHash;
+    
+
+    use debug::PrintTrait;
 
     #[event]
     fn TransactionSubmitted(signer: ContractAddress, nonce: u128, to: ContractAddress) {}
@@ -77,15 +134,6 @@ mod Multisig {
 
     #[event]
     fn ThresholdSet(threshold: usize) {}
-
-    #[derive(Copy, Drop, Serde)]
-    struct Transaction {
-        to: ContractAddress,
-        function_selector: felt252,
-        calldata_len: usize,
-        executed: bool,
-        confirmations: usize,
-    }
 
     impl TransactionStorageAccess of StorageAccess<Transaction> {
         fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult::<Transaction> {
@@ -145,6 +193,15 @@ mod Multisig {
                 value.confirmations.into()
             )
         }
+    }
+
+    #[derive(Copy, Drop, Serde)]
+    struct Transaction {
+        to: ContractAddress,
+        function_selector: felt252,
+        calldata_len: usize,
+        executed: bool,
+        confirmations: usize,
     }
 
     struct Storage {
@@ -212,11 +269,11 @@ mod Multisig {
     fn get_transaction(nonce: u128) -> (Transaction, Array::<felt252>) {
         let transaction = _transactions::read(nonce);
 
-        let mut calldata = ArrayTrait::new();
+        let mut function_calldata = ArrayTrait::new();
         let calldata_len = transaction.calldata_len;
-        _get_transaction_calldata_range(nonce, 0_usize, calldata_len, ref calldata);
+        _get_transaction_calldata_range(nonce, 0_usize, calldata_len, ref function_calldata);
 
-        (transaction, calldata)
+        (transaction, function_calldata)
     }
 
     #[view]
@@ -234,12 +291,12 @@ mod Multisig {
 
     #[external]
     fn submit_transaction(
-        to: ContractAddress, function_selector: felt252, calldata: Array<felt252>, nonce: u128
+        to: ContractAddress, function_selector: felt252, function_calldata: Array<felt252>, nonce: u128
     ) {
         _require_signer();
         _require_valid_nonce(nonce);
 
-        let calldata_len = calldata.len();
+        let calldata_len = function_calldata.len();
 
         let transaction = Transaction {
             to: to,
@@ -250,7 +307,7 @@ mod Multisig {
         };
         _transactions::write(nonce, transaction);
 
-        _set_transaction_calldata_range(nonce, 0_usize, calldata_len, @calldata);
+        _set_transaction_calldata_range(nonce, 0_usize, calldata_len, @function_calldata);
 
         let caller = get_caller_address();
         TransactionSubmitted(caller, nonce, to);
@@ -306,9 +363,10 @@ mod Multisig {
         let threshold = _threshold::read();
         assert(threshold <= transaction.confirmations, 'more confirmations required');
 
-        let mut calldata = ArrayTrait::new();
+        let mut function_calldata = ArrayTrait::new();
         let calldata_len = transaction.calldata_len;
-        _get_transaction_calldata_range(nonce, 0_usize, calldata_len, ref calldata);
+
+        _get_transaction_calldata_range(nonce, 0_usize, calldata_len, ref function_calldata);
 
         transaction.executed = true;
         _transactions::write(nonce, transaction);
@@ -317,7 +375,7 @@ mod Multisig {
         TransactionExecuted(caller, nonce);
 
         let response = call_contract_syscall(
-            transaction.to, transaction.function_selector, calldata.span()
+            transaction.to, transaction.function_selector, function_calldata.span()
         ).unwrap_syscall();
 
         // TODO: this shouldn't be necessary. call_contract_syscall returns a Span<felt252>, which
@@ -349,6 +407,7 @@ mod Multisig {
 
         let threshold = _threshold::read();
 
+        // If less signers than threshold, lower the threshold automatically
         if signers_len < threshold {
             _require_valid_threshold(signers_len, signers_len);
             _set_threshold(signers_len);
@@ -421,31 +480,32 @@ mod Multisig {
     }
 
     fn _set_transaction_calldata_range(
-        nonce: u128, index: usize, len: usize, calldata: @Array<felt252>
+        nonce: u128, index: usize, len: usize, function_calldata: @Array<felt252>
     ) {
         if index >= len {
             return ();
         }
 
-        let calldata_arg = *calldata.at(index);
+        let calldata_arg = *function_calldata.at(index);
         _transaction_calldata::write((nonce, index), calldata_arg);
 
         gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
-        _set_transaction_calldata_range(nonce, index + 1_usize, len, calldata);
+        _set_transaction_calldata_range(nonce, index + 1_usize, len, function_calldata);
     }
 
     fn _get_transaction_calldata_range(
-        nonce: u128, index: usize, len: usize, ref calldata: Array<felt252>
+        nonce: u128, index: usize, len: usize, ref function_calldata: Array<felt252>
     ) {
         if index >= len {
             return ();
         }
 
         let calldata_arg = _transaction_calldata::read((nonce, index));
-        calldata.append(calldata_arg);
+        
+        function_calldata.append(calldata_arg);
 
         gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
-        _get_transaction_calldata_range(nonce, index + 1_usize, len, ref calldata);
+        _get_transaction_calldata_range(nonce, index + 1_usize, len, ref function_calldata);
     }
 
     fn _set_threshold(threshold: usize) {

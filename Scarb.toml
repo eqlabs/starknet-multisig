@@ -12,7 +12,7 @@ test = "cairo-test --starknet ."
 # Uncomment if you want to use dependencies
 # Note: currently testing doesn't work with dependencies
 [dependencies]
-# quaireaux = { git = "https://github.com/keep-starknet-strange/quaireaux.git" }
+starknet = ">=1.0.0"
 
 [[target.starknet-contract]]
 sierra = true
