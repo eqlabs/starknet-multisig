@@ -47,6 +47,27 @@ fn get_multisig() -> (IMultisigDispatcher, ITargetDispatcher, ContractAddress) {
     (IMultisigDispatcher{ contract_address: multisigAddr }, ITargetDispatcher{ contract_address: targetAddr }, signer1)
 }
 
+fn get_multisig_multiple_signers() -> (IMultisigDispatcher, ITargetDispatcher, ContractAddress, ContractAddress, ContractAddress) {
+    let signer1 = contract_address_const::<10>();    
+    let signer2 = contract_address_const::<11>();    
+    let signer3 = contract_address_const::<12>();    
+
+    let mut signers = ArrayTrait::<felt252>::new();
+    let mut calldata = ArrayTrait::<felt252>::new(); 
+
+    signers.append(signer1.into());
+    signers.append(signer2.into());
+    signers.append(signer3.into());
+    signers.serialize(ref calldata);
+
+    calldata.append(2_felt252); // threshold
+
+    let (targetAddr, _) = deploy_syscall(Target::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false).unwrap();
+    let (multisigAddr, _)  = deploy_syscall(Multisig::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false).unwrap();
+
+    (IMultisigDispatcher{ contract_address: multisigAddr }, ITargetDispatcher{ contract_address: targetAddr }, signer1, signer2, signer3)
+}
+
 fn getnum(num: felt252) -> u32 {
     u32_try_from_felt252(num).unwrap()
 }
@@ -65,6 +86,88 @@ fn test_works() {
     let oldBalance = target.get_balance();    
 
     multisig.confirm_transaction(0_u128);
+    multisig.execute_transaction(0_u128);
+
+    let newBalance = target.get_balance();
+
+    assert(getnum(oldBalance) + getnum(12_felt252) == getnum(newBalance), 'invalid result');
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_works_with_multiple_signers() {
+    let (multisig, target, signer1, signer2, signer3) = get_multisig_multiple_signers();
+
+    set_contract_address(signer1);
+
+    let mut calldata = ArrayTrait::<felt252>::new();
+    calldata.append(12_felt252);
+
+    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata, nonce: 0);
+
+    let oldBalance = target.get_balance();    
+
+    multisig.confirm_transaction(0_u128);
+    set_contract_address(signer3);
+    multisig.confirm_transaction(0_u128);
+
+    multisig.execute_transaction(0_u128);
+
+    let newBalance = target.get_balance();
+
+    assert(getnum(oldBalance) + getnum(12_felt252) == getnum(newBalance), 'invalid result');
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_works_with_too_many_confirmations() {
+    let (multisig, target, signer1, signer2, signer3) = get_multisig_multiple_signers();
+
+    set_contract_address(signer1);
+
+    let mut calldata = ArrayTrait::<felt252>::new();
+    calldata.append(12_felt252);
+
+    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata, nonce: 0);
+
+    let oldBalance = target.get_balance();    
+
+    multisig.confirm_transaction(0_u128);
+    set_contract_address(signer3);
+    multisig.confirm_transaction(0_u128);
+    set_contract_address(signer2);
+    multisig.confirm_transaction(0_u128);
+
+    multisig.execute_transaction(0_u128);
+
+    let newBalance = target.get_balance();
+
+    assert(getnum(oldBalance) + getnum(12_felt252) == getnum(newBalance), 'invalid result');
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_works_if_superfluous_confirmer_revokes() {
+    let (multisig, target, signer1, signer2, signer3) = get_multisig_multiple_signers();
+
+    set_contract_address(signer1);
+
+    let mut calldata = ArrayTrait::<felt252>::new();
+    calldata.append(12_felt252);
+
+    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata, nonce: 0);
+
+    let oldBalance = target.get_balance();    
+
+    multisig.confirm_transaction(0_u128);
+    set_contract_address(signer3);
+    multisig.confirm_transaction(0_u128);
+    set_contract_address(signer2);
+    multisig.confirm_transaction(0_u128);
+
+    set_contract_address(signer1);
+    multisig.revoke_confirmation(0_u128);
+
     multisig.execute_transaction(0_u128);
 
     let newBalance = target.get_balance();
@@ -254,6 +357,33 @@ fn test_execute_fails_without_signers() {
     let mut calldata0 = ArrayTrait::<felt252>::new();
     calldata0.append(12_felt252);
     multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata0, nonce: 1);
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('more confirmations required','ENTRYPOINT_FAILED'))]
+fn test_too_many_revokes_causes_fail() {
+    let (multisig, target, signer1, signer2, signer3) = get_multisig_multiple_signers();
+
+    set_contract_address(signer1);
+
+    let mut calldata = ArrayTrait::<felt252>::new();
+    calldata.append(12_felt252);
+
+    multisig.submit_transaction(to: target.contract_address, function_selector: FUNCTION_SELECTOR, function_calldata: calldata, nonce: 0);
+
+    multisig.confirm_transaction(0_u128);
+    set_contract_address(signer3);
+    multisig.confirm_transaction(0_u128);
+    set_contract_address(signer2);
+    multisig.confirm_transaction(0_u128);
+
+    set_contract_address(signer1);
+    multisig.revoke_confirmation(0_u128);
+    set_contract_address(signer3);
+    multisig.revoke_confirmation(0_u128);
+
+    multisig.execute_transaction(0_u128);
 }
 
 #[test]
