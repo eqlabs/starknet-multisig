@@ -240,7 +240,17 @@ mod Multisig {
     fn get_signers() -> Array<ContractAddress> {
         let signers_len = _signers_len::read();
         let mut signers = ArrayTrait::new();
-        _get_signers_range(0_usize, signers_len, ref signers);
+
+        let mut i : usize = 0;
+        loop {
+            
+            if (i == signers_len) {
+                break ();
+            }
+            signers.append(_signers::read(i));
+            i = i + 1_usize;
+        };
+        
         signers
     }
 
@@ -271,7 +281,8 @@ mod Multisig {
 
         let mut function_calldata = ArrayTrait::new();
         let calldata_len = transaction.calldata_len;
-        _get_transaction_calldata_range(nonce, 0_usize, calldata_len, ref function_calldata);
+
+        _get_transaction_calldata(nonce, calldata_len, ref function_calldata);
 
         (transaction, function_calldata)
     }
@@ -307,7 +318,15 @@ mod Multisig {
         };
         _transactions::write(nonce, transaction);
 
-        _set_transaction_calldata_range(nonce, 0_usize, calldata_len, @function_calldata);
+        let mut i : usize = 0;
+        loop {
+            
+            if (i == calldata_len) {
+                break ();
+            }
+            _transaction_calldata::write((nonce, i), *function_calldata.at(i));
+            i = i + 1_usize;
+        };
 
         let caller = get_caller_address();
         TransactionSubmitted(caller, nonce, to);
@@ -366,7 +385,7 @@ mod Multisig {
         let mut function_calldata = ArrayTrait::new();
         let calldata_len = transaction.calldata_len;
 
-        _get_transaction_calldata_range(nonce, 0_usize, calldata_len, ref function_calldata);
+        _get_transaction_calldata(nonce, calldata_len, ref function_calldata);
 
         transaction.executed = true;
         _transactions::write(nonce, transaction);
@@ -430,82 +449,51 @@ mod Multisig {
         _require_unique_signers(@signers);
 
         let old_signers_len = _signers_len::read();
-        _clean_signers_range(0_usize, old_signers_len);
+
+        let mut i : usize = 0;
+        loop {
+            
+            if (i == old_signers_len) {
+                break ();
+            }
+            _is_signer::write(_signers::read(i), false);
+            _signers::write(i, Zeroable::zero());
+            i = i + 1_usize;
+        };
 
         let tx_valid_since = _next_nonce::read();
         _tx_valid_since::write(tx_valid_since);
 
         _signers_len::write(signers_len);
-        _set_signers_range(0_usize, signers_len, @signers);
+
+        let signersSnapshot = @signers;
+        let mut i : usize = 0;
+        loop {
+            
+            if (i == signers_len) {
+                break ();
+            }
+            let signer = *signersSnapshot.at(i);
+            _signers::write(i, signer);
+            _is_signer::write(signer, true);
+            i = i + 1_usize;
+        };
 
         SignersSet(signers);
     }
 
-    fn _clean_signers_range(index: usize, len: usize) {
-        if index >= len {
-            return ();
-        }
-
-        let signer = _signers::read(index);
-        _is_signer::write(signer, false);
-        _signers::write(index, Zeroable::zero());
-
-        gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
-        _clean_signers_range(index + 1_usize, len);
-    }
-
-    fn _set_signers_range(index: usize, len: usize, signers: @Array<ContractAddress>) {
-        if index >= len {
-            return ();
-        }
-
-        let signer = *signers.at(index);
-        _signers::write(index, signer);
-        _is_signer::write(signer, true);
-
-        gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
-        _set_signers_range(index + 1_usize, len, signers);
-    }
-
-    fn _get_signers_range(index: usize, len: usize, ref signers: Array<ContractAddress>) {
-        if index >= len {
-            return ();
-        }
-
-        let signer = _signers::read(index);
-        signers.append(signer);
-
-        gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
-        _get_signers_range(index + 1_usize, len, ref signers);
-    }
-
-    fn _set_transaction_calldata_range(
-        nonce: u128, index: usize, len: usize, function_calldata: @Array<felt252>
+    fn _get_transaction_calldata(
+        nonce: u128, calldata_len: usize, ref function_calldata: Array<felt252>
     ) {
-        if index >= len {
-            return ();
-        }
-
-        let calldata_arg = *function_calldata.at(index);
-        _transaction_calldata::write((nonce, index), calldata_arg);
-
-        gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
-        _set_transaction_calldata_range(nonce, index + 1_usize, len, function_calldata);
-    }
-
-    fn _get_transaction_calldata_range(
-        nonce: u128, index: usize, len: usize, ref function_calldata: Array<felt252>
-    ) {
-        if index >= len {
-            return ();
-        }
-
-        let calldata_arg = _transaction_calldata::read((nonce, index));
-        
-        function_calldata.append(calldata_arg);
-
-        gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
-        _get_transaction_calldata_range(nonce, index + 1_usize, len, ref function_calldata);
+        let mut i : usize = 0;
+        loop {
+            
+            if (i == calldata_len) {
+                break ();
+            }
+            function_calldata.append(_transaction_calldata::read((nonce, i)));
+            i = i + 1_usize;
+        };
     }
 
     fn _set_threshold(threshold: usize) {
