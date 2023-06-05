@@ -450,6 +450,7 @@ mod Multisig {
 
         let old_signers_len = _signers_len::read();
 
+        // Clean the list of signers
         let mut i : usize = 0;
         loop {
             
@@ -466,6 +467,7 @@ mod Multisig {
 
         _signers_len::write(signers_len);
 
+        // Write new signers
         let signersSnapshot = @signers;
         let mut i : usize = 0;
         loop {
