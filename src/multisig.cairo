@@ -57,38 +57,34 @@ trait IMultisig {
 
 
 fn assert_unique_values<T,
-impl TCopy: Copy<T>,
-impl TDrop: Drop<T>,
-impl TPartialEq: PartialEq<T>,
+    impl TCopy: Copy<T>,
+    impl TDrop: Drop<T>,
+    impl TPartialEq: PartialEq<T>,
 >(
     arr: @Array::<T>
 ) {
     let len = arr.len();
-    _assert_unique_values_loop(arr, len, 0_usize, 1_usize);
+
+    let mut i1 : usize = 0;
+    loop {
+        
+        if (i1 == len) {
+            break ();
+        }
+        let mut i2 : usize = i1 + 1_usize;
+        loop {
+        
+            if (i2 == len) {
+                break ();
+            }
+            assert(*arr.at(i1) != *arr.at(i2), 'duplicate values');
+
+            i2 += 1_usize;
+        };
+
+        i1 += 1_usize;
+    };
 }
-
-fn _assert_unique_values_loop<T,
-impl TCopy: Copy<T>,
-impl TDrop: Drop<T>,
-impl TPartialEq: PartialEq<T>,
->(
-    arr: @Array::<T>, len: usize, j: usize, k: usize
-) {
-    if j >= len {
-        return ();
-    }
-    if k >= len {
-        gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
-        _assert_unique_values_loop(arr, len, j + 1_usize, j + 2_usize);
-        return ();
-    }
-
-    assert(*arr.at(j) != *arr.at(k), 'duplicate values');
-    
-    gas::withdraw_gas_all(get_builtin_costs()).expect('Out of gas');
-    _assert_unique_values_loop(arr, len, j, k + 1_usize);
-}
-
 
 #[contract]
 mod Multisig {
@@ -112,8 +108,7 @@ mod Multisig {
     use starknet::get_contract_address;
     use starknet::storage_address_from_base_and_offset;
     use starknet::storage_read_syscall;
-    use starknet::storage_write_syscall;
-    
+    use starknet::storage_write_syscall;    
 
     use debug::PrintTrait;
 
