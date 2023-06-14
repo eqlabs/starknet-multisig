@@ -55,7 +55,9 @@ trait IMultisig {
     fn set_signers_and_threshold(signers: Array<ContractAddress>, threshold: usize);
 }
 
-
+/// Reverts if the provided array has duplicated values
+/// # Arguments
+/// * `arr` - The array to check duplicates for
 fn assert_unique_values<T,
     impl TCopy: Copy<T>,
     impl TDrop: Drop<T>,
@@ -211,6 +213,10 @@ mod Multisig {
         _is_confirmed: LegacyMap<(u128, ContractAddress), bool>,
     }
 
+    /// Constructor called only upon deployment
+    /// # Arguments
+    /// * `signers` - An array of signers for the multisig
+    /// * `threshold` - Required amount of signer confirmation for executing transactions
     #[constructor]
     fn constructor(signers: Array<ContractAddress>, threshold: usize) {
         let signers_len = signers.len();
@@ -221,16 +227,27 @@ mod Multisig {
 
     /// Views
 
+    /// Checks whether the provided address is a signer
+    /// # Arguments
+    /// * `address` - The address to check for
+    /// # Returns
+    /// * `bool` - true if the address is a signer, false otherwise
     #[view]
     fn is_signer(address: ContractAddress) -> bool {
         _is_signer::read(address)
     }
 
+    /// Check how many signers there are
+    /// # Returns
+    /// * `usize` - The amount of signers
     #[view]
     fn get_signers_len() -> usize {
         _signers_len::read()
     }
 
+    /// Gets the list of signers
+    /// # Returns
+    /// * `Array<ContractAddress>` - An array of signers
     #[view]
     fn get_signers() -> Array<ContractAddress> {
         let signers_len = _signers_len::read();
@@ -249,27 +266,50 @@ mod Multisig {
         signers
     }
 
+    /// Get the current threshold
+    /// # Returns
+    /// * `usize` - The current threshold
     #[view]
     fn get_threshold() -> usize {
         _threshold::read()
     }
 
+    /// Gets the amount of submitted transactions
+    /// # Returns
+    /// * `u128` - Amount of submitted (executed and non-executed) transactions
     #[view]
     fn get_transactions_len() -> u128 {
         _next_nonce::read()
     }
 
+    /// Gets information on whether a transaction has been confirmed by a specific signer
+    /// # Arguments
+    /// * `nonce` - Nonce of the transaction to check
+    /// * `signer` - Address of the signer to check
+    /// # Returns
+    /// * `bool` - true if the signer has confirmed the said transaction, false otherwise
     #[view]
     fn is_confirmed(nonce: u128, signer: ContractAddress) -> bool {
         _is_confirmed::read((nonce, signer))
     }
 
+    /// Gets information on whether a transaction has been executed
+    /// # Arguments
+    /// * `nonce` - Nonce of the transaction to check
+    /// # Returns
+    /// * `bool` - true if the transaction has been executed, false otherwise
     #[view]
     fn is_executed(nonce: u128) -> bool {
         let transaction = _transactions::read(nonce);
         transaction.executed
     }
 
+    /// Gets transaction data
+    /// # Arguments
+    /// * `nonce` - Nonce of the transaction
+    /// # Returns
+    /// * `(Transaction, Array::<felt252>)` - A tuple where the first value is the basic transaction data and 
+    /// the second entry is the transaction's calldata 
     #[view]
     fn get_transaction(nonce: u128) -> (Transaction, Array::<felt252>) {
         let transaction = _transactions::read(nonce);
@@ -282,6 +322,9 @@ mod Multisig {
         (transaction, function_calldata)
     }
 
+    /// Gets generic contract information
+    /// # Returns
+    /// * `felt252` - A short string giving information about the contract. Used for introspection
     #[view]
     fn type_and_version() -> felt252 {
         'Multisig 1.0.0'
@@ -289,12 +332,19 @@ mod Multisig {
 
     /// Externals
 
+    /// TODO: is upgradeability needed or not
     // #[external]
     // fn upgrade(new_impl: ClassHash) {
     //     _require_multisig();
     //     Upgradeable::upgrade(new_impl)
     // }
 
+    /// Submit a transaction. Can only be called by a signer.
+    /// # Arguments
+    /// * `to` - Target of the transaction. Can be also this contract if changing multisig settings
+    /// * `function_selector` - Selector for the function to call
+    /// * `function_calldata` - Serialized calldata
+    /// * `nonce` - Next available nonce
     #[external]
     fn submit_transaction(
         to: ContractAddress, function_selector: felt252, function_calldata: Array<felt252>, nonce: u128
@@ -328,6 +378,9 @@ mod Multisig {
         _next_nonce::write(nonce + 1_u128);
     }
 
+    /// Confirm a submitted transaction. Can only be called by a signer.
+    /// # Arguments
+    /// * `nonce` - Nonce for the transaction to confirm
     #[external]
     fn confirm_transaction(nonce: u128) {
         _require_signer();
@@ -347,6 +400,9 @@ mod Multisig {
         TransactionConfirmed(caller, nonce);
     }
 
+    /// Revokes a previously given transaction confirmation. Can only be called by a signer.
+    /// # Arguments
+    /// * `nonce` - Nonce for the transaction to revoke a confirmation for
     #[external]
     fn revoke_confirmation(nonce: u128) {
         _require_signer();
@@ -366,6 +422,11 @@ mod Multisig {
         ConfirmationRevoked(caller, nonce);
     }
 
+    /// Executes a transaction if it has received enough confirmations. Can be called by anyone.
+    /// # Arguments
+    /// * `nonce` - Nonce for the transaction to execute
+    /// # Returns
+    /// * `Array<felt252>` - Possible transaction return data
     #[external]
     fn execute_transaction(nonce: u128) -> Array<felt252> {
         _require_tx_exists(nonce);
@@ -402,6 +463,9 @@ mod Multisig {
         ArrayTCloneImpl::clone(response.snapshot)
     }
 
+    /// Change the multisig threshold. Can only be called by the multisig itself, so the action needs to be confirmed by signers
+    /// # Arguments
+    /// * `threshold` - New threshold to set
     #[external]
     fn set_threshold(threshold: usize) {
         _require_multisig();
@@ -412,6 +476,10 @@ mod Multisig {
         _set_threshold(threshold);
     }
 
+    /// Change the multisig signers. If the number of signers is below the current threshold, it is lowered automatically.
+    /// Can only be called by the multisig itself, so the action needs to be confirmed by signers
+    /// # Arguments
+    /// * `signers` - Array of the new signers. This is not additive: all of the needed signers need to be in this list
     #[external]
     fn set_signers(signers: Array<ContractAddress>) {
         _require_multisig();
@@ -428,6 +496,11 @@ mod Multisig {
         }
     }
 
+    /// Sets new signers and new threshold simultaneously.
+    /// Can only be called by the multisig itself, so the action needs to be confirmed by signers
+    /// # Arguments
+    /// * `signers` - Array of the new signers. This is not additive: all of the needed signers need to be in this list
+    /// * `threshold` - New threshold to set
     #[external]
     fn set_signers_and_threshold(signers: Array<ContractAddress>, threshold: usize) {
         _require_multisig();
@@ -440,6 +513,11 @@ mod Multisig {
     }
 
     /// Internals
+
+    /// Stores signers to storage
+    /// # Arguments
+    /// * `signers` - Signers to store
+    /// * `signers_len` - Length of the signers array. TODO: refactor this out
     fn _set_signers(signers: Array<ContractAddress>, signers_len: usize) {
         _require_unique_signers(@signers);
 
@@ -479,6 +557,11 @@ mod Multisig {
         SignersSet(signers);
     }
 
+    /// Retrieves transaction calldata from storage
+    /// # Arguments
+    /// * `nonce` - Nonce for the transaction
+    /// * `calldata_len` - Length of the transaction calldata. TODO: refactor out if possible
+    /// * `function_calldata` - Where to store the data for returning it
     fn _get_transaction_calldata(
         nonce: u128, calldata_len: usize, ref function_calldata: Array<felt252>
     ) {
@@ -493,54 +576,81 @@ mod Multisig {
         };
     }
 
+    /// Stores a threshold to storage
+    /// # Arguments
+    /// * `threshold` - The threshold to store
     fn _set_threshold(threshold: usize) {
         _threshold::write(threshold);
         ThresholdSet(threshold);
     }
 
+    /// Reverts if the caller is not a signer
     fn _require_signer() {
         let caller = get_caller_address();
         let is_signer = _is_signer::read(caller);
         assert(is_signer, 'invalid signer');
     }
 
+    /// Reverts if a transaction for the given nonce doesn't exist
+    /// # Arguments
+    /// * `nonce` - Nonce for the transaction
     fn _require_tx_exists(nonce: u128) {
         let next_nonce = _next_nonce::read();
         assert(nonce < next_nonce, 'transaction does not exist');
     }
 
+    /// Reverts if a transaction for the given nonce has already been executed
+    /// # Arguments
+    /// * `nonce` - Nonce for the transaction
     fn _require_not_executed(nonce: u128) {
         let transaction = _transactions::read(nonce);
         assert(!transaction.executed, 'transaction already executed');
     }
 
+    /// Reverts if the caller has already confirmed the transaction
+    /// # Arguments
+    /// * `nonce` - The transaction nonce
     fn _require_not_confirmed(nonce: u128) {
         let caller = get_caller_address();
         let is_confirmed = _is_confirmed::read((nonce, caller));
         assert(!is_confirmed, 'transaction already confirmed');
     }
 
+    /// Reverts if the transaction hasn't been confirmed by the caller
+    /// # Arguments
+    /// * `nonce` - Nonce for the transaction
     fn _require_confirmed(nonce: u128) {
         let caller = get_caller_address();
         let is_confirmed = _is_confirmed::read((nonce, caller));
         assert(is_confirmed, 'transaction not confirmed');
     }
 
+    /// Reverts if the array of signers has duplicates
+    /// # Arguments
+    /// * `signers` - The array of signers to check
     fn _require_unique_signers(signers: @Array<ContractAddress>) {
         assert_unique_values(signers);
     }
 
+    /// Reverts if the transaction is not valid anymore (a transaction with a higher nonce has already been executed)
+    /// # Arguments
+    /// * `nonce` - Nonce for the transaction
     fn _require_tx_valid(nonce: u128) {
         let tx_valid_since = _tx_valid_since::read();
         assert(tx_valid_since <= nonce, 'transaction invalid');
     }
 
+    /// Reverts if the caller is not this contract itself
     fn _require_multisig() {
         let caller = get_caller_address();
         let contract = get_contract_address();
         assert(caller == contract, 'only multisig allowed');
     }
 
+    /// Reverts if the combination of threhold and signers length is not valid
+    /// # Arguments
+    /// * `threshold` - The given threshold
+    /// * `signers_len` - The amount of signers
     fn _require_valid_threshold(threshold: usize, signers_len: usize) {
         if threshold == 0_usize {
             if signers_len == 0_usize {
@@ -552,6 +662,9 @@ mod Multisig {
         assert(threshold <= signers_len, 'invalid threshold, too large');
     }
 
+    /// Reverts if the given nonce is not the next available nonce
+    /// # Arguments
+    /// * `nonce` - Nonce to check
     fn _require_valid_nonce(nonce: u128) {
         let next_nonce = _next_nonce::read();
         assert(nonce == next_nonce, 'invalid nonce');
