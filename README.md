@@ -87,13 +87,6 @@ The current implementation uses Option 1 in the following image. Option 2 is in 
 
 <img src="multisig_options.png" alt="options" width="800"/>
 
-## Contracts
-
-The contracts are:
-
-- multisig.cairo: main multisig functionality
-- target.cairo: a mock of the target contract for the multisig, used in testing
-
 ## Used technologies
 
 - Scarb for package management
