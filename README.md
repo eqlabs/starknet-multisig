@@ -1,42 +1,26 @@
 # Starsign multisig
 
-Multi-signature functionality for [StarkNet](https://starknet.io/what-is-starknet).
-
-Latest npm package: [![npm version](https://badge.fury.io/js/starsign-multisig.svg)](https://badge.fury.io/js/starsign-multisig)
+Multi-signature functionality for [StarkNet](https://starknet.io/what-is-starknet) utilizing Cairo 1.
 
 > ## ⚠️ WARNING! ⚠️
 >
-> Projects using this repository's code will be deleted in the next Regenesis. Read more below.
+> This project is under construction.
 > **Do not use in production.**
 
 ## Current version
 
-The current version contains all basic multisig functionality. This version consists of two pieces:
+The current version contains all basic multisig functionality, written in Cairo 1. This version consists of two pieces:
 
 - Cairo contract code
 - Unit tests for testing all the multisig functionality
 
 The current version supports on-chain multi-signatures. The multisig is a separate contract, which is called through your regular account contract (wallet).
 
-## Regenesis breaks this project
-
-StarkNet will have a [regenesis event](https://medium.com/starkware/starknet-regenesis-the-plan-bd0219843ef4) around the end of 2022.
-
-The regenesis will break any deployments of this contract's code. Therefore the regenesis will basically destroy any deployed Starsign contracts.
-
-It is therefore **imperative** that you do not use this repository's code before:
-
-1. Regenesis event has passed
-1. The code has been updated to Cairo version 1.0
-1. This README is updated accordingly
-
-We regret the situation but there isn't much we could do about it. Any non-upgradeable contract will get destroyed in the regenesis. There is little point in making our contracts upgradeable just to accommodate the regenesis.
+The current version is not finalized and is lacking some unit tests. As the Cairo 1 compiler evolves, the contract syntax and language capabilities also evolve - this repo will be updated to reflect the new functionalities.
 
 ## Audit
 
-The contracts pre-1.0 version has been audited by Trail of Bits. The report can be found [here](/audits/Equilibrium%20Multisig%20Final%20Report.pdf).
-
-The audit report only audited a snapshot of the repository and does not include information about implemented fixes to the code. Issues 1-3 mentioned in the report have been fixed, informational issue 4 resulted in a disagreement and ended up as not addressed.
+This code has not been audited yet.
 
 ## Functionality
 
@@ -48,7 +32,7 @@ The following functionality is supported:
 - Submit a transaction
 - Confirm a transaction
 - Execute a transaction
-- Revoke a confirmation
+- Revoke a transaction confirmation
 - Change the list of signers and threshold
 
 ### Creating a new transaction
@@ -57,8 +41,7 @@ When creating a new transaction, you should call the `submit_transaction` functi
 
 - `to`: Address of the transaction target
 - `function_selector`: Name of the target function, decoded as an integer (felt)
-- `calldata_len`: The amount of custom parameters to pass to the target function
-- `calldata`: The custom parameters to pass to the target function
+- `function_calldata`: The custom parameters to pass to the target function
 - `nonce`: Transaction nonce. Has to be +1 compared to the previous submitted transaction
 
 Only signers of the multisig can submit a transaction.
@@ -87,11 +70,14 @@ There exist three functions for changing the signers and threshold:
 
 Only signers can change the threshold and the amount of signers. These actions need to go through the multisig itself, so you have to go through the `submit_transaction` function (setting the multisig contract itself as the transaction target).
 
+## UI
+
+The UI for the contracts is being developed in its own [repo](https://github.com/eqlabs/starknet-multisig-ui).
+
 ## Future development
 
 In near future we'll get here:
 
-- A real UI
 - Possibly an option to use an account contract as multisig
 - Possibly off-chain signatures
 
@@ -101,45 +87,17 @@ The current implementation uses Option 1 in the following image. Option 2 is in 
 
 <img src="multisig_options.png" alt="options" width="800"/>
 
-## Contracts
+## Used technologies
 
-The contracts are:
+- Scarb for package management
+- Cairo 1 compiler
 
-- Multisig.cairo: main multisig functionality
-- util.cairo: various helper functionality
-- Target.cairo: a mock of the target contract for the multisig, used in testing
+## Usage
 
-### Used components
-
-- [Starknet Hardhat plugin](https://github.com/Shard-Labs/starknet-hardhat-plugin)
-- [Starknet devnet](https://github.com/Shard-Labs/starknet-devnet), a local Starknet instance
-
-### Usage
-
-Recommended operating system is Ubuntu. If on Windows, use WSL2.
-Requires Python 3.8 or later.
-
-Installation:
-
-```
-yarn
-python -m venv .venv
-source ./.venv/bin/activate
-```
-
-Follow the [Cairo installation instructions](https://www.cairo-lang.org/docs/quickstart.html).
-After that, inside the virtual environment:
-
-- Install Cairo devnet (local blockchain) `python -m pip install starknet-devnet`
-- Compile the contracts: `npx hardhat starknet-compile contracts`
-- Run the devnet: `npm run local`
-- Open another venv tab and run the unit tests with `npx hardhat test`
-
-Tested to be working at least with devnet version 0.2.10.
-
-### Acknowledgements
-
-Thanks to Sam Barnes for creating the [initial multisig code](https://github.com/sambarnes/cairo-multisig) and offering it available.
+- Install [Scarb](https://docs.swmansion.com/scarb)
+- If needed, install [Cairo 1.0](https://github.com/auditless/cairo-template) separately
+- Compile: `scarb build`
+- Run tests: `scarb run test`
 
 ## Fluffy stuff
 
